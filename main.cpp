@@ -5,9 +5,11 @@
 #define WIDTH 600
 #define HEIGHT 800
 int main() {
+		bool running = true;
+		SDL_Event e;
 		SDL_Window *window;                    // Declare a pointer
 		SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
-
+		
 		window = SDL_CreateWindow(
 		    "3D Engine",                  // window title
 		    SDL_WINDOWPOS_UNDEFINED,           // initial x position
@@ -24,14 +26,26 @@ int main() {
 		    exit(EXIT_FAILURE);
 		}
 
-		// The window is open: could enter program loop here (see SDL_PollEvent())
+		while (running) 
+		{
+			while (SDL_PollEvent(&e))
+			{
+				if (e.type == SDL_WINDOWEVENT)
+					if (e.window.event == SDL_WINDOWEVENT_CLOSE) // window was closed
+						running = false;
 
-		SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
-
-		// Close and destroy the window
-		SDL_DestroyWindow(window);
+				if (e.type == SDL_KEYDOWN)
+					switch(e.key.keysym.sym)
+					{
+						case SDLK_ESCAPE:
+							running = false;
+							break;
+					}
+			}
+		}
 
 		// Clean up
+		SDL_DestroyWindow(window);
 		SDL_Quit();
 	return 0;
 }
