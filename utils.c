@@ -67,8 +67,5 @@ int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program) {
     //TODO: create function to return uniform location
     *program = shaderProgram;
 
-    float scaleF = 1.0f;
-    GLuint scaleLocation = glGetUniformLocation(shaderProgram, "scale");
-    glUniform1f(scaleLocation, scaleF);
     return 1;
 }

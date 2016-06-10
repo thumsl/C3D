@@ -2,7 +2,7 @@
 #include <math.h>
 
 int main(int argc, char* argv[]) {
-	if (!createWindow(800, 600, "Game Engine"))
+	if (!createWindow(WIDTH, HEIGHT, "3D Game Engine"))
 		return 1;
 
         if (!initOpenGL())
@@ -13,10 +13,10 @@ int main(int argc, char* argv[]) {
 		return 1;
 
 	GLfloat vertices[] = {
-		-1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f,
-		-0.5f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		 0.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f
+		-100.0f, -100.0f, -1, 1.0f, 0.0f, 0.0f,
+		-50.0f,  -50.0f,  -1, 1.0f, 1.0f, 0.0f,
+		-50.0f,  -100.0f, -1, 1.0f, 1.0f, 0.0f,
+		 0,      -100.0f, -1, 1.0f, 1.0f, 1.0f
 	};
 
 	GLuint indices[] = {
@@ -33,16 +33,18 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 	int running = 1;
 
-	mat4 scale;
-	mat4_gen_scale(scale, 1.0f, 1.0f, 1.0f);
-	mat4_debug_print(scale);
+	mat4 scale, translate, rotate, projection;
 
-	GLuint transformLocation = glGetUniformLocation(program, "transform");
-	glUniformMatrix4fv(transformLocation, 1, 0, (GLfloat*)scale);
-
-	float scaleF = 1.0f;
 	GLuint scaleLocation = glGetUniformLocation(program, "scale");
-	glUniform1f(scaleLocation, scaleF);
+	GLuint translateLocation = glGetUniformLocation(program, "translate");
+	GLuint rotateLocation = glGetUniformLocation(program, "rotate");
+	GLuint projectionLocation = glGetUniformLocation(program, "projection");
+
+	mat4_gen_orthographic_projection(projection, WIDTH, HEIGHT, 100000.0f, 0.1f);
+	glUniformMatrix4fv(projectionLocation, 1, 0, (GLfloat*)projection);
+
+	float xFactor = 1.0f, yFactor = 1.0f, zFactor = 1.0f, factor = 0.1f, xFactor_t = 0.0f, yFactor_t = 0.0f, angle = 0.0f;
+	short rot_x = 0, rot_y = 1, rot_z = 0;
 
 	while (running) {
 		while (SDL_PollEvent(&e)) {
@@ -57,16 +59,76 @@ int main(int argc, char* argv[]) {
 					case SDLK_q:
 						running = 0;
 						break;
+					case SDLK_LEFT:
+						xFactor -= factor;
+						break;
+					case SDLK_RIGHT:
+						xFactor += factor;
+						break;
+					case SDLK_UP:
+						yFactor += factor;
+						break;
+					case SDLK_DOWN:
+						yFactor -= factor;
+						break;
+					case SDLK_a:
+						xFactor_t -= factor;
+						break;
+					case SDLK_d:
+						xFactor_t += factor;
+						break;
+					case SDLK_w:
+						yFactor_t += factor;
+						break;
+					case SDLK_s:
+						yFactor_t -= factor;
+						break;
+					case SDLK_j:
+						angle -= 10;
+						break;
+					case SDLK_k:
+						angle += 10;
+						break;
 				}
 		}
 
-	        glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	        draw(quadrado);
-        	draw(triangulo);
+		mat4_gen_scale(scale, xFactor, yFactor, zFactor);
+		glUniformMatrix4fv(scaleLocation, 1, 0, (GLfloat*)scale);
+
+		mat4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
+		glUniformMatrix4fv(translateLocation, 1, 0, (GLfloat*)translate);
+		
+		mat4_gen_rotate(rotate, rot_x, rot_y, rot_z, angle);
+		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate);
+
+
+		// -------
+/*
+		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate_90);
+		printf("rotated 90deg\n");
+
+		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate_180);
+		printf("rotated 180deg\n");
+		draw(triangulo);
+		draw(quadrado);
+		SDL_GL_SwapWindow(window);
+		SDL_Delay(1000);
+
+		glUniformMatrix4fv(translateLocation, 1, 0, (GLfloat*)translate);
+		draw(triangulo);
+		draw(quadrado);
+		printf("translated\n");
+		SDL_GL_SwapWindow(window);
+		SDL_Delay(1000);
+*/
+		// -------
+
+		draw(triangulo);
+		draw(quadrado);
 
 		SDL_GL_SwapWindow(window);
-
 		SDL_Delay(1);
 	}
 
