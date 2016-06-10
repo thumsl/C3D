@@ -1,7 +1,7 @@
 #include "render.h"
 
 int initOpenGL() {
-	//glewExperimental = GL_TRUE;
+	glewExperimental = GL_TRUE;
 	GLenum status = glewInit();
 	if(status != GLEW_OK) {
 		fprintf(stderr, "Error intializing GLEW: %s\n", glewGetErrorString(status));

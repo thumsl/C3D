@@ -22,7 +22,7 @@ int readfile(char** s, const char* filename) {
     return 1;
 }
 
-int compileAndAttachShaders(const char *vs, const char *fs) {
+int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program) {
     char *vertexSource, *fragmentSource;
 
     readfile(&vertexSource, vs);
@@ -64,5 +64,11 @@ int compileAndAttachShaders(const char *vs, const char *fs) {
     glLinkProgram(shaderProgram);
     glUseProgram(shaderProgram);
 
+    //TODO: create function to return uniform location
+    *program = shaderProgram;
+
+    float scaleF = 1.0f;
+    GLuint scaleLocation = glGetUniformLocation(shaderProgram, "scale");
+    glUniform1f(scaleLocation, scaleF);
     return 1;
 }

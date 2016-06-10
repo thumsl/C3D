@@ -2,6 +2,6 @@
 #define UTILS_H
 
 int readfile(char** s, const char* filename);
-int compileAndAttachShaders(const char *vs, const char *fs);
+int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program);
 
 #endif // UTILS_H
