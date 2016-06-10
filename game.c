@@ -33,14 +33,14 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 	int running = 1;
 
-	mat4 scale, translate, rotate, projection;
+	mat4x4 scale, translate, rotate, projection;
 
 	GLuint scaleLocation = glGetUniformLocation(program, "scale");
 	GLuint translateLocation = glGetUniformLocation(program, "translate");
 	GLuint rotateLocation = glGetUniformLocation(program, "rotate");
 	GLuint projectionLocation = glGetUniformLocation(program, "projection");
 
-	mat4_gen_orthographic_projection(projection, WIDTH, HEIGHT, 100000.0f, 0.1f);
+	mat4x4_gen_orthographic_projection(projection, WIDTH, HEIGHT, 100000.0f, 0.1f);
 	glUniformMatrix4fv(projectionLocation, 1, 0, (GLfloat*)projection);
 
 	float xFactor = 1.0f, yFactor = 1.0f, zFactor = 1.0f, factor = 0.1f, xFactor_t = 0.0f, yFactor_t = 0.0f, angle = 0.0f;
@@ -94,36 +94,14 @@ int main(int argc, char* argv[]) {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		mat4_gen_scale(scale, xFactor, yFactor, zFactor);
+		mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
 		glUniformMatrix4fv(scaleLocation, 1, 0, (GLfloat*)scale);
 
-		mat4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
+		mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
 		glUniformMatrix4fv(translateLocation, 1, 0, (GLfloat*)translate);
 		
-		mat4_gen_rotate(rotate, rot_x, rot_y, rot_z, angle);
+		mat4x4_gen_rotate(rotate, rot_x, rot_y, rot_z, angle);
 		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate);
-
-
-		// -------
-/*
-		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate_90);
-		printf("rotated 90deg\n");
-
-		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate_180);
-		printf("rotated 180deg\n");
-		draw(triangulo);
-		draw(quadrado);
-		SDL_GL_SwapWindow(window);
-		SDL_Delay(1000);
-
-		glUniformMatrix4fv(translateLocation, 1, 0, (GLfloat*)translate);
-		draw(triangulo);
-		draw(quadrado);
-		printf("translated\n");
-		SDL_GL_SwapWindow(window);
-		SDL_Delay(1000);
-*/
-		// -------
 
 		draw(triangulo);
 		draw(quadrado);
