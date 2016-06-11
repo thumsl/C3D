@@ -35,16 +35,19 @@ int main(int argc, char* argv[]) {
 
 	mat4x4 scale, translate, rotate, projection;
 
-	GLuint scaleLocation = glGetUniformLocation(program, "scale");
-	GLuint translateLocation = glGetUniformLocation(program, "translate");
-	GLuint rotateLocation = glGetUniformLocation(program, "rotate");
+	GLuint modelLocation = glGetUniformLocation(program, "model");
 	GLuint projectionLocation = glGetUniformLocation(program, "projection");
 
-	mat4x4_gen_orthographic_projection(projection, WIDTH, HEIGHT, 100000.0f, 0.1f);
+	mat4x4_gen_orthographic_projection(projection, WIDTH, HEIGHT, 1000.0f, 0.1f);
 	glUniformMatrix4fv(projectionLocation, 1, 0, (GLfloat*)projection);
 
 	float xFactor = 1.0f, yFactor = 1.0f, zFactor = 1.0f, factor = 0.1f, xFactor_t = 0.0f, yFactor_t = 0.0f, angle = 0.0f;
-	short rot_x = 0, rot_y = 1, rot_z = 0;
+	short rot_x = 0, rot_y = 0, rot_z = 1;
+
+	mat4x4_gen_rotate(rotate, rot_x, rot_y, rot_z, 0);
+
+	mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
+	mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
 
 	while (running) {
 		while (SDL_PollEvent(&e)) {
@@ -61,50 +64,57 @@ int main(int argc, char* argv[]) {
 						break;
 					case SDLK_LEFT:
 						xFactor -= factor;
+						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
 						break;
 					case SDLK_RIGHT:
 						xFactor += factor;
+						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
 						break;
 					case SDLK_UP:
 						yFactor += factor;
+						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
 						break;
 					case SDLK_DOWN:
 						yFactor -= factor;
+						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
 						break;
 					case SDLK_a:
 						xFactor_t -= factor;
+						mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);						
 						break;
 					case SDLK_d:
 						xFactor_t += factor;
+						mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);						
 						break;
 					case SDLK_w:
 						yFactor_t += factor;
+						mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);						
 						break;
 					case SDLK_s:
 						yFactor_t -= factor;
+						mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);						
 						break;
 					case SDLK_j:
-						angle -= 10;
+						angle-=90;
+						mat4x4_gen_rotate(rotate, rot_x, rot_y, rot_z, angle);
 						break;
 					case SDLK_k:
-						angle += 10;
+						angle += 90;
+						mat4x4_gen_rotate(rotate, rot_x, rot_y, rot_z, angle	);
 						break;
 				}
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
-		glUniformMatrix4fv(scaleLocation, 1, 0, (GLfloat*)scale);
+		mat4x4 M1, M2;
+		//mat4x4_mul(M1, rotate, scale);
+		mat4x4_mul(M1, rotate, translate);
+		mat4x4_mul(M2, scale, M1);
 
-		mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
-		glUniformMatrix4fv(translateLocation, 1, 0, (GLfloat*)translate);
-		
-		mat4x4_gen_rotate(rotate, rot_x, rot_y, rot_z, angle);
-		glUniformMatrix4fv(rotateLocation, 1, 0, (GLfloat*)rotate);
+		glUniformMatrix4fv(modelLocation, 1, 0, (GLfloat*)M2); // update this
 
 		draw(triangulo);
-		draw(quadrado);
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);

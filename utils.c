@@ -131,6 +131,7 @@ void mat4x4_gen_rotate(mat4x4 a, short y, short x, short z, float angle) {
     }
     else
         printf("[DEBUG] WARNING: mat4x4_gen_rotate() callled without defining axis of rotation.\n");
+    // TODO: allow rotating on 3 axis calling the function once
 }
 
 void mat4x4_gen_orthographic_projection(mat4x4 a, int WIDTH, int HEIGHT, float zFar, float zNear) {
