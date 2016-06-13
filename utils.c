@@ -72,7 +72,6 @@ int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program) {
     return 1;
 }
 
-
 void mat4x4_debug_print(mat4x4 a) {
     int i, j;
     printf("------------------------------------\n");
@@ -135,10 +134,10 @@ void mat4x4_gen_rotate(mat4x4 a, short y, short x, short z, float angle) {
 }
 
 void mat4x4_gen_orthographic_projection(mat4x4 a, int WIDTH, int HEIGHT, float zFar, float zNear) {
+
         a[0][0] = 1.0f/WIDTH;   a[0][1] = 0;            a[0][2] = 0;                    a[0][3] = 0;
         a[1][0] = 0;            a[1][1] =  1.0f/HEIGHT; a[1][2] = 0;                    a[1][3] = 0;
         a[2][0] = 0;            a[2][1] = 0;            a[2][2] = -2.0f/(zFar-zNear);   a[2][3] = -(zFar + zNear)/(zFar - zNear);
         a[3][0] = 0;            a[3][1] = 0;            a[3][2] = 0;                    a[3][3] = 1;
-
         // TODO: perspective projection
 }

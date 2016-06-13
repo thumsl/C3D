@@ -1,4 +1,5 @@
 #include "window.h"
+#include "engine.h"
 #include <GL/glew.h>
 
 int createWindow(int width, int height, const char* title) {
@@ -7,12 +8,18 @@ int createWindow(int width, int height, const char* title) {
 		return 0;
 	}
 
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+	// TODO: Create separate function for handling mouse grab?
+
+	SDL_ShowCursor(SDL_DISABLE);
+	SDL_SetWindowGrab(window, SDL_TRUE);
+	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
 

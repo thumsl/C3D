@@ -11,4 +11,9 @@ int initOpenGL() {
 		printf("GL version: %s\n", glGetString(GL_VERSION));
 		return 1;
 	}
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glCullFace(GL_BACK);
+
 }
