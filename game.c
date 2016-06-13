@@ -13,14 +13,14 @@ int main(int argc, char* argv[]) {
 		return 1;
 
 	GLfloat vertices[] = {
-    -1.0, -1.0,  1.0,    1.0, 0.0, 0.0,
-     1.0, -1.0,  1.0,    0.0, 1.0, 0.0,
-     1.0,  1.0,  1.0,    0.0, 0.0, 1.0,
-    -1.0,  1.0,  1.0,    1.0, 1.0, 1.0,
-    -1.0, -1.0, -1.0,    1.0, 0.0, 0.0,
-     1.0, -1.0, -1.0,    0.0, 1.0, 0.0,
-     1.0,  1.0, -1.0,    0.0, 0.0, 1.0,
-    -1.0,  1.0, -1.0,    1.0, 1.0, 1.0
+	    -1.0, -1.0,  1.0,  1.0, 0.0, 0.0,
+	     1.0, -1.0,  1.0,  0.0, 1.0, 0.0,
+	     1.0,  1.0,  1.0,  0.0, 0.0, 1.0,
+	    -1.0,  1.0,  1.0,  1.0, 1.0, 1.0,
+	    -1.0, -1.0, -1.0,  1.0, 0.0, 0.0,
+	     1.0, -1.0, -1.0,  0.0, 1.0, 0.0,
+	     1.0,  1.0, -1.0,  0.0, 0.0, 1.0,
+	    -1.0,  1.0, -1.0,  1.0, 1.0, 1.0
 	};
 
 	GLuint indices[] = {
@@ -36,7 +36,8 @@ int main(int argc, char* argv[]) {
 
 	SDL_Event e;
 
-	int running = 1, x = -1, y = -1, deltax = 0, deltay = 0;
+	unsigned short running = 1, mvup = 0, mvdown = 0, mvleft = 0, mvright = 0;
+	int x = -1, y = -1, deltax = 0, deltay = 0;
 	float xFactor = 1.0f, yFactor = 1.0f, zFactor = 1.0f, factor = 1.f, xFactor_t = 0.0f, yFactor_t = 0.0f, angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
 	
 	GLuint MVP = glGetUniformLocation(program, "MVP");
@@ -47,17 +48,14 @@ int main(int argc, char* argv[]) {
 	mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.01f, 100.f);
 
-	vec3 movement; movement[0] = 1.0f; movement[1] = 0.0f; movement[2] = 1.0f;
-	vec3 eye; eye[0] = 0.0f; eye[1] = 2.0f; eye[2] = 4.0f;
-	vec3 direction; direction[0] = cosf(verticalAngle) * sinf(horizontalAngle); direction[1] = sinf(verticalAngle); direction[2] = cosf(horizontalAngle) * cosf(verticalAngle);
-	vec3 right; right[0] = sinf(horizontalAngle - PI/2.0f); right[1] = 0.0f; right[2] =  cosf(horizontalAngle - PI/2.0f);
-	vec3 up; vec3_mul_cross(up, right, direction);
+	camera C;
+	C.eye[0] = 0.0f; C.eye[1] = 2.0f; C.eye[2] = 4.0f;
+	C.direction[0] = cosf(verticalAngle) * sinf(horizontalAngle); C.direction[1] = sinf(verticalAngle); C.direction[2] = cosf(horizontalAngle) * cosf(verticalAngle);
+	C.right[0] = sinf(horizontalAngle - PI/2.0f); C.right[1] = 0.0f; C.right[2] =  cosf(horizontalAngle - PI/2.0f);
+	vec3_mul_cross(C.up, C.right, C.direction);
 	
-	vec3 center; vec3_add(center, eye, direction);
-	mat4x4_look_at(view, eye, center, up);
-
-	printf("position (Eye) --- %f %f %f\n", eye[0], eye[1], eye[2]);
-	printf("direction --- %f %f %f\n", direction[0], direction[1], direction[2]);
+	vec3 center; vec3_add(center, C.eye, C.direction);
+	mat4x4_look_at(view, C.eye, center, C.up);
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 
@@ -91,20 +89,16 @@ int main(int argc, char* argv[]) {
 						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
 						break;
 					case SDLK_a:
-						vec3_sub(eye, eye, right);
-						vec3_add(center, eye, direction);
+						mvleft = 1;
 						break;
 					case SDLK_d:
-						vec3_add(eye, eye, right);
-						vec3_add(center, eye, direction);
+						mvright = 1;
 						break;
 					case SDLK_w:
-						vec3_add(eye, eye, direction);
-						vec3_add(center, eye, direction);
+						mvup = 1;
 						break;
 					case SDLK_s:
-						vec3_sub(eye, eye, direction);
-						vec3_add(center, eye, direction);
+						mvdown = 1;
 						break;
 					case SDLK_j:
 						angle-=90;
@@ -115,48 +109,56 @@ int main(int argc, char* argv[]) {
 						mat4x4_gen_rotate(rotate, 1, 0, 0, angle);
 						break;
 				}
+			if (e.type == SDL_KEYUP)
+				switch(e.key.keysym.sym) {
+					case SDLK_a:
+						mvleft = 0;
+						break;
+					case SDLK_d:
+						mvright = 0;
+						break;
+					case SDLK_w:
+						mvup = 0;
+						break;
+					case SDLK_s:
+						mvdown = 0;
+						break;
+				}
 		}
 
 	    SDL_GetMouseState(&x, &y);
 
+   		camera_fps_move(&C, mvup, mvdown, mvleft, mvright);
+
 	    deltax = x - WIDTH/2;
 	    deltay = y - HEIGHT/2;
-	    
+
 	    if (deltax != 0 || deltay != 0) {
 			horizontalAngle += (float)(WIDTH/2 - x) * SENSITIVITY;
 			verticalAngle += (float)(HEIGHT/2 - y) * SENSITIVITY;
-			printf("verticalAngle = %f\n", verticalAngle);
+
 			if (verticalAngle > 1.5f)
 				verticalAngle = 1.5f;
 			else if (verticalAngle < -1.5f)
 				verticalAngle = -1.5f;
 
-			direction[0] = cosf(verticalAngle) * sinf(horizontalAngle);
-			direction[1] = sinf(verticalAngle);
-			direction[2] = cosf(verticalAngle) * cosf(horizontalAngle);
+			camera_fps_mouse_look(&C, horizontalAngle, verticalAngle);
 
-			right[0] = sinf(horizontalAngle - PI/2.0f);
-			right[1] = 0;
-			right[2] = cosf(horizontalAngle - PI/2.0f);
-
-			vec3_mul_cross(up, right, direction);
-
-			vec3_add(center, eye, direction);
 			SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	    }
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		mat4x4_look_at(view, eye, center, up);
+
+		vec3_add(center, C.eye, C.direction);
+		mat4x4_look_at(view, C.eye, center, C.up);
 
 		mat4x4 M1, M2, M3, M4;
-
 		mat4x4_mul(M1, rotate, translate);
 		mat4x4_mul(M2, scale, M1);
 		mat4x4_mul(M3, view, M2);
 		mat4x4_mul(M4, projection, M3);
 
-		glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)M4); // update this
+		glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)M4);
 
 		draw(cubo);
 
