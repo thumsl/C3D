@@ -1,6 +1,4 @@
-//#include "utils.h"
-
-#include "utils.h"
+#include "../include/utils.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -27,12 +25,19 @@ int readfile(char** s, const char* filename) {
 int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program) {
     char *vertexSource, *fragmentSource;
 
-    readfile(&vertexSource, vs);
+    if (!readfile(&vertexSource, vs)) {
+        fprintf(stderr, "Failed to open file %s\n", vs);
+        return 0;
+    }
+
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, (const char * const*)&vertexSource, NULL);
     glCompileShader(vertexShader);
 
-    readfile(&fragmentSource, fs);
+    if (!readfile(&fragmentSource, fs)) {
+        fprintf(stderr, "Failed to open file %s\n", fs);
+        return 0;
+    }
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, (const char * const*)&fragmentSource, NULL);
     glCompileShader(fragmentShader);

@@ -1,4 +1,4 @@
-#include "render.h"
+#include "../include/render.h"
 
 int initOpenGL() {
 	glewExperimental = GL_TRUE;
@@ -12,8 +12,9 @@ int initOpenGL() {
 		return 1;
 	}
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 
 }

@@ -1,26 +1,32 @@
-#include "engine.h"
+#include "../include/engine.h"
 #include <math.h>
 
 int main(int argc, char* argv[]) {
-	if (!createWindow(WIDTH, HEIGHT, "3D Game Engine"))
+	if (!createWindow(WIDTH, HEIGHT, "3D Game Engine")) {
+		quit();
 		return 1;
+	}
 
-	if (!initOpenGL())
+	if (!initOpenGL()) {
+		quit();
 		return 1;
+	}
 
     GLuint program;
-	if (!compileAndAttachShaders("shader.vert", "shader.frag", &program))
+	if (!compileAndAttachShaders("src/glsl/shader.vert", "src/glsl/shader.frag", &program)) {
+		quit();
 		return 1;
+	}
 
 	GLfloat vertices[] = {
-	    -1.0, -1.0,  1.0,  1.0, 0.0, 0.0,
-	     1.0, -1.0,  1.0,  0.0, 1.0, 0.0,
-	     1.0,  1.0,  1.0,  0.0, 0.0, 1.0,
-	    -1.0,  1.0,  1.0,  1.0, 1.0, 1.0,
-	    -1.0, -1.0, -1.0,  1.0, 0.0, 0.0,
-	     1.0, -1.0, -1.0,  0.0, 1.0, 0.0,
-	     1.0,  1.0, -1.0,  0.0, 0.0, 1.0,
-	    -1.0,  1.0, -1.0,  1.0, 1.0, 1.0
+	    -1.0, -1.0,  1.0, 0.000059f, 1.0f-0.000004f,
+	     1.0, -1.0,  1.0, 0.000103f, 1.0f-0.336048f,
+	     1.0,  1.0,  1.0, 0.335973f, 1.0f-0.335903f,
+	    -1.0,  1.0,  1.0, 1.000023f, 1.0f-0.000013f,
+	    -1.0, -1.0, -1.0, 0.667979f, 1.0f-0.335851f,
+	     1.0, -1.0, -1.0, 0.999958f, 1.0f-0.336064f,
+	     1.0,  1.0, -1.0, 0.667979f, 1.0f-0.335851f,
+	    -1.0,  1.0, -1.0, 0.335973f, 1.0f-0.335903f
 	};
 
 	GLuint indices[] = {
@@ -29,10 +35,21 @@ int main(int argc, char* argv[]) {
 		7, 6, 5, 5, 4, 7,
 		4, 0, 3, 3, 7, 4,
 		4, 5, 1, 1, 0, 4,
-		3, 2, 6, 6, 7, 3
+		3, 2, 6, 6, 7, 3	
 	};
 
-	mesh *cubo = initMesh(vertices, indices, 8, 36);
+	GLfloat vertices2[] = {
+		-1, -1, 2, -1, -1,
+		 0, -1, 2,  0, -1,
+		-1,  1, 2, -1,  1
+	};
+
+	GLuint indices2[] = {
+		2, 1, 0
+	};
+
+	mesh *cubo = initMesh(vertices, indices, 8, 36, "res/textures/test.png");
+	mesh *triangulo = initMesh(vertices2, indices2, 3, 3, "res/textures/test2.png");
 
 	SDL_Event e;
 
@@ -161,10 +178,13 @@ int main(int argc, char* argv[]) {
 		glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)M4);
 
 		draw(cubo);
+		draw(triangulo);
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);
 	}
+
+	quit();
 
 	return 0;
 }

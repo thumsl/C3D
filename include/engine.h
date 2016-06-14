@@ -8,11 +8,15 @@
 #include "utils.h"
 #include "window.h"
 
-#define WIDTH 600
-#define HEIGHT 400
+#define WIDTH 1280
+#define HEIGHT 720
 #define PI 3.14159265359f
 #define FOV 60.0f * 0.0174533f
 #define SENSITIVITY 0.001f
-#define STEP 1.0f
+#define STEP 0.1f
+#define FULLSCREEN SDL_WINDOW_FULLSCREEN_DESKTOP //SDL_WINDOW_FULLSCREEN // SDL_WINDOW_FULLSCREEN_DESKTOP (fake fullscreen) // 0 Windowed
+
+void quit();
 
 #endif
+

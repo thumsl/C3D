@@ -1,5 +1,5 @@
-#include "camera.h"
-#include "engine.h"
+#include "../include/camera.h"
+#include "../include/engine.h"
 #include <math.h>
 
 void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle) {
@@ -15,12 +15,16 @@ void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle
 }
 
 void camera_fps_move(camera* C, unsigned short mvup, unsigned short mvdown, unsigned short mvleft, unsigned short mvright) {
+	vec3 scaled_direction, scaled_right;
+	vec3_scale(scaled_direction, C->direction, STEP);
+	vec3_scale(scaled_right, C->right, STEP);
+
 	if (mvup)
-		vec3_add(C->eye, C->eye, C->direction);
+		vec3_add(C->eye, C->eye, scaled_direction);
 	if (mvdown)
-		vec3_sub(C->eye, C->eye, C->direction);
+		vec3_sub(C->eye, C->eye, scaled_direction);
 	if (mvright)
-		vec3_add(C->eye, C->eye, C->right);
+		vec3_add(C->eye, C->eye, scaled_right);
 	if (mvleft)
-		vec3_sub(C->eye, C->eye, C->right);
+		vec3_sub(C->eye, C->eye, scaled_right);
 }

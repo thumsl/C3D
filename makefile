@@ -1,2 +1,2 @@
 all:
-	gcc -o game.o -lGL -lGLEW -lSDL2 -lm camera.c game.c mesh.c render.c window.c utils.c
+	gcc src/*.c -lGL -lGLEW -lSDL2 -lSDL2_image -lm -o bin/game.o

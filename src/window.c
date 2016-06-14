@@ -1,5 +1,5 @@
-#include "window.h"
-#include "engine.h"
+#include "../include/window.h"
+#include "../include/engine.h"
 #include <GL/glew.h>
 
 int createWindow(int width, int height, const char* title) {
@@ -29,6 +29,7 @@ int createWindow(int width, int height, const char* title) {
 		return 0;
 	}
 
+	SDL_SetWindowFullscreen(window, FULLSCREEN);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	// TODO: destroy context on fail / on program ending
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
