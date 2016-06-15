@@ -14,10 +14,12 @@ void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle
 	vec3_mul_cross(C->up, C->right, C->direction);
 }
 
-void camera_fps_move(camera* C, unsigned short mvup, unsigned short mvdown, unsigned short mvleft, unsigned short mvright) {
+void camera_fps_move(camera* C, unsigned short mvup, unsigned short mvdown, unsigned short mvleft, unsigned short mvright, unsigned short frameTime) {
 	vec3 scaled_direction, scaled_right;
 	vec3_scale(scaled_direction, C->direction, STEP);
+	vec3_scale (scaled_direction, scaled_direction, frameTime);
 	vec3_scale(scaled_right, C->right, STEP);
+	vec3_scale(scaled_right, scaled_right, frameTime);
 
 	if (mvup)
 		vec3_add(C->eye, C->eye, scaled_direction);

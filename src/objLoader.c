@@ -1,4 +1,5 @@
 #include "../include/utils.h"
+#include "../include/objLoader.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,7 +23,7 @@ float get_number(int* i, char* buffer, float* x) {
         return 1;
 }
 
-int loadOBJ(const char* filename, GLfloat* vertices, GLuint* indices, int* vertexCount, int* indexCount) {
+int loadOBJ(OBJ_data* data, const char* filename) {
     char* buffer;
 
     if (!readfile(&buffer, filename)) {
@@ -30,7 +31,7 @@ int loadOBJ(const char* filename, GLfloat* vertices, GLuint* indices, int* verte
         return 0;
     }
 
-    int i = 0, vn = 0, vt = 0, f = 0, v = 0;
+    int i = 0, j, k, vn = 0, vt = 0, f = 0, v = 0;
     GLfloat v_temp[50000], vt_temp[50000];
     GLuint f_temp[50000];
 
@@ -67,18 +68,27 @@ int loadOBJ(const char* filename, GLfloat* vertices, GLuint* indices, int* verte
         i++;
     }
 
-    for (i = 0; i < v; i++)
-        vertices[i] = v_temp[i];
-    for (i = 0; i < vt; i++)
-        vertices[v+i] = vt_temp[i];
+    data = (OBJ_data*)malloc(sizeof(OBJ_data));
+
+    data->vertexCount = v/3;
+    data->indexCount = f;
+
+    data->vertices = (GLfloat*)malloc(sizeof(5* data->vertexCount * sizeof(GLfloat)));
+    data->indices = (GLuint*)malloc(sizeof(data->indexCount * sizeof(GLfloat)));
+
+    for (k = 0, i = 0, j = 0; k < (v + vt); i += 3, j+= 2, k += 5) {
+        data->vertices[k] = v_temp[i];
+        data->vertices[k+1] = v_temp[i+1];
+        data->vertices[k+2] = v_temp[i+2];
+        data->vertices[k+3] = vt_temp[j];
+        data->vertices[k+4] = vt_temp[j+1];
+    }
 
     for (i = 0; i < f; i++)
-        indices[i] = f_temp[i];
+        data->indices[i] = f_temp[i];
 
-    *vertexCount = v/3;
-    *indexCount = f;
-    printf("vertex count %d indices %d\n", *vertexCount, *indexCount);
-
+    printf("vertex count %d indices %d\n", data->vertexCount, data->indexCount);
     putchar('\n');
+
     return 1;
 }

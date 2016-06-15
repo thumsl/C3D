@@ -16,10 +16,10 @@ static void setVertexData(mesh *M, GLfloat *vertices, const char* texLocation) {
 	glBufferData(GL_ARRAY_BUFFER, 5 * M->vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);    // Position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);   //The starting point of the VBO, for the vertices
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);   //The starting point of the VBO, for the vertices
 
 	glEnableVertexAttribArray(1);    // Texture
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(3 * M->vertexCount * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
 
 	SDL_Surface *image;
 	image=IMG_Load(texLocation);
@@ -57,20 +57,20 @@ mesh* initOBJMesh(const char* filename, const char* texturePath) {
 	mesh *M = (mesh*)malloc(sizeof(mesh));
 	int vertexCount, indexCount;
 
-	GLuint indices[50000];
-	GLfloat vertices[100000]; 
+	OBJ_data* data;
 	// TODO: Dynamic allocation for Mesh data arrays
-	loadOBJ(filename, vertices, indices, &vertexCount, &indexCount);
+	loadOBJ(data, filename);
 
+	printf("Index count? %f\n", data->indexCount);
     // printf("indices: ");
-    // int i; for (i = 0; i < indexCount; printf("%d ", indices[i]), i++);
+    // int i; for (i = 0; i < data->indexCount; printf("%d ", data->indices[i]), i++);
     // putchar('\n');
 
     // printf("vertices: ");
     // for (i = 0; i < vertexCount * 5; printf("%f ", vertices[i]), i++);
     // putchar('\n');
 
-	return initMesh(vertices, indices, vertexCount, indexCount, texturePath);
+	return initMesh(data->vertices, data->indices, data->vertexCount, data->indexCount, texturePath);
 }
 
 void draw(mesh *M) {

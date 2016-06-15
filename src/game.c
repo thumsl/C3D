@@ -102,11 +102,11 @@ int main(int argc, char* argv[]) {
 	mesh *cubo3 = initMesh(vertices3, indices, 8, 24, "res/textures/test.png");
 	mesh *triangulo = initMesh(vertices2, indices2, 3, 3, "res/textures/test2.png");
 	mesh *cubo2 = initOBJMesh("res/obj/cube.obj", "res/textures/test.png");
-	mesh *sphere = initOBJMesh(argv[1], argv[2]);
+	//mesh *sphere = initOBJMesh(argv[1], argv[2]);
 
 	SDL_Event e;
 
-	unsigned short running = 1, mvup = 0, mvdown = 0, mvleft = 0, mvright = 0;
+	unsigned short running = 1, mvup = 0, mvdown = 0, mvleft = 0, mvright = 0, timePassed = 0, frames = 0, pastTime, currentTime = 0;;
 	int x = -1, y = -1, deltax = 0, deltay = 0;
 	float xFactor = 1.0f, yFactor = 1.0f, zFactor = 1.0f, factor = 1.f, xFactor_t = 0.0f, yFactor_t = 0.0f, angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
 	
@@ -130,6 +130,16 @@ int main(int argc, char* argv[]) {
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 
 	while (running) {
+		pastTime = currentTime;
+		currentTime = SDL_GetTicks();
+		timePassed += (currentTime - pastTime);
+		frames++;
+		if (timePassed >= 1000) {
+			timePassed = 0;
+			printf("%d FPS\n", frames);
+			frames = 0;
+		}	
+
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_WINDOWEVENT)
 				if (e.window.event == SDL_WINDOWEVENT_CLOSE)
@@ -198,7 +208,7 @@ int main(int argc, char* argv[]) {
 
 	    SDL_GetMouseState(&x, &y);
 
-   		camera_fps_move(&C, mvup, mvdown, mvleft, mvright);
+   		camera_fps_move(&C, mvup, mvdown, mvleft, mvright, currentTime - pastTime);
 
 	    deltax = x - WIDTH/2;
 	    deltay = y - HEIGHT/2;
@@ -232,8 +242,8 @@ int main(int argc, char* argv[]) {
 
 		//draw(cubo3);
 		//draw(triangulo);
-		//draw(cubo2);
-		draw(sphere);
+		draw(cubo2);
+		//draw(sphere);
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);

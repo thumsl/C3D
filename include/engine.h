@@ -13,10 +13,9 @@
 #define PI 3.14159265359f
 #define FOV 60.0f * 0.0174533f
 #define SENSITIVITY 0.001f
-#define STEP 0.1f
-#define FULLSCREEN SDL_WINDOW_FULLSCREEN_DESKTOP //SDL_WINDOW_FULLSCREEN // SDL_WINDOW_FULLSCREEN_DESKTOP (fake fullscreen) // 0 Windowed
+#define STEP 0.01f
+#define FULLSCREEN 0 // SDL_FULLSCREEN SDL_WINDOW_FULLSCREEN_DESKTOP (fake fullscreen) // 0 Windowed
 
 void quit();
 
 #endif
-
