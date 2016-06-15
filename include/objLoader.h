@@ -9,6 +9,6 @@ typedef struct {
 } OBJ_data;
 
 float get_number(int* i, char* buffer, float* x);
-int loadOBJ(OBJ_data* data, const char* filename);
+int loadOBJ(OBJ_data** data, const char* filename);
 
 #endif // OBJ_LOADER_H
