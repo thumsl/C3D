@@ -3,6 +3,7 @@
 #include "linmath.h"
 #include <GL/glew.h>
 
+
 #define toRadian(i) i*0.0174533;
 
 int readfile(char** s, const char* filename);

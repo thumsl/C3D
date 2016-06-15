@@ -19,17 +19,53 @@ int main(int argc, char* argv[]) {
 	}
 
 	GLfloat vertices[] = {
-	    -1.0, -1.0,  1.0, 0.000059f, 1.0f-0.000004f,
-	     1.0, -1.0,  1.0, 0.000103f, 1.0f-0.336048f,
-	     1.0,  1.0,  1.0, 0.335973f, 1.0f-0.335903f,
-	    -1.0,  1.0,  1.0, 1.000023f, 1.0f-0.000013f,
-	    -1.0, -1.0, -1.0, 0.667979f, 1.0f-0.335851f,
-	     1.0, -1.0, -1.0, 0.999958f, 1.0f-0.336064f,
-	     1.0,  1.0, -1.0, 0.667979f, 1.0f-0.335851f,
-	    -1.0,  1.0, -1.0, 0.335973f, 1.0f-0.335903f
+		 1.000000, -1.000000, -1.000000,
+		 1.000000, -1.000000,  1.000000,
+		-1.000000, -1.000000,  1.000000,
+		-1.000000, -1.000000, -1.000000,
+		 1.000000,  1.000000, -0.999999,
+		 0.999999,  1.000000,  1.000001,
+		-1.000000,  1.000000,  1.000000,
+		-1.000000,  1.000000, -1.000000,
+		 0,			0,
+		 0,			0,
+		 0,			0,
+		 0,			0,
+		 0,			0,
+		 0,			0,
+		 0,			0,
+		 0,			0
 	};
 
 	GLuint indices[] = {
+		0, 1, 2, 3,
+		4, 7, 6, 5,
+		0, 4, 5, 1,
+		1, 5, 6, 2,
+		2, 6, 7, 3,
+		4, 0, 3, 7
+	};
+
+	GLfloat vertices3[] = {
+	    -1.0, -1.0,  1.0,
+	     1.0, -1.0,  1.0, 
+	     1.0,  1.0,  1.0, 
+	    -1.0,  1.0,  1.0, 
+	    -1.0, -1.0, -1.0, 
+	     1.0, -1.0, -1.0, 
+	     1.0,  1.0, -1.0, 
+	    -1.0,  1.0, -1.0, 
+	     0.000059f, 1.0f-0.000004f,
+	     0.000103f, 1.0f-0.336048f,
+	     0.335973f, 1.0f-0.335903f,
+	     1.000023f, 1.0f-0.000013f,
+	     0.667979f, 1.0f-0.335851f,
+	     0.999958f, 1.0f-0.336064f,
+	     0.667979f, 1.0f-0.335851f,
+	     0.335973f, 1.0f-0.335903f
+	};
+
+	GLuint indices3[] = {
 		0, 1, 2, 2, 3, 0,
 		1, 5, 6, 6, 2, 1,
 		7, 6, 5, 5, 4, 7,
@@ -39,17 +75,34 @@ int main(int argc, char* argv[]) {
 	};
 
 	GLfloat vertices2[] = {
-		-1, -1, 2, -1, -1,
-		 0, -1, 2,  0, -1,
-		-1,  1, 2, -1,  1
+		-1, -1, 2, 
+		 0, -1, 2,
+		-1,  1, 2,
+		-1, -1,
+		 0, -1,
+		-1,  1
 	};
 
 	GLuint indices2[] = {
 		2, 1, 0
 	};
 
-	mesh *cubo = initMesh(vertices, indices, 8, 36, "res/textures/test.png");
+	GLfloat planeV[] = {
+		-1, 0, 1,
+		 1, 0, 1,
+		-1, 0, -1, 
+		 1, 0, -1
+	};
+
+	GLuint indicesV[] = {
+		0, 1, 2, 3
+	};
+
+	mesh *cubo = initMesh(vertices, indices, 8, 24, "res/textures/test.png");
+	mesh *cubo3 = initMesh(vertices3, indices, 8, 24, "res/textures/test.png");
 	mesh *triangulo = initMesh(vertices2, indices2, 3, 3, "res/textures/test2.png");
+	mesh *cubo2 = initOBJMesh("res/obj/cube.obj", "res/textures/test.png");
+	mesh *sphere = initOBJMesh(argv[1], argv[2]);
 
 	SDL_Event e;
 
@@ -177,8 +230,10 @@ int main(int argc, char* argv[]) {
 
 		glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)M4);
 
-		draw(cubo);
-		draw(triangulo);
+		//draw(cubo3);
+		//draw(triangulo);
+		//draw(cubo2);
+		draw(sphere);
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);
