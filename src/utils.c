@@ -5,6 +5,16 @@
 #include <string.h>
 #include <GL/glew.h>
 
+void vec4_copy(vec4 r, vec4 a) {
+    int i;
+    for (i = 0; i < 4; r[i] = a[i++]);
+}
+
+void vec3_copy(vec3 r, vec3 a) {
+    int i;
+    for (i = 0; i < 3; r[i] = a[i++]);
+}
+
 int readfile(char** s, const char* filename) {
     struct stat st;
     int i;

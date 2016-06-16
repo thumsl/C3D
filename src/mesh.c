@@ -54,34 +54,31 @@ mesh* initMesh(GLfloat *vertices, GLuint *indices, int vertexCount, int indexCou
 }
 
 mesh* initOBJMesh(const char* filename, const char* texturePath) {
-	// TODO: Dynamic allocation for Mesh data arrays
+	mesh *M = (mesh*)malloc(sizeof(mesh));
+	
 	OBJ_data* data;
-	loadOBJ(&data, filename);
-	int i;
+	loadOBJ(&data, filename); // TODO: Dynamic allocation for Mesh data arrays
 
-	DEBUG_PRINT(("vertices:\n")); int k = 0;
-	for (i = 0; i < data->vertexCount * 5;  i++) {
-		DEBUG_PRINT(("%f ", data->vertices[i]));
-		k++;
-		if (k == 5) {
-			k = 0;
-			DEBUG_PRINT(("\n"));
-		}
-	}
-	DEBUG_PRINT(("\n"));
+	M->vertexCount = data->vertexCount;
+	M->indexCount = data->indexCount;
 
-	DEBUG_PRINT(("indices:\n"));
-	for (i = 0; i < data->indexCount;  i++) {
-		DEBUG_PRINT(("%d ", data->indices[i]));
-		k++;
-		if (k == 3) {
-			k = 0;
-			DEBUG_PRINT(("\n"));
-		}
-	}
-	DEBUG_PRINT(("\n"));
+	vec3_copy(M->body.min, data->body.min);
+	vec3_copy(M->body.max, data->body.max);
+	
+	glGenVertexArrays(1, &(M->VAO));
 
-	return initMesh(data->vertices, data->indices, data->vertexCount, data->indexCount, texturePath);
+	glGenBuffers(1, &(M->VBO));
+	glGenTextures(1, &(M->tex_id));
+	setVertexData(M, data->vertices, texturePath);
+
+	glGenBuffers(1, &(M->EBO));
+	setMeshIndex(M, data->indices);
+
+	free(data->indices);
+	free(data->vertices);
+	free(data);
+
+	return M;
 }
 
 void draw(mesh *M) {
@@ -89,4 +86,9 @@ void draw(mesh *M) {
 	glBindTexture(GL_TEXTURE_2D, M->tex_id);
 	glDrawElements(GL_TRIANGLES, M->indexCount, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
+}
+
+int aabb_collision(hitbox a, hitbox b) {
+	return (a.min[0] <= b.max[0] && a.min[1] <= b.max[1] && a.min[2] <= b.max[2] &&
+			b.min[0] <= a.max[0] && b.min[1] <= a.max[1] && b.min[2] <= a.max[2]);
 }

@@ -18,32 +18,36 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	mesh* M = initOBJMesh(argv[1], argv[2]);
-
-	SDL_Event e;
-
-	unsigned short running = 1, mvup = 0, mvdown = 0, mvleft = 0, mvright = 0, timePassed = 0, frames = 0, pastTime, currentTime = 0;;
+	unsigned short running = 1, timePassed = 0, frames = 0, pastTime, currentTime = 0;;
 	int x = -1, y = -1, deltax = 0, deltay = 0;
-	float xFactor = 1.0f, yFactor = 1.0f, zFactor = 1.0f, factor = 1.f, xFactor_t = 0.0f, yFactor_t = 0.0f, angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
+	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
 	
 	GLuint MVP = glGetUniformLocation(program, "MVP");
 	mat4x4 scale, translate, rotate, view, projection;
 
 	mat4x4_gen_rotate(rotate, 1, 0, 0, 0);
-	mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
-	mat4x4_gen_translate(translate, xFactor_t, yFactor_t, 0.0f);
+	mat4x4_gen_scale(scale, 1, 1, 1);
+	mat4x4_gen_translate(translate, 0, 0, 0);
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.01f, 100.f);
 
 	camera C;
-	C.eye[0] = 0.0f; C.eye[1] = 2.0f; C.eye[2] = 4.0f;
+	// TODO: function to initialize camera with default values
+	C.eye[0] = 0.0f; C.eye[1] = 2.0f; C.eye[2] = 3.0f;
 	C.direction[0] = cosf(verticalAngle) * sinf(horizontalAngle); C.direction[1] = sinf(verticalAngle); C.direction[2] = cosf(horizontalAngle) * cosf(verticalAngle);
 	C.right[0] = sinf(horizontalAngle - PI/2.0f); C.right[1] = 0.0f; C.right[2] =  cosf(horizontalAngle - PI/2.0f);
 	vec3_mul_cross(C.up, C.right, C.direction);
 	
-	vec3 center; vec3_add(center, C.eye, C.direction);
+	vec4 pastDirection;
+	vec3 center, nextPosition, pastPosition; 
+	vec3_add(center, C.eye, C.direction);
 	mat4x4_look_at(view, C.eye, center, C.up);
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
+
+	mesh* M = initOBJMesh(argv[1], argv[2]);
+	player* P = initPlayer(C.eye, PLAYER_HEIGHT, PLAYER_WIDTH);
+
+	SDL_Event e;
 
 	while (running) {
 		pastTime = currentTime;
@@ -68,33 +72,17 @@ int main(int argc, char* argv[]) {
 					case SDLK_q:
 						running = 0;
 						break;
-					case SDLK_LEFT:
-						xFactor -= factor;
-						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
-						break;
-					case SDLK_RIGHT:
-						xFactor += factor;
-						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
-						break;
-					case SDLK_UP:
-						yFactor += factor;
-						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
-						break;
-					case SDLK_DOWN:
-						yFactor -= factor;
-						mat4x4_gen_scale(scale, xFactor, yFactor, zFactor);
-						break;
 					case SDLK_a:
-						mvleft = 1;
+						P->direction[3] = 1;
 						break;
 					case SDLK_d:
-						mvright = 1;
+						P->direction[2] = 1;
 						break;
 					case SDLK_w:
-						mvup = 1;
+						P->direction[0] = 1;
 						break;
 					case SDLK_s:
-						mvdown = 1;
+						P->direction[1] = 1;
 						break;
 					case SDLK_j:
 						angle-=90;
@@ -108,23 +96,34 @@ int main(int argc, char* argv[]) {
 			if (e.type == SDL_KEYUP)
 				switch(e.key.keysym.sym) {
 					case SDLK_a:
-						mvleft = 0;
+						P->direction[3] = 0;
 						break;
 					case SDLK_d:
-						mvright = 0;
+						P->direction[2] = 0;
 						break;
 					case SDLK_w:
-						mvup = 0;
+						P->direction[0] = 0;
 						break;
 					case SDLK_s:
-						mvdown = 0;
+						P->direction[1] = 0;
 						break;
 				}
 		}
 
 	    SDL_GetMouseState(&x, &y);
-
-   		camera_fps_move(&C, mvup, mvdown, mvleft, mvright, currentTime - pastTime);
+		
+		vec3_copy(pastPosition, C.eye);
+		vec3_copy(nextPosition, C.eye);
+		camera_fps_move_simulate(nextPosition, &C, P->direction, currentTime - pastTime);
+		updateHitbox(P, nextPosition);
+		if (aabb_collision(P->body, M->body)) {
+			vec3_copy(C.eye, pastPosition);
+			updateHitbox(P, C.eye);
+		}
+		else {
+			camera_fps_move(&C, P->direction, currentTime - pastTime);
+			updateHitbox(P, C.eye);
+		}
 
 	    deltax = x - WIDTH/2;
 	    deltay = y - HEIGHT/2;

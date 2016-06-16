@@ -6,6 +6,9 @@
 
 #define toRadian(i) i*0.0174533;
 
+void vec4_copy(vec4 r, vec4 a);
+void vec3_copy(vec3 r, vec3 a);
+
 int readfile(char** s, const char* filename);
 int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program);
 

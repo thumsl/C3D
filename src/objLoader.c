@@ -39,12 +39,18 @@ int loadOBJ(OBJ_data** data, const char* filename) {
     }
 
     float x;
-    int i = 0, j = 0, k = 0, vn = 0, vt = 0, f = 0, v = 0;
+    int i = 0, j = 0, k = 0, vn = 0, vt = 0, f = 0, v = 0, counter = 0;
 
     GLfloat v_temp[50000], vt_temp[50000];
-    GLuint f_temp[50000];
+    GLuint f_temp[50000];   // TODO: change
+
+    (*data) = (OBJ_data*)malloc(sizeof(OBJ_data));
+
+    (*data)->body.min[0] =  INFINITY; (*data)->body.min[1] =  INFINITY; (*data)->body.min[2] =  INFINITY;
+    (*data)->body.max[0] = -INFINITY; (*data)->body.max[1] = -INFINITY; (*data)->body.max[2] = -INFINITY;
 
     while (buffer[i] != 0) {
+        counter = 0;
         if (buffer[i] != 'v' && buffer[i] != 'f')
             for (; buffer[i] != '\n' && buffer[i] != '\0'; i++);
         else if (buffer[i+1] != ' ' && buffer[i+1] != 't' && buffer[i+1] != 'n')
@@ -52,9 +58,19 @@ int loadOBJ(OBJ_data** data, const char* filename) {
         else if (buffer[i+1] == ' ') {
             if (buffer[i] == 'v') {
                 for (i++; buffer[i] == ' '; i++);
-                while (get_number(&i, buffer, &x))
+                while (get_number(&i, buffer, &x)) {
                     v_temp[v++] = x;
+                    if (x < (*data)->body.min[counter])
+                        (*data)->body.min[counter] = x;
+                    else if (x > (*data)->body.max[counter])
+                        (*data)->body.max[counter] = x;
+                    counter++;
+                }
                 v_temp[v++] = x;
+                if (x < (*data)->body.min[counter])
+                    (*data)->body.min[counter] = x;
+                else if (x > (*data)->body.max[counter])
+                    (*data)->body.max[counter] = x;                
             }
             else {
                 for (i++; buffer[i] == ' '; i++);
@@ -76,8 +92,6 @@ int loadOBJ(OBJ_data** data, const char* filename) {
         }
         i++;
     }
-
-    (*data) = (OBJ_data*)malloc(sizeof(OBJ_data));
 
     (*data)->vertexCount = v/3;
     (*data)->indexCount = f;
@@ -111,6 +125,8 @@ int loadOBJ(OBJ_data** data, const char* filename) {
 
     DEBUG_PRINT(("vertex count %d indices %d\n", (*data)->vertexCount, (*data)->indexCount));
     putchar('\n');
+
+    DEBUG_PRINT(("min vector = %f %f %f; max vector = %f %f %f\n", (*data)->body.min[0], (*data)->body.min[1], (*data)->body.min[2], (*data)->body.max[0], (*data)->body.max[1], (*data)->body.max[2]));
 
     return 1;
 }
