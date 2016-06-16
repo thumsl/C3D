@@ -23,13 +23,13 @@ player* initPlayer(vec3 position, float height, float width) {
 void updateHitbox(player* P, vec3 position) {
 	vec3_copy(P->position, position);
 
-	P->body.min[0] = P->position[0] - PLAYER_WIDTH/2.0f; // optimize
-	P->body.min[1] = P->position[1] - PLAYER_HEIGHT;
-	P->body.min[2] = P->position[2];
+	P->hitbox.min[0] = P->position[0] - PLAYER_WIDTH/2.0f; // optimize
+	P->hitbox.min[1] = P->position[1] - PLAYER_HEIGHT;
+	P->hitbox.min[2] = P->position[2];
 
-	P->body.max[0] = P->position[0] + PLAYER_WIDTH/2.0f;
-	P->body.max[1] = P->position[1];
-	P->body.max[2] = P->position[2] + PLAYER_WIDTH;
+	P->hitbox.max[0] = P->position[0] + PLAYER_WIDTH/2.0f;
+	P->hitbox.max[1] = P->position[1];
+	P->hitbox.max[2] = P->position[2] + PLAYER_WIDTH;
 
-	DEBUG_PRINT(("Player: min vector = %f %f %f; max vector = %f %f %f\n", P->body.min[0], P->body.min[1], P->body.min[2], P->body.max[0], P->body.max[1], P->body.max[2]));
+	//DEBUG_PRINT(("Player: min vector = %f %f %f; max vector = %f %f %f\n", P->body.min[0], P->body.min[1], P->body.min[2], P->body.max[0], P->body.max[1], P->body.max[2]));
 }

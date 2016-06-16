@@ -8,7 +8,7 @@ typedef struct {
 	float width;	// rectangle
 	vec3 position; // does position need to be stored?
 	vec4 direction; // velocity[0] == 1 forward, velocity[0] == 0 backwards, velocity[1] == 1 right, velocity[1] == 0 left;
-	hitbox body;
+	bounding_box hitbox;
 } player;
 
 player* initPlayer(vec3 position, float height, float width);

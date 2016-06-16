@@ -1,4 +1,4 @@
-#ifndef OBJ_LOADER_H
+	#ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 #include "mesh.h"
 
@@ -7,7 +7,7 @@ typedef struct {
 	GLuint* indices;
 	int vertexCount;
 	int indexCount;
-	hitbox body;
+	bounding_box hitbox;
 } OBJ_data;
 
 float get_number(int* i, char* buffer, float* x);

@@ -46,8 +46,8 @@ int loadOBJ(OBJ_data** data, const char* filename) {
 
     (*data) = (OBJ_data*)malloc(sizeof(OBJ_data));
 
-    (*data)->body.min[0] =  INFINITY; (*data)->body.min[1] =  INFINITY; (*data)->body.min[2] =  INFINITY;
-    (*data)->body.max[0] = -INFINITY; (*data)->body.max[1] = -INFINITY; (*data)->body.max[2] = -INFINITY;
+    (*data)->hitbox.min[0] =  INFINITY; (*data)->hitbox.min[1] =  INFINITY; (*data)->hitbox.min[2] =  INFINITY;
+    (*data)->hitbox.max[0] = -INFINITY; (*data)->hitbox.max[1] = -INFINITY; (*data)->hitbox.max[2] = -INFINITY;
 
     while (buffer[i] != 0) {
         counter = 0;
@@ -60,17 +60,17 @@ int loadOBJ(OBJ_data** data, const char* filename) {
                 for (i++; buffer[i] == ' '; i++);
                 while (get_number(&i, buffer, &x)) {
                     v_temp[v++] = x;
-                    if (x < (*data)->body.min[counter])
-                        (*data)->body.min[counter] = x;
-                    else if (x > (*data)->body.max[counter])
-                        (*data)->body.max[counter] = x;
+                    if (x < (*data)->hitbox.min[counter])
+                        (*data)->hitbox.min[counter] = x;
+                    else if (x > (*data)->hitbox.max[counter])
+                        (*data)->hitbox.max[counter] = x;
                     counter++;
                 }
                 v_temp[v++] = x;
-                if (x < (*data)->body.min[counter])
-                    (*data)->body.min[counter] = x;
-                else if (x > (*data)->body.max[counter])
-                    (*data)->body.max[counter] = x;                
+                if (x < (*data)->hitbox.min[counter])
+                    (*data)->hitbox.min[counter] = x;
+                else if (x > (*data)->hitbox.max[counter])
+                    (*data)->hitbox.max[counter] = x;                
             }
             else {
                 for (i++; buffer[i] == ' '; i++);

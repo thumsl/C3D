@@ -19,33 +19,43 @@ int main(int argc, char* argv[]) {
 	}
 
 	unsigned short running = 1, timePassed = 0, frames = 0, pastTime, currentTime = 0;;
-	int x = -1, y = -1, deltax = 0, deltay = 0;
+	int x = -1, y = -1, deltax = 0, deltay = 0, i;
 	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
 	
 	GLuint MVP = glGetUniformLocation(program, "MVP");
 	mat4x4 scale, translate, rotate, view, projection;
 
-	mat4x4_gen_rotate(rotate, 1, 0, 0, 0);
-	mat4x4_gen_scale(scale, 1, 1, 1);
-	mat4x4_gen_translate(translate, 0, 0, 0);
-	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.01f, 100.f);
-
 	camera C;
 	// TODO: function to initialize camera with default values
-	C.eye[0] = 0.0f; C.eye[1] = 2.0f; C.eye[2] = 3.0f;
+	C.eye[0] = 0.0f; C.eye[1] = 0.0f; C.eye[2] = 0.0f;
 	C.direction[0] = cosf(verticalAngle) * sinf(horizontalAngle); C.direction[1] = sinf(verticalAngle); C.direction[2] = cosf(horizontalAngle) * cosf(verticalAngle);
 	C.right[0] = sinf(horizontalAngle - PI/2.0f); C.right[1] = 0.0f; C.right[2] =  cosf(horizontalAngle - PI/2.0f);
 	vec3_mul_cross(C.up, C.right, C.direction);
 	
+	short meshCount = 3;
+	mesh* list[meshCount];
+	list[0] = initOBJMesh(argv[1], argv[2]);
+	list[1] = initOBJMesh("res/obj/jax.obj", "res/textures/test2.png");
+	list[2] = initOBJMesh("res/obj/plane.obj", "res/textures/test.png");
+
+	mat4x4 M;
+	for (i = 0; i < meshCount; i++) {
+		mat4x4_gen_rotate(list[i]->transform.rotate, 1, 0, 0, 0); // TODO: start using linmath.c rotate function
+		mat4x4_translate(list[i]->transform.translate, 0, 0, 0);
+	}
+
+	mat4x4_translate(list[0]->transform.translate, 3.5f, 0, 0);
+	mat4x4_translate(list[2]->transform.translate, -1.f, 0, 1);
+
+	player* P = initPlayer(C.eye, PLAYER_HEIGHT, PLAYER_WIDTH);
+	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.01f, 100.f);
+
 	vec4 pastDirection;
 	vec3 center, nextPosition, pastPosition; 
 	vec3_add(center, C.eye, C.direction);
 	mat4x4_look_at(view, C.eye, center, C.up);
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
-
-	mesh* M = initOBJMesh(argv[1], argv[2]);
-	player* P = initPlayer(C.eye, PLAYER_HEIGHT, PLAYER_WIDTH);
 
 	SDL_Event e;
 
@@ -112,18 +122,21 @@ int main(int argc, char* argv[]) {
 
 	    SDL_GetMouseState(&x, &y);
 		
-		vec3_copy(pastPosition, C.eye);
-		vec3_copy(nextPosition, C.eye);
-		camera_fps_move_simulate(nextPosition, &C, P->direction, currentTime - pastTime);
-		updateHitbox(P, nextPosition);
-		if (aabb_collision(P->body, M->body)) {
-			vec3_copy(C.eye, pastPosition);
-			updateHitbox(P, C.eye);
-		}
-		else {
-			camera_fps_move(&C, P->direction, currentTime - pastTime);
-			updateHitbox(P, C.eye);
-		}
+		// vec3_copy(pastPosition, C.eye);
+		// vec3_copy(nextPosition, C.eye);
+		// camera_fps_move_simulate(nextPosition, &C, P->direction, currentTime - pastTime);
+		// updateHitbox(P, nextPosition);
+		// if (aabb_collision(P->hitbox, list[0]->hitbox)) {
+		// 	DEBUG_PRINT("Collision!\n");
+		// 	vec3_copy(C.eye, pastPosition);
+		// 	updateHitbox(P, C.eye);
+		// }
+		// else {
+		// 	camera_fps_move(&C, P->direction, currentTime - pastTime);
+		// 	updateHitbox(P, C.eye);
+		// }
+
+		camera_fps_move(&C, P->direction, currentTime - pastTime);
 
 	    deltax = x - WIDTH/2;
 	    deltay = y - HEIGHT/2;
@@ -147,15 +160,19 @@ int main(int argc, char* argv[]) {
 		vec3_add(center, C.eye, C.direction);
 		mat4x4_look_at(view, C.eye, center, C.up);
 
-		mat4x4 M1, M2, M3, M4;
-		mat4x4_mul(M1, rotate, translate);
-		mat4x4_mul(M2, scale, M1);
-		mat4x4_mul(M3, view, M2);
-		mat4x4_mul(M4, projection, M3);
+		mat4x4 M1, M2, M3, M4, model_view;
+		
+		//mat4x4_translate(list[0]->transform.translate, 0, 0, C.eye[2]);
 
-		glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)M4);
+		for (i = 0; i < meshCount; i++) {
+			mat4x4_mul (model_view, list[i]->transform.translate, list[i]->transform.rotate);
+			mat4x4_mul (model_view, view, model_view);
+			mat4x4_mul (model_view, projection, model_view);
 
-		draw(M);
+			glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)model_view);
+
+			draw(list[i]);
+		}
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);

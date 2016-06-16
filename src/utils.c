@@ -117,10 +117,10 @@ void mat4x4_gen_scale(mat4x4 a, float x, float y, float z) {
 }
 
 void mat4x4_gen_translate(mat4x4 a, float x, float y, float z) {
-    a[0][0] = 1;    a[0][1] = 0;    a[0][2] = 0;    a[0][3] = x;
-    a[1][0] = 0;    a[1][1] = 1;    a[1][2] = 0;    a[1][3] = y;
-    a[2][0] = 0;    a[2][1] = 0;    a[2][2] = 1;    a[2][3] = z;
-    a[3][0] = 0;    a[3][1] = 0;    a[3][2] = 0;    a[3][3] = 1;
+    a[0][0] = 1;    a[0][1] = 0;    a[0][2] = 0;    a[0][3] = 0;
+    a[1][0] = 0;    a[1][1] = 1;    a[1][2] = 0;    a[1][3] = 0;
+    a[2][0] = 0;    a[2][1] = 0;    a[2][2] = 1;    a[2][3] = 0;
+    a[3][0] = x;    a[3][1] = y;    a[3][2] = z;    a[3][3] = 1;
 }
 
 void mat4x4_gen_rotate(mat4x4 a, short y, short x, short z, float angle) {
