@@ -12,13 +12,13 @@ int readfile(char** s, const char* filename) {
     if(stat(filename, &st) == -1)
         return 0;
 
-    *s = malloc(st.st_size+1);
-    memset (*s, 0, st.st_size+1); // \0
+    *s = malloc(st.st_size+2);
+    memset (*s, 0, st.st_size+2); // \0
 
     FILE *f;
     f = fopen(filename,"rb");
     fread(*s, 1, st.st_size, f);
-
+    
     return 1;
 }
 

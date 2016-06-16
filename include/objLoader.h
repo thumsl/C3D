@@ -4,8 +4,8 @@
 typedef struct {
 	GLfloat* vertices;
 	GLuint* indices;
-	unsigned int vertexCount;
-	unsigned int indexCount;
+	int vertexCount;
+	int indexCount;
 } OBJ_data;
 
 float get_number(int* i, char* buffer, float* x);

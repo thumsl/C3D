@@ -1,6 +1,6 @@
+#include "../include/engine.h"
 #include "../include/mesh.h"
-#include "../include/utils.h"
-#include "../include/objLoader.h" // needed?
+#include "../include/objLoader.h"
 #include "SDL2/SDL_image.h"
 #include <stdio.h>
 
@@ -54,23 +54,34 @@ mesh* initMesh(GLfloat *vertices, GLuint *indices, int vertexCount, int indexCou
 }
 
 mesh* initOBJMesh(const char* filename, const char* texturePath) {
-	mesh *M = (mesh*)malloc(sizeof(mesh));
-
 	// TODO: Dynamic allocation for Mesh data arrays
 	OBJ_data* data;
-	loadOBJ(data, filename);
+	loadOBJ(&data, filename);
+	int i;
 
-	//printf("Index count? %f\n", data->indexCount);
+	DEBUG_PRINT(("vertices:\n")); int k = 0;
+	for (i = 0; i < data->vertexCount * 5;  i++) {
+		DEBUG_PRINT(("%f ", data->vertices[i]));
+		k++;
+		if (k == 5) {
+			k = 0;
+			DEBUG_PRINT(("\n"));
+		}
+	}
+	DEBUG_PRINT(("\n"));
 
-    return initMesh(data->vertices, data->indices, data->vertexCount, data->indexCount, texturePath);
+	DEBUG_PRINT(("indices:\n"));
+	for (i = 0; i < data->indexCount;  i++) {
+		DEBUG_PRINT(("%d ", data->indices[i]));
+		k++;
+		if (k == 3) {
+			k = 0;
+			DEBUG_PRINT(("\n"));
+		}
+	}
+	DEBUG_PRINT(("\n"));
 
-    // printf("indices: ");
-    // int i; for (i = 0; i < data->indexCount; printf("%d ", data->indices[i]), i++);
-    // putchar('\n');
-
-    // printf("vertices: ");
-    // for (i = 0; i < vertexCount * 5; printf("%f ", vertices[i]), i++);
-    // putchar('\n');
+	return initMesh(data->vertices, data->indices, data->vertexCount, data->indexCount, texturePath);
 }
 
 void draw(mesh *M) {

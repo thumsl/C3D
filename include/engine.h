@@ -1,6 +1,12 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#ifdef DEBUG
+	# define DEBUG_PRINT(x) printf x
+#else
+	# define DEBUG_PRINT(x) 1==1
+#endif
+
 #include "camera.h"
 #include "linmath.h"
 #include "mesh.h"
