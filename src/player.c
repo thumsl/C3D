@@ -3,19 +3,16 @@
 #include "../include/utils.h"
 #include <stdlib.h>
 
-player* initPlayer(vec3 position, float height, float width) {
-	// TODO: function to copy vec3
+player* initPlayer(vec3 position) {
 	player *P = (player*)malloc(sizeof(player));
 
 	vec3_copy(P->position, position);
 
-	P->height = height;
-	P->width = width;
-
-	P->direction[0] = 0;
-	P->direction[1] = 0;
-	P->direction[2] = 0;
-	P->direction[3] = 0;
+	P->movement.forward 	= 0;
+	P->movement.backward 	= 0;
+	P->movement.left 		= 0;
+	P->movement.right 		= 0;
+	P->movement.run 		= 0;
 
 	return P;
 }

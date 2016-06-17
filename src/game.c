@@ -27,27 +27,27 @@ int main(int argc, char* argv[]) {
 
 	camera C;
 	// TODO: function to initialize camera with default values
-	C.eye[0] = 0.0f; C.eye[1] = 0.0f; C.eye[2] = 0.0f;
+	C.eye[0] = 0.0f; C.eye[1] = 2.0f; C.eye[2] = 5.0f;
 	C.direction[0] = cosf(verticalAngle) * sinf(horizontalAngle); C.direction[1] = sinf(verticalAngle); C.direction[2] = cosf(horizontalAngle) * cosf(verticalAngle);
 	C.right[0] = sinf(horizontalAngle - PI/2.0f); C.right[1] = 0.0f; C.right[2] =  cosf(horizontalAngle - PI/2.0f);
 	vec3_mul_cross(C.up, C.right, C.direction);
 	
-	short meshCount = 3;
+	short meshCount = 2;
 	mesh* list[meshCount];
-	list[0] = initOBJMesh(argv[1], argv[2]);
-	list[1] = initOBJMesh("res/obj/jax.obj", "res/textures/test2.png");
+	list[1] = initOBJMesh(argv[1], argv[2]);
+	list[0] = initOBJMesh("res/obj/jax.obj", "res/textures/test2.png");
 	list[2] = initOBJMesh("res/obj/plane.obj", "res/textures/test.png");
 
 	mat4x4 M;
 	for (i = 0; i < meshCount; i++) {
 		mat4x4_gen_rotate(list[i]->transform.rotate, 1, 0, 0, 0); // TODO: start using linmath.c rotate function
+		mat4x4_identity(list[i]->transform.scale);
 		mat4x4_translate(list[i]->transform.translate, 0, 0, 0);
 	}
 
-	mat4x4_translate(list[0]->transform.translate, 3.5f, 0, 0);
-	mat4x4_translate(list[2]->transform.translate, -1.f, 0, 1);
+	mat4x4_translate(list[0]->transform.translate, 0, 5, 0);
 
-	player* P = initPlayer(C.eye, PLAYER_HEIGHT, PLAYER_WIDTH);
+	player* P = initPlayer(C.eye);
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.01f, 100.f);
 
 	vec4 pastDirection;
@@ -83,16 +83,20 @@ int main(int argc, char* argv[]) {
 						running = 0;
 						break;
 					case SDLK_a:
-						P->direction[3] = 1;
+						P->movement.left = 1;
 						break;
 					case SDLK_d:
-						P->direction[2] = 1;
+						P->movement.right = 1;
 						break;
 					case SDLK_w:
-						P->direction[0] = 1;
+						P->movement.forward = 1;
 						break;
 					case SDLK_s:
-						P->direction[1] = 1;
+						P->movement.backward = 1;
+						break;
+					case SDLK_LSHIFT:
+						printf("Running\n");
+						P->movement.run = 1;
 						break;
 					case SDLK_j:
 						angle-=90;
@@ -106,37 +110,38 @@ int main(int argc, char* argv[]) {
 			if (e.type == SDL_KEYUP)
 				switch(e.key.keysym.sym) {
 					case SDLK_a:
-						P->direction[3] = 0;
+						P->movement.left = 0;
 						break;
 					case SDLK_d:
-						P->direction[2] = 0;
+						P->movement.right = 0;
 						break;
 					case SDLK_w:
-						P->direction[0] = 0;
+						P->movement.forward = 0;
 						break;
 					case SDLK_s:
-						P->direction[1] = 0;
+						P->movement.backward = 0;
+						break;
+					case SDLK_LSHIFT:
+						P->movement.run = 0;
 						break;
 				}
 		}
 
 	    SDL_GetMouseState(&x, &y);
 		
-		// vec3_copy(pastPosition, C.eye);
-		// vec3_copy(nextPosition, C.eye);
-		// camera_fps_move_simulate(nextPosition, &C, P->direction, currentTime - pastTime);
-		// updateHitbox(P, nextPosition);
-		// if (aabb_collision(P->hitbox, list[0]->hitbox)) {
-		// 	DEBUG_PRINT("Collision!\n");
-		// 	vec3_copy(C.eye, pastPosition);
-		// 	updateHitbox(P, C.eye);
-		// }
-		// else {
-		// 	camera_fps_move(&C, P->direction, currentTime - pastTime);
-		// 	updateHitbox(P, C.eye);
-		// }
-
-		camera_fps_move(&C, P->direction, currentTime - pastTime);
+		vec3_copy(pastPosition, C.eye);
+		vec3_copy(nextPosition, C.eye);
+		camera_fps_move_simulate(nextPosition, &C, P->movement, currentTime - pastTime);
+		updateHitbox(P, nextPosition);
+		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
+			DEBUG_PRINT("Collision!\n");
+			vec3_copy(C.eye, pastPosition);
+			updateHitbox(P, C.eye);
+		}
+		else {
+			camera_fps_move(&C, P->movement, currentTime - pastTime);
+			updateHitbox(P, C.eye);
+		}
 
 	    deltax = x - WIDTH/2;
 	    deltay = y - HEIGHT/2;
@@ -160,16 +165,17 @@ int main(int argc, char* argv[]) {
 		vec3_add(center, C.eye, C.direction);
 		mat4x4_look_at(view, C.eye, center, C.up);
 
-		mat4x4 M1, M2, M3, M4, model_view;
+		mat4x4 model_view_projection;
 		
 		//mat4x4_translate(list[0]->transform.translate, 0, 0, C.eye[2]);
 
 		for (i = 0; i < meshCount; i++) {
-			mat4x4_mul (model_view, list[i]->transform.translate, list[i]->transform.rotate);
-			mat4x4_mul (model_view, view, model_view);
-			mat4x4_mul (model_view, projection, model_view);
+			//mat4x4_mul(model_view, list[i]->transform.rotate, list[i]->transform.scale);
+			mat4x4_mul (model_view_projection, list[i]->transform.translate, list[i]->transform.rotate);
+			mat4x4_mul (model_view_projection, view, model_view_projection);
+			mat4x4_mul (model_view_projection, projection, model_view_projection);
 
-			glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)model_view);
+			glUniformMatrix4fv(MVP, 1, 0, (GLfloat*)model_view_projection);
 
 			draw(list[i]);
 		}
