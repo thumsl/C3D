@@ -39,9 +39,9 @@ int loadOBJ(OBJ_data** data, const char* filename) {
     }
 
     float x;
-    int i = 0, j = 0, k = 0, vn = 0, vt = 0, f = 0, v = 0, counter = 0;
+    int i = 0, j = 0, k = 0, w = 0, vn = 0, vt = 0, f = 0, v = 0, counter = 0;
 
-    GLfloat v_temp[50000], vt_temp[50000];
+    GLfloat v_temp[50000], vt_temp[50000], vn_temp[5000];
     GLuint f_temp[50000];   // TODO: change
 
     (*data) = (OBJ_data*)malloc(sizeof(OBJ_data));
@@ -82,7 +82,8 @@ int loadOBJ(OBJ_data** data, const char* filename) {
         else if (buffer[i+1] == 'n') {
             for (i+=2; buffer[i] == ' '; i++);
             while (get_number(&i, buffer, &x))
-                (1 == 1); // TODO
+                vn_temp[vn++] = x;
+            vn_temp[vn++] = x;
         }
         else if (buffer[i+1] == 't') {
             for (i+=2; buffer[i] == ' '; i++);
@@ -96,29 +97,32 @@ int loadOBJ(OBJ_data** data, const char* filename) {
     (*data)->vertexCount = v/3;
     (*data)->indexCount = f;
 
-    (*data)->vertices = (GLfloat*)malloc(5 * (*data)->vertexCount * sizeof(GLfloat));
+    (*data)->vertices = (GLfloat*)malloc(8 * (*data)->vertexCount * sizeof(GLfloat)); // 8: 3 position, 2 texture, 3 normal
     (*data)->indices = (GLuint*)malloc((*data)->indexCount * sizeof(GLuint));
 
-    if (vt != 0) {
-        for (k = 0, i = 0, j = 0; k < ((*data)->vertexCount * 5); i += 3, j+= 2, k += 5) {
+    // if (vt != 0) {
+        for (k = 0, i = 0, j = 0, w = 0; k < ((*data)->vertexCount * 8); i += 3, j+= 2, w += 3, k += 8) {
             (*data)->vertices[k] = v_temp[i];
             (*data)->vertices[k+1] = v_temp[i+1];
             (*data)->vertices[k+2] = v_temp[i+2];
             (*data)->vertices[k+3] = vt_temp[j];
             (*data)->vertices[k+4] = vt_temp[j+1];
+            (*data)->vertices[k+5] = vt_temp[w];
+            (*data)->vertices[k+6] = vt_temp[w+1];
+            (*data)->vertices[k+7] = vt_temp[w+2];
         }
-    }
-    else {
-        for (k = 0, i = 0, j = 0; k < ((*data)->vertexCount * 5); i += 3, j+= 2, k += 5) {
-            (*data)->vertices[k] = v_temp[i];
-            (*data)->vertices[k+1] = v_temp[i+1];
-            (*data)->vertices[k+2] = v_temp[i+2];
-            (*data)->vertices[k+3] = 0.0f;
-            (*data)->vertices[k+4] = 0.0f;
-        }
-    }
+    // }
+    // else {
+    //     for (k = 0, i = 0, j = 0, w = 0; k < ((*data)->vertexCount * 8); i += 3, j+= 2, w += 3, k += 8) {
+    //         (*data)->vertices[k] = v_temp[i];
+    //         (*data)->vertices[k+1] = v_temp[i+1];
+    //         (*data)->vertices[k+2] = v_temp[i+2];
+    //         (*data)->vertices[k+3] = 0.0f;
+    //         (*data)->vertices[k+4] = 0.0f;
+    //     }
+    // }
 
-    DEBUG_PRINT(("K = %d, i = %d, j = %d, v = %d, vt = %d, v+vt = %d, f = %d\n", k, i, j, v, vt, v+vt, f));
+    DEBUG_PRINT(("K = %d, i = %d, j = %d, v = %d, vt = %d, v+vt = %d, f = %d, vn = %d\n", k, i, j, v, vt, v+vt, f, vn));
 
     for (i = 0; i < f; i++)
         (*data)->indices[i] = f_temp[i];
@@ -126,7 +130,7 @@ int loadOBJ(OBJ_data** data, const char* filename) {
     DEBUG_PRINT(("vertex count %d indices %d\n", (*data)->vertexCount, (*data)->indexCount));
     putchar('\n');
 
-    DEBUG_PRINT(("min vector = %f %f %f; max vector = %f %f %f\n", (*data)->body.min[0], (*data)->body.min[1], (*data)->body.min[2], (*data)->body.max[0], (*data)->body.max[1], (*data)->body.max[2]));
+    DEBUG_PRINT(("min vector = %f %f %f; max vector = %f %f %f\n", (*data)->hitbox.min[0], (*data)->hitbox.min[1], (*data)->hitbox.min[2], (*data)->hitbox.max[0], (*data)->hitbox.max[1], (*data)->hitbox.max[2]));
 
     return 1;
 }

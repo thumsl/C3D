@@ -13,13 +13,16 @@ static void setMeshIndex(mesh* M, GLuint *indices) {
 static void setVertexData(mesh *M, GLfloat *vertices, const char* texLocation) {
 	glBindVertexArray(M->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, M->VBO);
-	glBufferData(GL_ARRAY_BUFFER, 5 * M->vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 8 * M->vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);    // Position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);   //The starting point of the VBO, for the vertices
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);   //The starting point of the VBO, for the vertices
 
 	glEnableVertexAttribArray(1);    // Texture
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+
+	glEnableVertexAttribArray(2);    // Normal
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
 
 	SDL_Surface *image;
 	image=IMG_Load(texLocation);

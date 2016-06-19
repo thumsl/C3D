@@ -23,6 +23,8 @@ int main(int argc, char* argv[]) {
 	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
 	
 	GLuint MVP = glGetUniformLocation(program, "MVP");
+	GLuint lightDirection = glGetUniformLocation(program, "lightDirection");
+	GLuint lightColor = glGetUniformLocation(program, "lightColor");
 	mat4x4 scale, translate, rotate, view, projection;
 
 	camera C;
@@ -35,8 +37,8 @@ int main(int argc, char* argv[]) {
 	short meshCount = 2;
 	mesh* list[meshCount];
 	list[1] = initOBJMesh(argv[1], argv[2]);
-	list[0] = initOBJMesh("res/obj/jax.obj", "res/textures/test2.png");
-	list[2] = initOBJMesh("res/obj/plane.obj", "res/textures/test.png");
+	list[0] = initOBJMesh("res/obj/plane.obj", "res/textures/test.png");
+	list[2] = initOBJMesh("res/obj/lamp.obj", "res/textures/test.png");
 
 	mat4x4 M;
 	for (i = 0; i < meshCount; i++) {
@@ -46,6 +48,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	mat4x4_translate(list[0]->transform.translate, 0, 5, 0);
+	mat4x4_gen_rotate(list[2]->transform.rotate, 0, 1, 0, 90);
 
 	player* P = initPlayer(C.eye);
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.01f, 100.f);
@@ -127,6 +130,11 @@ int main(int argc, char* argv[]) {
 				}
 		}
 
+		vec3 lightDir; lightDir[0] = 1.0f; lightDir[1] = 1.0f;  lightDir[2] = 1.0f; 
+		vec3 lightCol; lightCol[0] = 0.9f; lightCol[1] = 1.0f;  lightCol[2] = 0.6f;  // create diffuse light .h
+		glUniform3fv(lightDirection, 1, (GLfloat*)lightDir);
+		glUniform3fv(lightColor, 1, (GLfloat*)lightCol);
+
 	    SDL_GetMouseState(&x, &y);
 		
 		vec3_copy(pastPosition, C.eye);
@@ -134,7 +142,7 @@ int main(int argc, char* argv[]) {
 		camera_fps_move_simulate(nextPosition, &C, P->movement, currentTime - pastTime);
 		updateHitbox(P, nextPosition);
 		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
-			DEBUG_PRINT("Collision!\n");
+			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C.eye, pastPosition);
 			updateHitbox(P, C.eye);
 		}

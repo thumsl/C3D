@@ -5,8 +5,8 @@
 typedef struct {
 	GLfloat* vertices;
 	GLuint* indices;
-	int vertexCount;
-	int indexCount;
+	unsigned int vertexCount;
+	unsigned int indexCount;
 	bounding_box hitbox;
 } OBJ_data;
 
