@@ -32,61 +32,6 @@ int readfile(char** s, const char* filename) {
     return 1;
 }
 
-int compileAndAttachShaders(const char *vs, const char *fs, GLuint *program) {
-    char *vertexSource, *fragmentSource;
-
-    if (!readfile(&vertexSource, vs)) {
-        fprintf(stderr, "Failed to open file %s\n", vs);
-        return 0;
-    }
-
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, (const char * const*)&vertexSource, NULL);
-    glCompileShader(vertexShader);
-
-    if (!readfile(&fragmentSource, fs)) {
-        fprintf(stderr, "Failed to open file %s\n", fs);
-        return 0;
-    }
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, (const char * const*)&fragmentSource, NULL);
-    glCompileShader(fragmentShader);
-
-    /** Check for compilation errors **/
-    GLint status1, status2;
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status1);
-    if (status1 != GL_TRUE) {
-        char buffer[512];
-        glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
-        fprintf(stderr, "%s", buffer);
-    }
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status2);
-    if (status2 != GL_TRUE) {
-        char buffer[512];
-        glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
-        fprintf(stderr, "%s", buffer);
-    }
-
-    if (status1 != GL_TRUE || status2 != GL_TRUE)
-        return 0;
-
-    /** ---------------------------- **/
-
-    GLuint shaderProgram = glCreateProgram();
-
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
-
-    //TODO: create function to return uniform location
-    *program = shaderProgram;
-
-    return 1;
-}
-
 void mat4x4_debug_print(mat4x4 a) {
     int i, j;
     printf("------------------------------------\n");

@@ -8,10 +8,12 @@
 #endif
 
 #include "camera.h"
+#include "light.h"
 #include "linmath.h"
 #include "mesh.h"
 #include "player.h"
 #include "render.h"
+#include "shader.h"
 #include "utils.h"
 #include "window.h"
 
