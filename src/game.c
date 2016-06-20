@@ -4,7 +4,7 @@
 int main(int argc, char* argv[]) {
 	unsigned short running = 1, timePassed = 0, frames = 0, pastTime, currentTime = 0;
 	int x = -1, y = -1, deltax = 0, deltay = 0, i;
-	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI;
+	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI, factor = 0;
 	SDL_Event e;
 
 	/* Create Window */
@@ -30,8 +30,9 @@ int main(int argc, char* argv[]) {
 	initShader(&S);
 	vec4 pastDirection;
 	vec3 lightDir, center, nextPosition, pastPosition, lightCol; 
-	lightDir[0] = 1.0f; lightDir[1] = 1.0f;  lightDir[2] = 1.0f; 
-	lightCol[0] = 0.9f; lightCol[1] = 1.0f;  lightCol[2] = 0.6f;
+	lightDir[0] = 1.0f; lightDir[1] = 1.0f;  lightDir[2] = 1.0f;
+	vec3_norm(lightDir, lightDir);
+	lightCol[0] = 0.9f; lightCol[1] = 0.9f;  lightCol[2] = 0.7f;
 	diffuseLight diffuse;
 
 	initDiffuseLight(&diffuse, lightDir, lightCol);
@@ -52,21 +53,13 @@ int main(int argc, char* argv[]) {
 	mat4x4_look_at(view, C.eye, center, C.up);
 
 	/* Initialize all meshes */
-	short meshCount = 3;
+	short meshCount = 2;
 	mesh* list[meshCount];
-	list[2] = initOBJMesh("res/obj/lamp.obj", "res/textures/test.png");
+	//list[2] = initOBJMesh("res/obj/lamp.obj", "res/textures/test.png");
 	list[1] = initOBJMesh(argv[1], argv[2]);
-	list[0] = initOBJMesh("res/obj/plane.obj", "res/textures/test.png");
+	list[0] = initOBJMesh("res/obj/lamp.obj", "res/textures/test.png");
 
-	for (i = 0; i < meshCount; i++) {
-		mat4x4_gen_rotate(list[i]->transform.rotate, 1, 0, 0, 0); // TODO: start using linmath.c rotate function
-		mat4x4_identity(list[i]->transform.scale);
-		mat4x4_translate(list[i]->transform.translate, 0, 0, 0);
-	}
-
-	mat4x4_translate(list[0]->transform.translate, 3, 5, 0);
-
-
+	mesh_translate(list[0], 0, 0, -10);
 	/* Define the player */
 	player* P = initPlayer(C.eye);
 
@@ -140,7 +133,7 @@ int main(int argc, char* argv[]) {
 		vec3_copy(nextPosition, C.eye);
 		camera_fps_move_simulate(nextPosition, &C, P->movement, currentTime - pastTime);
 		updateHitbox(P, nextPosition);
-		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
+		if (aabb_collision(P->hitbox, list[0]->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C.eye, pastPosition);
 			updateHitbox(P, C.eye);
@@ -174,10 +167,16 @@ int main(int argc, char* argv[]) {
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		/////
+		//mesh_rotate_x(list[0], factor);
+		mesh_rotate_y(list[0], factor);
+		factor += 0.05;
+		////
+
 		for (i = 0; i < meshCount; i++) {
-			mat4x4_mul (model_view_projection, list[i]->transform.translate, list[i]->transform.rotate);
-			mat4x4_mul (model_view_projection, view, model_view_projection);
-			mat4x4_mul (model_view_projection, projection, model_view_projection);
+			mesh_update_model_matrix(list[i]);
+			mat4x4_mul(model_view_projection, view, list[i]->transform.model);
+			mat4x4_mul(model_view_projection, projection, model_view_projection);
 
 			glUniformMatrix4fv(S.MVPLocation, 1, 0, (GLfloat*)model_view_projection);
 

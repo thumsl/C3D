@@ -8,13 +8,11 @@ int initOpenGL() {
 		return 0;
 	}
 	else {
+		glEnable(GL_DEPTH_TEST);
+		glFrontFace(GL_CW);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 		printf("GL version: %s\n", glGetString(GL_VERSION));
 		return 1;
 	}
-
-	glFrontFace(GL_CW);
-	glCullFace(GL_FRONT);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-
 }

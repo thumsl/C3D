@@ -11,10 +11,12 @@ typedef struct {
 } bounding_box;
 
 typedef struct {
+	quat orientation;
 	mat4x4 translate;
 	mat4x4 rotate;
 	mat4x4 scale;
-} transform_matrixes; // TODO: change all stuff like this to start with a capital letter
+	mat4x4 model;
+} transform_type; // TODO: change all stuff like this to start with a capital letter
 
 typedef struct {
 	GLuint VAO;
@@ -24,16 +26,24 @@ typedef struct {
 	unsigned int vertexCount;
 	unsigned int indexCount;
 	bounding_box hitbox;
-	transform_matrixes transform;
+	transform_type transform;
 } mesh;
 
-mesh* initMesh(GLfloat *vertices, GLuint *indices, int vertexCount, int indexCount, const char* texLocation);
-mesh* initOBJMesh(const char* filename, const char* texturePath);
-
+static void initMesh(mesh *M);
 static void setVertexData(mesh* M, GLfloat *vertices, const char* texturePath);
 static void setMeshIndex(mesh* M, GLuint *indices);
 
+mesh* initOBJMesh(const char* filename, const char* texturePath);
+
 int aabb_collision(bounding_box a, bounding_box b);
+
+void mesh_translate(mesh* M, float x, float y, float z);
+void mesh_rotate_x(mesh* M, float angle);
+void mesh_rotate_y(mesh* M, float angle);
+void mesh_rotate_z(mesh* M, float angle);
+void mesh_scale(mesh* M, float k);
+
+void mesh_update_model_matrix(mesh* M);
 
 void draw(mesh *M);
 

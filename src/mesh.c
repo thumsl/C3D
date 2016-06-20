@@ -1,4 +1,5 @@
 #include "../include/engine.h"
+#include "../include/utils.h"
 #include "../include/mesh.h"
 #include "../include/objLoader.h"
 #include "SDL2/SDL_image.h"
@@ -38,27 +39,17 @@ static void setVertexData(mesh *M, GLfloat *vertices, const char* texLocation) {
 	SDL_FreeSurface(image);
 }
 
-mesh* initMesh(GLfloat *vertices, GLuint *indices, int vertexCount, int indexCount, const char* texturePath) {
-	mesh *M = (mesh*)malloc(sizeof(mesh));
-
-	M->vertexCount = vertexCount;
-	M->indexCount = indexCount;
-
-	glGenVertexArrays(1, &(M->VAO));
-
-	glGenBuffers(1, &(M->VBO));
-	glGenTextures(1, &(M->tex_id));
-	setVertexData(M, vertices, texturePath);
-
-	glGenBuffers(1, &(M->EBO));
-	setMeshIndex(M, indices);
-
-	return M;
+static void initMesh(mesh *M) {
+	quat_identity(M->transform.orientation);
+	mesh_translate(M, 0, 0, 0);
+	mesh_scale(M, 0);
 }
 
 mesh* initOBJMesh(const char* filename, const char* texturePath) {
 	mesh *M = (mesh*)malloc(sizeof(mesh));
-	
+
+	initMesh(M);
+
 	OBJ_data* data;
 	loadOBJ(&data, filename); // TODO: Dynamic allocation for Mesh data arrays
 
@@ -83,6 +74,10 @@ mesh* initOBJMesh(const char* filename, const char* texturePath) {
 
 	return M;
 }
+int aabb_collision(bounding_box a, bounding_box b) {
+	return (a.min[0] < b.max[0] && a.min[1] < b.max[1] && a.min[2] < b.max[2] &&
+			b.min[0] < a.max[0] && b.min[1] < a.max[1] && b.min[2] < a.max[2]);
+}
 
 void draw(mesh *M) {
 	glBindVertexArray(M->VAO);
@@ -91,7 +86,37 @@ void draw(mesh *M) {
 	glBindVertexArray(0);
 }
 
-int aabb_collision(bounding_box a, bounding_box b) {
-	return (a.min[0] < b.max[0] && a.min[1] < b.max[1] && a.min[2] < b.max[2] &&
-			b.min[0] < a.max[0] && b.min[1] < a.max[1] && b.min[2] < a.max[2]);
+void mesh_translate(mesh* M, float x, float y, float z) {
+	mat4x4_translate(M->transform.translate, x, y, z);
+	M->hitbox.min[0] += x;
+	M->hitbox.min[1] += y;
+	M->hitbox.min[2] += z;
+	M->hitbox.max[0] += x;
+	M->hitbox.max[1] += y;
+	M->hitbox.max[2] += z;
+}
+
+void mesh_rotate_x(mesh* M, float angle) {
+	vec3 axis; axis[0] = 1; axis[1] = 0; axis[2] = 0;
+	quat_rotate(M->transform.orientation, angle, axis);
+}
+
+void mesh_rotate_y(mesh* M, float angle) {
+	vec3 axis; axis[0] = 0; axis[1] = 1; axis[2] = 0;
+	quat_rotate(M->transform.orientation, angle, axis);
+}
+
+void mesh_rotate_z(mesh* M, float angle) {
+	vec3 axis; axis[0] = 0; axis[1] = 0; axis[2] = 1;
+	quat_rotate(M->transform.orientation, angle, axis);
+}
+
+void mesh_scale(mesh* M, float k) {
+	mat4x4_scale(M->transform.scale, M->transform.scale, k);
+}
+
+void mesh_update_model_matrix(mesh* M) {
+	//without scaling
+	mat4x4_from_quat(M->transform.rotate, M->transform.orientation);
+	mat4x4_mul (M->transform.model, M->transform.translate, M->transform.rotate);
 }

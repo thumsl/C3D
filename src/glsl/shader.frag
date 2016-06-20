@@ -11,7 +11,15 @@ uniform vec3 diffuseLightColor;
 
 void main() {
 	float lightIntensity = clamp(dot(normal, diffuseLightDirection), 0.0f, 1.0f);
+	color = texture2D(sampler, UV) * vec4(clamp((diffuseLightColor * lightIntensity), 0.0f, 1.0f), 1.0f);
+	
+	// float lightIntensity = dot(normal, diffuseLightDirection);
 
-    color = texture2D(sampler, UV) * vec4(clamp((diffuseLightColor * lightIntensity), 0.0f, 1.0f), 1.0f);
+	// if (lightIntensity > 0) {
+	// 	color = texture2D(sampler, UV) * vec4(diffuseLightColor * lightIntensity, 1.0f);
+	// }
+	// else
+	// 	color = vec4(0, 0, 0, 0);
+    
     //color = texture2D(sampler, UV);
 }
