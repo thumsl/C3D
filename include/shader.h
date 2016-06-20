@@ -7,11 +7,19 @@
 #define TEXTURE_LOCATION 1
 #define NORMAL_LOCATION 2
 
+//	TODO: Use enum?
 typedef struct {
-	GLuint MVPLocation;
-	GLuint diffuseLightDirectionLocation;
-	GLuint diffuseLightColorLocation;
+	GLuint MVP;
+	GLuint ambientLightColor;
+	GLuint ambientLightIntensity;
+	GLuint pointLightColor;
+	GLuint pointLightPosition;
+	GLuint attenuation;
+} uniform_location;
+
+typedef struct {
 	GLuint program;
+	uniform_location location;
 } shader;
 
 void initShader(shader* S);

@@ -3,9 +3,12 @@
 #include "../include/utils.h"
 
 void initShader(shader* S) {
-	S->MVPLocation = glGetUniformLocation(S->program, "MVP");
-	S->diffuseLightDirectionLocation = glGetUniformLocation(S->program, "diffuseLightDirection");
-	S->diffuseLightColorLocation = glGetUniformLocation(S->program, "diffuseLightColor"); // TODO: check for errors
+	S->location.MVP = glGetUniformLocation(S->program, "MVP");
+	S->location.ambientLightColor = glGetUniformLocation(S->program, "ambientLightColor"); // TODO: check for errors
+    S->location.ambientLightIntensity = glGetUniformLocation(S->program, "ambientLightIntensity");
+    S->location.pointLightPosition = glGetUniformLocation(S->program, "light.position");
+    S->location.pointLightColor = glGetUniformLocation(S->program, "light.color");
+    S->location.attenuation = glGetUniformLocation(S->program, "light.attenuation");
 }
 
 int compileAndAttachShaders(shader *S, const char *vs, const char *fs) {

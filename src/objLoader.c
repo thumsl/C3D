@@ -30,6 +30,44 @@ float get_number(int* i, char* buffer, float* x) {
         return 1;
 }
 
+void get_face_info(int* i, char* buffer, GLuint* f_temp, int *f, struct vertex_info* info) { 
+    int k; char str[16];
+    while (buffer[*i] != '\n' && buffer[*i] != '\0') {
+        // check max_size; realloc
+        for (k = 0; buffer[*i] != '/' && buffer[*i] != ' ' && buffer[*i] != '\0' && buffer[*i] != '\n'; (*i)++)
+            str[k++] = buffer[*i];
+        str[k] = 0;
+        f_temp[*f] = atoi(str);
+
+        if (buffer[(*i)] == '/') {
+            if (buffer[(*i)+1] == '/') {
+                info[f_temp[*f] - 1].textureIndex = 0;
+                for ((*i) += 2, k = 0; buffer[*i] != ' ' && buffer[*i] != '\n' && buffer[*i] != '\0'; (*i)++)
+                    str[k++] = buffer[*i];
+                str[k] = 0;
+                info[f_temp[*f] - 1].normalIndex = atoi(str);
+            }
+            else {
+                for ((*i) += 1, k = 0; buffer[*i] != '/' && buffer[*i] != ' '; (*i)++)
+                    str[k++] = buffer[*i];
+                str[k] = 0;
+                info[f_temp[*f] - 1].textureIndex = atoi(str);
+
+                if (buffer[*i] == '/') {
+                    for (*i += 1, k = 0; buffer[*i] != ' ' && buffer[*i] != '\n' && buffer[*i] != '\0'; (*i)++)
+                        str[k++] = buffer[*i];
+                    str[k] = 0;
+                    info[f_temp[*f] - 1].normalIndex = atoi(str);
+                }
+                else
+                    info[f_temp[*f] - 1].normalIndex = 0;
+            }
+        }
+        (*f)++;
+        for (; buffer[*i] == ' '; (*i)++);
+    }
+}
+
 int loadOBJ(OBJ_data** data, const char* filename) {
     char* buffer;
 
@@ -41,8 +79,11 @@ int loadOBJ(OBJ_data** data, const char* filename) {
     float x;
     int i = 0, j = 0, k = 0, w = 0, vn = 0, vt = 0, f = 0, v = 0, counter = 0;
 
-    GLfloat v_temp[50000], vt_temp[50000], vn_temp[5000];
-    GLuint f_temp[50000];   // TODO: change
+    struct vertex_info* info = (struct vertex_info*)malloc(50000 * sizeof(struct vertex_info));
+    GLfloat* v_temp = (GLfloat*)malloc(50000 * sizeof(GLfloat));
+    GLfloat* vt_temp = (GLfloat*)malloc(50000 * sizeof(GLfloat));
+    GLfloat* vn_temp = (GLfloat*)malloc(50000 * sizeof(GLfloat)); vt_temp[50000], vn_temp[5000];
+    GLuint* f_temp = (GLuint*)malloc(50000 * sizeof(GLuint));
 
     (*data) = (OBJ_data*)malloc(sizeof(OBJ_data));
 
@@ -51,12 +92,12 @@ int loadOBJ(OBJ_data** data, const char* filename) {
 
     while (buffer[i] != 0) {
         counter = 0;
-        if (buffer[i] != 'v' && buffer[i] != 'f')
+        if (buffer[i] != 'v' && buffer[i] != 'f') // comment or other meaningless line; skip to next line
             for (; buffer[i] != '\n' && buffer[i] != '\0'; i++);
-        else if (buffer[i+1] != ' ' && buffer[i+1] != 't' && buffer[i+1] != 'n')
+        else if (buffer[i+1] != ' ' && buffer[i+1] != 't' && buffer[i+1] != 'n') // could be position, texture, normal or face
             for (i++; buffer[i] != '\n' && buffer[i] != '\0'; i++);
-        else if (buffer[i+1] == ' ') {
-            if (buffer[i] == 'v') {
+        else if (buffer[i+1] == ' ') { // it is either position or face
+            if (buffer[i] == 'v') { // it was position coord
                 for (i++; buffer[i] == ' '; i++);
                 while (get_number(&i, buffer, &x)) {
                     v_temp[v++] = x;
@@ -72,20 +113,18 @@ int loadOBJ(OBJ_data** data, const char* filename) {
                 else if (x > (*data)->hitbox.max[counter])
                     (*data)->hitbox.max[counter] = x;                
             }
-            else {
+            else { // it was a face
                 for (i++; buffer[i] == ' '; i++);
-                while (get_number(&i, buffer, &x))
-                    f_temp[f++] = (int)(x - 1);
-                f_temp[f++] = (int)(x - 1);
+                get_face_info(&i, buffer, f_temp, &f, info);
             }
         }
-        else if (buffer[i+1] == 'n') {
+        else if (buffer[i+1] == 'n') { // it was a normal coord
             for (i+=2; buffer[i] == ' '; i++);
             while (get_number(&i, buffer, &x))
                 vn_temp[vn++] = x;
             vn_temp[vn++] = x;
         }
-        else if (buffer[i+1] == 't') {
+        else if (buffer[i+1] == 't') { // it was a texture coord
             for (i+=2; buffer[i] == ' '; i++);
             while (get_number(&i, buffer, &x))
                 vt_temp[vt++] = x;
@@ -100,37 +139,24 @@ int loadOBJ(OBJ_data** data, const char* filename) {
     (*data)->vertices = (GLfloat*)malloc(8 * (*data)->vertexCount * sizeof(GLfloat)); // 8: 3 position, 2 texture, 3 normal
     (*data)->indices = (GLuint*)malloc((*data)->indexCount * sizeof(GLuint));
 
-    // if (vt != 0) {
-        for (k = 0, i = 0, j = 0, w = 0; k < ((*data)->vertexCount * 8); i += 3, j+= 2, w += 3, k += 8) {
-            (*data)->vertices[k] = v_temp[i];
-            (*data)->vertices[k+1] = v_temp[i+1];
-            (*data)->vertices[k+2] = v_temp[i+2];
-            (*data)->vertices[k+3] = vt_temp[j];
-            (*data)->vertices[k+4] = vt_temp[j+1];
-            (*data)->vertices[k+5] = vt_temp[w];
-            (*data)->vertices[k+6] = vt_temp[w+1];
-            (*data)->vertices[k+7] = vt_temp[w+2];
-        }
-    // }
-    // else {
-    //     for (k = 0, i = 0, j = 0, w = 0; k < ((*data)->vertexCount * 8); i += 3, j+= 2, w += 3, k += 8) {
-    //         (*data)->vertices[k] = v_temp[i];
-    //         (*data)->vertices[k+1] = v_temp[i+1];
-    //         (*data)->vertices[k+2] = v_temp[i+2];
-    //         (*data)->vertices[k+3] = 0.0f;
-    //         (*data)->vertices[k+4] = 0.0f;
-    //     }
-    // }
-
-    DEBUG_PRINT(("K = %d, i = %d, j = %d, v = %d, vt = %d, v+vt = %d, f = %d, vn = %d\n", k, i, j, v, vt, v+vt, f, vn));
+    for (i = 0, j = 0; i < ((*data)->vertexCount * 8); i += 8, j+=3) {
+        (*data)->vertices[i] = v_temp[j];
+        (*data)->vertices[i+1] = v_temp[j+1];
+        (*data)->vertices[i+2] = v_temp[j+2];
+    }
 
     for (i = 0; i < f; i++)
-        (*data)->indices[i] = f_temp[i];
+        (*data)->indices[i] = f_temp[i] - 1;
 
-    DEBUG_PRINT(("vertex count %d indices %d\n", (*data)->vertexCount, (*data)->indexCount));
-    putchar('\n');
-
-    DEBUG_PRINT(("min vector = %f %f %f; max vector = %f %f %f\n", (*data)->hitbox.min[0], (*data)->hitbox.min[1], (*data)->hitbox.min[2], (*data)->hitbox.max[0], (*data)->hitbox.max[1], (*data)->hitbox.max[2]));
-
+    for (i = 0, j = 3; i < (*data)->vertexCount; i++, j+=8) {
+        int tex_start = (info[i].textureIndex - 1) * 2;
+        int normal_start = (info[i].normalIndex - 1) * 3;
+        (*data)->vertices[j] = vt_temp[tex_start];
+        (*data)->vertices[j+1] = vt_temp[tex_start+1];
+        (*data)->vertices[j+2] = vn_temp[normal_start];
+        (*data)->vertices[j+3] = vn_temp[normal_start+1];
+        (*data)->vertices[j+4] = vn_temp[normal_start+2];
+    }
+    
     return 1;
 }

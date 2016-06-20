@@ -6,12 +6,20 @@
 #include <GL/glew.h>
 
 typedef struct {
-	GLuint directionLocation;
-	GLuint colorLocation;
-	vec3 lightDirection;
-	vec3 lightColor;
-} diffuseLight;
+	vec3 color;
+	float intensity;
+} ambientLight;
 
-void initDiffuseLight(diffuseLight* diffuse, vec3 direction, vec3 color); // inline?s
-void setDiffuseLight(diffuseLight* diffuse, shader* S);
+typedef struct {
+	vec3 color;
+	vec3 position;
+	float attenuation;
+} pointLight;
+
+void initAmbientLight(ambientLight* ambient, vec3 color, float intensity);
+void setAmbientLight(ambientLight* ambient, shader *S);
+
+void initPointLight(pointLight* point, vec3 color, vec3 pos, float att);
+void setPointLight(pointLight* point, shader *S);
+
 #endif // LIGHT_H
