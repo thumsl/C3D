@@ -29,10 +29,7 @@ int main(int argc, char* argv[]) {
 	/* Get shader uniform locations, define light parameters */
 	initShader(&S);
 	vec4 pastDirection;
-	vec3 lightDir, center, nextPosition, pastPosition, lightCol; 
-	lightDir[0] = 1.0f; lightDir[1] = 1.0f;  lightDir[2] = 1.0f;
-	vec3_norm(lightDir, lightDir);
-	lightCol[0] = 0.9f; lightCol[1] = 0.9f;  lightCol[2] = 0.7f;
+	vec3 lightDir = {0.0f, 0.5f, 0.5f}, lightCol = {0.9f, 0.9f, 0.7f}, center, nextPosition, pastPosition; 
 	diffuseLight diffuse;
 
 	initDiffuseLight(&diffuse, lightDir, lightCol);
@@ -57,9 +54,11 @@ int main(int argc, char* argv[]) {
 	mesh* list[meshCount];
 	//list[2] = initOBJMesh("res/obj/lamp.obj", "res/textures/test.png");
 	list[1] = initOBJMesh(argv[1], argv[2]);
-	list[0] = initOBJMesh("res/obj/lamp.obj", "res/textures/test.png");
+	list[0] = initOBJMesh("res/obj/handgun.obj", "res/textures/handgun.jpg");
 
-	mesh_translate(list[0], 0, 0, -10);
+
+	mesh_rotate_y(list[0], 90*0.0174533f);
+	mesh_scale(list[0], 0.06f, 0.06f, 0.06f);	
 	/* Define the player */
 	player* P = initPlayer(C.eye);
 
@@ -133,7 +132,7 @@ int main(int argc, char* argv[]) {
 		vec3_copy(nextPosition, C.eye);
 		camera_fps_move_simulate(nextPosition, &C, P->movement, currentTime - pastTime);
 		updateHitbox(P, nextPosition);
-		if (aabb_collision(P->hitbox, list[0]->hitbox)) {
+		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C.eye, pastPosition);
 			updateHitbox(P, C.eye);
@@ -141,6 +140,7 @@ int main(int argc, char* argv[]) {
 		else {
 			camera_fps_move(&C, P->movement, currentTime - pastTime);
 			updateHitbox(P, C.eye);
+			mesh_translate_from_origin(list[0], C.eye[0]+0.01f, C.eye[1]-0.05f, C.eye[2]);
 		}
 
 		/* FPS camera control */
@@ -151,13 +151,13 @@ int main(int argc, char* argv[]) {
 			horizontalAngle += (float)(WIDTH/2 - x) * SENSITIVITY;
 			verticalAngle += (float)(HEIGHT/2 - y) * SENSITIVITY;
 
-			if (verticalAngle > 1.5f)
-				verticalAngle = 1.5f;
-			else if (verticalAngle < -1.5f)
-				verticalAngle = -1.5f;
+			if (verticalAngle > 1.0f)
+				verticalAngle = 1.0f;
+			else if (verticalAngle < -1.0f)
+				verticalAngle = -1.0f;
 
 			camera_fps_mouse_look(&C, horizontalAngle, verticalAngle);
-
+			mesh_rotate_from_ident(list[0], 0.0f, (horizontalAngle)  - 90*0.0174533f, verticalAngle);
 			SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	    }
 
@@ -166,12 +166,6 @@ int main(int argc, char* argv[]) {
 
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		/////
-		//mesh_rotate_x(list[0], factor);
-		mesh_rotate_y(list[0], factor);
-		factor += 0.05;
-		////
 
 		for (i = 0; i < meshCount; i++) {
 			mesh_update_model_matrix(list[i]);

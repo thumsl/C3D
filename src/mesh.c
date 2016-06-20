@@ -41,8 +41,9 @@ static void setVertexData(mesh *M, GLfloat *vertices, const char* texLocation) {
 
 static void initMesh(mesh *M) {
 	quat_identity(M->transform.orientation);
-	mesh_translate(M, 0, 0, 0);
-	mesh_scale(M, 0);
+	mat4x4_identity(M->transform.rotate);
+	mat4x4_identity(M->transform.translate);
+	mat4x4_identity(M->transform.scale);
 }
 
 mesh* initOBJMesh(const char* filename, const char* texturePath) {
@@ -96,27 +97,46 @@ void mesh_translate(mesh* M, float x, float y, float z) {
 	M->hitbox.max[2] += z;
 }
 
+void mesh_translate_from_origin(mesh* M, float x, float y, float z) {
+	mat4x4_identity(M->transform.translate);
+	mat4x4_translate(M->transform.translate, x, y, z);
+	M->hitbox.min[0] += x;
+	M->hitbox.min[1] += y;
+	M->hitbox.min[2] += z;
+	M->hitbox.max[0] += x;
+	M->hitbox.max[1] += y;
+	M->hitbox.max[2] += z;
+}
+
 void mesh_rotate_x(mesh* M, float angle) {
-	vec3 axis; axis[0] = 1; axis[1] = 0; axis[2] = 0;
-	quat_rotate(M->transform.orientation, angle, axis);
+	// quat_rotate(M->transform.orientation, angle, axis);
+	mat4x4_rotate(M->transform.rotate, M->transform.rotate, 1.0f, 0.0f, 0.0f, angle);
 }
 
 void mesh_rotate_y(mesh* M, float angle) {
-	vec3 axis; axis[0] = 0; axis[1] = 1; axis[2] = 0;
-	quat_rotate(M->transform.orientation, angle, axis);
+	mat4x4_rotate(M->transform.rotate, M->transform.rotate, 0, 1, 0, angle);
 }
 
 void mesh_rotate_z(mesh* M, float angle) {
-	vec3 axis; axis[0] = 0; axis[1] = 0; axis[2] = 1;
-	quat_rotate(M->transform.orientation, angle, axis);
+	mat4x4_rotate(M->transform.rotate, M->transform.rotate, 0, 0, 1, angle);
 }
 
-void mesh_scale(mesh* M, float k) {
-	mat4x4_scale(M->transform.scale, M->transform.scale, k);
+void mesh_rotate_from_ident(mesh* M, float x_angle, float y_angle, float z_angle) {
+	mat4x4_identity(M->transform.rotate);
+	mat4x4_rotate(M->transform.rotate, M->transform.rotate, 1, 0, 0, x_angle);
+	mat4x4_rotate(M->transform.rotate, M->transform.rotate, 0, 1, 0, y_angle);
+	mat4x4_rotate(M->transform.rotate, M->transform.rotate, 0, 0, 1, z_angle);
+}
+
+void mesh_scale(mesh* M, float x, float y, float z) {
+	// M->transform.scale[0][0] *= k;
+	// M->transform.scale[1][1] *= k;
+	// M->transform.scale[2][2] *= k;
+	mat4x4_scale_aniso(M->transform.scale, M->transform.scale, x, y, z);
 }
 
 void mesh_update_model_matrix(mesh* M) {
-	//without scaling
-	mat4x4_from_quat(M->transform.rotate, M->transform.orientation);
-	mat4x4_mul (M->transform.model, M->transform.translate, M->transform.rotate);
+	//mat4x4_from_quat(M->transform.rotate, M->transform.orientation);
+	mat4x4_mul(M->transform.model, M->transform.rotate, M->transform.scale);
+	mat4x4_mul (M->transform.model, M->transform.translate, M->transform.model);
 }

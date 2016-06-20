@@ -38,10 +38,12 @@ mesh* initOBJMesh(const char* filename, const char* texturePath);
 int aabb_collision(bounding_box a, bounding_box b);
 
 void mesh_translate(mesh* M, float x, float y, float z);
+void mesh_translate_from_origin(mesh* M, float x, float y, float z);
 void mesh_rotate_x(mesh* M, float angle);
 void mesh_rotate_y(mesh* M, float angle);
 void mesh_rotate_z(mesh* M, float angle);
-void mesh_scale(mesh* M, float k);
+void mesh_rotate_from_ident(mesh* M, float x_angle, float y_angle, float z_angle);
+void mesh_scale(mesh* M, float x, float y, float z);
 
 void mesh_update_model_matrix(mesh* M);
 
