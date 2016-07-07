@@ -36,3 +36,14 @@ int createWindow(int width, int height, const char* title) {
 
 	return 1;
 }
+
+void grabCursor(bool grab) {
+	if (grab) {
+		SDL_ShowCursor(SDL_DISABLE);
+		SDL_SetWindowGrab(window, SDL_TRUE);
+	}
+	else {
+		SDL_ShowCursor(SDL_ENABLE);
+		SDL_SetWindowGrab(window, SDL_FALSE);
+	}
+}

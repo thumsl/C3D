@@ -1,8 +1,10 @@
 #include "../include/engine.h"
 #include <math.h>
+#include <stdbool.h>
 
 int main(int argc, char* argv[]) {
-	unsigned short running = 1, timePassed = 0, frames = 0, pastTime, currentTime = 0;
+	bool running = true, mouseGrab = true;
+	unsigned timePassed = 0, frames = 0, pastTime, currentTime = 0;
 	int x = -1, y = -1, deltax = 0, deltay = 0, i;
 	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI, factor = 0;
 	SDL_Event e;
@@ -85,14 +87,15 @@ int main(int argc, char* argv[]) {
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_WINDOWEVENT)
 				if (e.window.event == SDL_WINDOWEVENT_CLOSE)
-					running = 0;
+					running = false;
 			if (e.type == SDL_KEYDOWN)
 				switch(e.key.keysym.sym) {
 					case SDLK_ESCAPE:
-						running = 0;
+						mouseGrab = !mouseGrab;
+						grabCursor(mouseGrab);
 						break;
 					case SDLK_q:
-						running = 0;
+						running = false;
 						break;
 					case SDLK_a:
 						P->movement.left = 1;
@@ -157,7 +160,7 @@ int main(int argc, char* argv[]) {
 	    deltax = x - WIDTH/2;
 	    deltay = y - HEIGHT/2;
 
-	    if (deltax != 0 || deltay != 0) {
+	    if ((deltax != 0 || deltay != 0) && mouseGrab) {
 			horizontalAngle += (float)(WIDTH/2 - x) * SENSITIVITY;
 			verticalAngle += (float)(HEIGHT/2 - y) * SENSITIVITY;
 

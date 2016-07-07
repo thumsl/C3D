@@ -3,12 +3,8 @@
 
 #include "GL/glew.h"
 #include "linmath.h"
+#include "aabb.h"
 // TODO: vertex struct
-
-typedef struct {
-	vec3 min;
-	vec3 max;
-} bounding_box;
 
 typedef struct {
 	quat orientation;
@@ -34,8 +30,6 @@ static void setVertexData(mesh* M, GLfloat *vertices, const char* texturePath);
 static void setMeshIndex(mesh* M, GLuint *indices);
 
 mesh* initOBJMesh(const char* filename, const char* texturePath);
-
-int aabb_collision(bounding_box a, bounding_box b);
 
 void mesh_translate(mesh* M, float x, float y, float z);
 void mesh_translate_from_origin(mesh* M, float x, float y, float z);

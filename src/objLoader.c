@@ -9,7 +9,7 @@
         It's not pretty.
 */
 
-float get_number(int* i, char* buffer, float* x) {
+static float get_number(int* i, char* buffer, float* x) {
     // reads characters from buffer until space, \n or \0 and gen number from them
     char str[16];
     int j;
