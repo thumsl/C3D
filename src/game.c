@@ -1,10 +1,9 @@
 #include "../include/engine.h"
 #include <math.h>
-#include <stdbool.h>
 
 int main(int argc, char* argv[]) {
-	bool running = true, mouseGrab = true;
-	unsigned timePassed = 0, frames = 0, pastTime, currentTime = 0;
+	bool running = true, mouseGrab = true, drawBoundingBox = false;
+	unsigned int timePassed = 0, frames = 0, pastTime, currentTime = 0, frameTime;
 	int x = -1, y = -1, deltax = 0, deltay = 0, i;
 	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI, factor = 0;
 	SDL_Event e;
@@ -37,7 +36,7 @@ int main(int argc, char* argv[]) {
 	initAmbientLight(&ambient, lightColor, intensity);
 	setAmbientLight(&ambient, &S);
 
-	vec3 lightCol = {1.0f, 0.0f, 0.0f};
+	vec3 lightCol = {10.0f, 0.0f, 0.0f};
 	vec3 lightPosition = {0.0f, 2.0f, 0.0f};
 	float att = 0.5f; pointLight point;
 	initPointLight(&point, lightCol, lightPosition, att);
@@ -65,55 +64,16 @@ int main(int argc, char* argv[]) {
 	list[2] = initOBJMesh("res/obj/R2-D2.obj", "res/textures/R2-D2.tga");
 	mesh_translate(list[0], -1, 0, 0);
 	mesh_translate(list[2], 1, 0, 0);
-	mesh* crosshair = initOBJMesh("res/obj/crosshair.obj", "res/textures/test.png");
 
 	/* Define the player */
 	player* P = initPlayer(C->eye);
 
 	// TODO: WEAPON //
 
-	float position[] = {
-		0,0,0,
-		1,0,0,
-		1,0,1,
-		0,0,1,
-		0,1,1,
-		0,1,0,
-		1,1,0,
-		1,1,1
-    };
+	/* Bullet List */
 
-    GLuint indices[] = {
-        0, 1,
-        1, 2,
-        2, 3,
-        3, 4,
-        4, 5,
-        5, 0,
-        5, 6,
-        6, 7,
-        7, 2,
-        6, 1,
-        4, 7,
-        3, 0
-    };
-
-	GLuint VAO, VBO, EBO;
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	vec3 bulletVelocity = {0, 0, -1};
+	node *bulletList = NULL; // This is ugly
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
@@ -141,21 +101,25 @@ int main(int argc, char* argv[]) {
 						running = false;
 						break;
 					case SDLK_a:
-						P->movement.left = 1;
+						P->movement.left = true;
 						break;
 					case SDLK_d:
-						P->movement.right = 1;
+						P->movement.right = true;
 						break;
 					case SDLK_w:
-						P->movement.forward = 1;
+						P->movement.forward = true;
 						break;
 					case SDLK_s:
-						P->movement.backward = 1;
+						P->movement.backward = true;
+						break;
+					case SDLK_h:
+						drawBoundingBox = !drawBoundingBox;
 						break;
 					case SDLK_LSHIFT:
-						printf("Running\n");
+						DEBUG_PRINT(("Running\n"));
 						P->movement.run = 1;
 						break;
+
 				}
 			if (e.type == SDL_KEYUP)
 				switch(e.key.keysym.sym) {
@@ -175,6 +139,10 @@ int main(int argc, char* argv[]) {
 						P->movement.run = 0;
 						break;
 				}
+			if (e.type == SDL_MOUSEBUTTONDOWN)
+				if (e.button.button == SDL_BUTTON_LEFT) {
+					list_insert(&bulletList, bullet_create(C->eye, C->direction, "res/obj/bullet.obj"));
+				}
 		}
 
 	    SDL_GetMouseState(&x, &y);
@@ -182,20 +150,21 @@ int main(int argc, char* argv[]) {
 	    mesh_rotate_from_ident(list[0], 0.0f, factor, 0.0f);
 	    mesh_rotate_from_ident(list[1], 0.0f, factor, 0.0f);
 	    mesh_rotate_from_ident(list[2], 0.0f, factor, 0.0f);
-	    factor += 0.0005 * (currentTime - pastTime);
+	    frameTime = (currentTime - pastTime);
+	    factor += 0.0005 * frameTime;
 		
 		/* Movement */
 		vec3_copy(pastPosition, C->eye);
 		vec3_copy(nextPosition, C->eye);
-		camera_fps_move_simulate(nextPosition, C, P->movement, currentTime - pastTime);
+		camera_fps_movement_simulate(nextPosition, C, P->movement, frameTime);
 		updateHitbox(P, nextPosition);
-		if (aabb_collision(P->hitbox, list[0]->hitbox)) {
+		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C->eye, pastPosition);
 			updateHitbox(P, C->eye);
 		}
 		else {
-			camera_fps_move(C, P->movement, currentTime - pastTime);
+			camera_fps_movement(C, P->movement, frameTime);
 			updateHitbox(P, C->eye);
 		}
 
@@ -223,23 +192,23 @@ int main(int argc, char* argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (i = 0; i < meshCount; i++) {
-			mesh_update_model_matrix(list[i]);
-			mat4x4_mul(model_view_projection, view, list[i]->transform.model);
-			mat4x4_mul(model_view_projection, projection, model_view_projection);
-
-			glUniformMatrix4fv(S.location.MVP, 1, 0, (GLfloat*)model_view_projection);
-
-			draw(list[i]);
-			drawHitbox(list[i]);
+			draw(list[i], view, projection, S, drawBoundingBox);
 		}
 
-		//glEnableVertexAttribArray(VAO);
-		//glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
+		node* aux = bulletList;
+		
+		while (aux != NULL) {
+			mesh* currentBullet = ((bullet*) aux->data) -> M;
+			draw(currentBullet, view, projection, S, drawBoundingBox);
+			bullet_updatePosition((bullet*)aux->data, frameTime);
+			aux = aux->next;
+		}
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);
 	}
-
+	
+	list_destroy(&bulletList);
 	quit();
 
 	return 0;

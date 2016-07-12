@@ -22,7 +22,7 @@ void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle
 	vec3_mul_cross(C->up, C->right, C->direction);
 }
 
-void camera_fps_move(camera* C, player_movement movement, unsigned short frameTime) {
+void camera_fps_movement(camera* C, player_movement_type movement, unsigned short frameTime) {
 	vec3 scaled_direction, scaled_right;
 
 	if (movement.run) {
@@ -30,9 +30,8 @@ void camera_fps_move(camera* C, player_movement movement, unsigned short frameTi
 		vec3_scale(scaled_right, C->right, RUN * frameTime);
 	} else {
 		vec3_scale(scaled_direction, C->direction, WALK * frameTime);
-		vec3_scale(scaled_right, C->right, WALK*frameTime);
+		vec3_scale(scaled_right, C->right, WALK * frameTime);
 	}
-
 
 	if (movement.forward)
 		vec3_add(C->eye, C->eye, scaled_direction);
@@ -44,7 +43,8 @@ void camera_fps_move(camera* C, player_movement movement, unsigned short frameTi
 		vec3_sub(C->eye, C->eye, scaled_right);
 }
 
-void camera_fps_move_simulate(vec3 R, camera* C, player_movement movement, unsigned short frameTime) {
+void camera_fps_movement_simulate(vec3 R, camera* C, player_movement_type movement, unsigned short frameTime) {
+	// UGLY
 	vec3 scaled_direction, scaled_right;
 
 	if (movement.run) {

@@ -2,8 +2,12 @@
 #define MESH_H
 
 #include "GL/glew.h"
-#include "linmath.h"
 #include "aabb.h"
+#include "linmath.h"
+#include "shader.h"
+
+#include <stdbool.h>
+
 // TODO: vertex struct
 
 typedef struct {
@@ -47,7 +51,7 @@ void mesh_scale(mesh* M, float x, float y, float z);
 
 void mesh_update_model_matrix(mesh* M);
 
-void draw(mesh *M);
+void draw(mesh *M, mat4x4 view, mat4x4 projection, shader S, bool hitbox);
 
 // TODO: Clean up
 #endif

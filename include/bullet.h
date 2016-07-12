@@ -4,11 +4,12 @@
 #include "linmath.h"
 
 typedef struct {
-	vec3 position;
-	vec3 velocity;
 	mesh *M;
+	vec3 velocity;
+	vec3 position;
 } bullet;
 
-bullet* createBullet(vec3 postion, vec3 velocity, mesh* bulletMesh);
+bullet* bullet_create(vec3 position, vec3 velocity, const char* bulletMesh);
+void bullet_updatePosition(bullet* B, unsigned int frameTime);
 
 #endif // BULLET_H

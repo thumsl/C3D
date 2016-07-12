@@ -7,11 +7,14 @@
 	# define DEBUG_PRINT(x) 1==1
 #endif
 
+#include <stdbool.h>
+
 #include "aabb.h"
 #include "bullet.h"
 #include "camera.h"
 #include "light.h"
 #include "linmath.h"
+#include "list.h"
 #include "mesh.h"
 #include "player.h"
 #include "render.h"
@@ -25,7 +28,7 @@
 #define FOV 60.0f * 0.0174533f
 #define SENSITIVITY 0.001f
 #define WALK 0.01f
-#define RUN 0.1f
+#define RUN 0.05f
 #define FULLSCREEN 0 // SDL_FULLSCREEN SDL_WINDOW_FULLSCREEN_DESKTOP (fake fullscreen) // 0 Windowed
 #define PLAYER_HEIGHT 2
 #define PLAYER_WIDTH 1

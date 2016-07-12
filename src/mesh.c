@@ -121,16 +121,25 @@ mesh* initOBJMesh(const char* filename, const char* texturePath) {
 	return M;
 }
 
-void draw(mesh *M) {
+void draw(mesh *M, mat4x4 view, mat4x4 projection, shader S, bool hitbox) {
+	mat4x4_mul(M->transform.model, M->transform.rotate, M->transform.scale);
+	mat4x4_mul (M->transform.model, M->transform.translate, M->transform.model);
+
+	mat4x4 model_view_projection;
+
+	mat4x4_mul(model_view_projection, view, M->transform.model);
+	mat4x4_mul(model_view_projection, projection, model_view_projection);
+
 	glBindVertexArray(M->VAO);
 	glBindTexture(GL_TEXTURE_2D, M->tex_id);
 	glDrawElements(GL_TRIANGLES, M->indexCount, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
-}
 
-void drawHitbox(mesh* M) {
-	glBindVertexArray(M->hitboxVAO);
-	glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
+	glUniformMatrix4fv(S.location.MVP, 1, 0, (GLfloat*)model_view_projection);
+
+	if (hitbox)
+		glBindVertexArray(M->hitboxVAO);
+		glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
 }
 
 void mesh_translate(mesh* M, float x, float y, float z) {
