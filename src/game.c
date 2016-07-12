@@ -71,7 +71,50 @@ int main(int argc, char* argv[]) {
 	player* P = initPlayer(C->eye);
 
 	// TODO: WEAPON //
-	
+
+	float position[] = {
+		0,0,0,
+		1,0,0,
+		1,0,1,
+		0,0,1,
+		0,1,1,
+		0,1,0,
+		1,1,0,
+		1,1,1
+    };
+
+    GLuint indices[] = {
+        0, 1,
+        1, 2,
+        2, 3,
+        3, 4,
+        4, 5,
+        5, 0,
+        5, 6,
+        6, 7,
+        7, 2,
+        6, 1,
+        4, 7,
+        3, 0
+    };
+
+	GLuint VAO, VBO, EBO;
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
 		pastTime = currentTime;
@@ -187,7 +230,11 @@ int main(int argc, char* argv[]) {
 			glUniformMatrix4fv(S.location.MVP, 1, 0, (GLfloat*)model_view_projection);
 
 			draw(list[i]);
+			drawHitbox(list[i]);
 		}
+
+		//glEnableVertexAttribArray(VAO);
+		//glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);

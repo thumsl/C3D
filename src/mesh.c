@@ -5,6 +5,49 @@
 #include "SDL2/SDL_image.h"
 #include <stdio.h>
 
+static void genHitboxVertexData(mesh* M) {	
+	float position[] = {
+		M->hitbox.min[0], M->hitbox.min[1], M->hitbox.min[2],
+		M->hitbox.max[0], M->hitbox.min[1], M->hitbox.min[2],
+		M->hitbox.max[0], M->hitbox.min[1], M->hitbox.max[2],
+		M->hitbox.min[0], M->hitbox.min[1], M->hitbox.max[2],
+		M->hitbox.min[0], M->hitbox.max[1], M->hitbox.max[2],
+		M->hitbox.min[0], M->hitbox.max[1], M->hitbox.min[2],
+		M->hitbox.max[0], M->hitbox.max[1], M->hitbox.min[2],
+		M->hitbox.max[0], M->hitbox.max[1], M->hitbox.max[2]
+    };
+
+    GLuint indices[] = {
+        0, 1,
+        1, 2,
+        2, 3,
+        3, 4,
+        4, 5,
+        5, 0,
+        5, 6,
+        6, 7,
+        7, 2,
+        6, 1,
+        4, 7,
+        3, 0
+    };
+
+	glGenVertexArrays(1, &(M->hitboxVAO));
+	glGenBuffers(1, &(M->hitboxVBO));
+	glGenBuffers(1, &(M->hitboxEBO));
+
+	glBindVertexArray(M->hitboxVAO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, M->hitboxEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, (M->hitboxVBO));
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+}
+
 static void setMeshIndex(mesh* M, GLuint *indices) {
 	glBindVertexArray(M->VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, M->EBO);
@@ -69,6 +112,8 @@ mesh* initOBJMesh(const char* filename, const char* texturePath) {
 	glGenBuffers(1, &(M->EBO));
 	setMeshIndex(M, data->indices);
 
+	genHitboxVertexData(M);
+
 	free(data->indices);
 	free(data->vertices);
 	free(data);
@@ -81,6 +126,11 @@ void draw(mesh *M) {
 	glBindTexture(GL_TEXTURE_2D, M->tex_id);
 	glDrawElements(GL_TRIANGLES, M->indexCount, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
+}
+
+void drawHitbox(mesh* M) {
+	glBindVertexArray(M->hitboxVAO);
+	glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
 }
 
 void mesh_translate(mesh* M, float x, float y, float z) {

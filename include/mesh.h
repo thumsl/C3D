@@ -23,11 +23,17 @@ typedef struct {
 	unsigned int indexCount;
 	bounding_box hitbox;
 	transform_type transform;
+	GLuint hitboxVAO;
+	GLuint hitboxVBO;
+	GLuint hitboxEBO;
 } mesh;
 
 static void initMesh(mesh *M);
 static void setVertexData(mesh* M, GLfloat *vertices, const char* texturePath);
 static void setMeshIndex(mesh* M, GLuint *indices);
+
+static void genHitboxVertexData(mesh* M);
+void drawHitbox(mesh* M);
 
 mesh* initOBJMesh(const char* filename, const char* texturePath);
 

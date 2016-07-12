@@ -7,6 +7,8 @@
 	# define DEBUG_PRINT(x) 1==1
 #endif
 
+#include "aabb.h"
+#include "bullet.h"
 #include "camera.h"
 #include "light.h"
 #include "linmath.h"
