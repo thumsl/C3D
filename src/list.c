@@ -52,27 +52,28 @@ node* list_delete_node(linkedList* list, node* N) {
 		}
 	}
 }
-void list_print(node* head) {
-        if (head == NULL)
-                return;
 
-        node* P = head;
-        while (P != NULL) {
-                printf("%p\n", P->data);
-                P = P->next;
-        }
+void list_print(node* head) {
+    if (head == NULL)
+            return;
+
+    node* P = head;
+    while (P != NULL) {
+            printf("%p\n", P->data);
+            P = P->next;
+    }
 }
 
 void list_destroy(node** head) {
-        node *next = (*head)->next;
-        node *aux;
+    node *next = (*head)->next;
+    node *aux;
 
-        while (next != NULL) {
-                aux = next->next;
-                free(next);
-                next = aux;
-        }
+    while (next != NULL) {
+            aux = next->next;
+            free(next);
+            next = aux;
+    }
 
-        free(*head);
-        *head = NULL;
+    free(*head);
+    *head = NULL;
 }

@@ -27,6 +27,4 @@ void player_updateHitbox(player* P, vec3 position) {
 	P->hitbox.max[0] = P->position[0] + PLAYER_WIDTH/2.0f;
 	P->hitbox.max[1] = P->position[1];
 	P->hitbox.max[2] = P->position[2] + PLAYER_WIDTH;
-
-	//DEBUG_PRINT(("Player: min vector = %f %f %f; max vector = %f %f %f\n", P->body.min[0], P->body.min[1], P->body.min[2], P->body.max[0], P->body.max[1], P->body.max[2]));
 }

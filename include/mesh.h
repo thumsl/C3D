@@ -15,7 +15,7 @@ typedef struct {
 	mat4x4 rotate;
 	mat4x4 scale;
 	mat4x4 model;
-} transformationMatrixes; // TODO: change all stuff like this to start with a capital letter
+} transformationMatrixes;
 
 typedef struct {
 	unsigned int vertexCount;
