@@ -1,5 +1,5 @@
 # C3D
-C3D is a OpenGL 3D Engine, written in C, as a learning exercise.
+C3D is a OpenGL 3D Game Engine, written in C, as a learning exercise.
 
 ---
 * C
