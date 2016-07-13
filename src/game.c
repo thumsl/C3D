@@ -59,9 +59,9 @@ int main(int argc, char* argv[]) {
 
 	/* Initialize all meshes */
 	short meshCount = 3; mesh* list[meshCount];
-	list[0] = initOBJMesh("res/obj/jax.obj", "res/textures/jax.tga");
-	list[1] = initOBJMesh("res/obj/raptor.obj", "res/textures/raptor.png");
-	list[2] = initOBJMesh("res/obj/R2-D2.obj", "res/textures/R2-D2.tga");
+	list[2] = OBJToMesh("res/obj/jax.obj", "res/textures/jax.tga");
+	list[1] = OBJToMesh("res/obj/raptor.obj", "res/textures/raptor.png");
+	list[0] = OBJToMesh("res/obj/R2-D2.obj", "res/textures/R2-D2.tga");
 	mesh_translate(list[0], -1, 0, 0);
 	mesh_translate(list[2], 1, 0, 0);
 
@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
 
 	/* Bullet List */
 
-	vec3 bulletVelocity = {0, 0, -1};
 	node *bulletList = NULL; // This is ugly
+	bulletType* defaultBullet  = bullet_createType(0.01f, 1, 200, "res/obj/bullet.obj", "res/textures/test.png");
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 				}
 			if (e.type == SDL_MOUSEBUTTONDOWN)
 				if (e.button.button == SDL_BUTTON_LEFT) {
-					list_insert(&bulletList, bullet_create(C->eye, C->direction, "res/obj/bullet.obj"));
+					list_insert(&bulletList, bullet_create(C->eye, C->direction, defaultBullet));
 				}
 		}
 
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
 		node* aux = bulletList;
 		
 		while (aux != NULL) {
-			mesh* currentBullet = ((bullet*) aux->data) -> M;
+			mesh* currentBullet = ((bullet*) aux->data) -> model;
 			draw(currentBullet, view, projection, S, drawBoundingBox);
 			bullet_updatePosition((bullet*)aux->data, frameTime);
 			aux = aux->next;
