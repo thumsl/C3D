@@ -10,10 +10,9 @@ typedef struct {
 	vec3 up;
 } camera;
 
-camera* initCamera();
-void updateCamera(camera* C);
+camera* camera_init();
 void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle);
-void camera_fps_movement(camera* C, player_movement_type movement, unsigned short frameTime);
-void camera_fps_movement_simulate(vec3 R, camera* C, player_movement_type movement, unsigned short frameTime);
+void camera_fps_movement(camera* C, playerMovement movement, unsigned short frameTime);
+void camera_fps_movement_simulate(vec3 R, camera* C, playerMovement movement, unsigned short frameTime);
 
 #endif // CAMERA_H	

@@ -68,7 +68,7 @@ void get_face_info(int* i, char* buffer, GLuint* f_temp, int *f, struct vertex_i
     }
 }
 
-int loadOBJ(OBJ_data** data, const char* filename) {
+int OBJ_load(OBJ_data** data, const char* filename) {
     char* buffer;
 
     if (!readfile(&buffer, filename)) {

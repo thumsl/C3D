@@ -6,7 +6,7 @@
 typedef struct {
 	float baseDamage;
 	float speed;
-	float maximumTravel;
+	float maximumTravelDistance;
 	mesh* model;
 } bulletType;
 
@@ -21,6 +21,6 @@ typedef struct {
 
 bullet* bullet_create(vec3 position, vec3 direction, bulletType* specs);
 bulletType* bullet_createType(float speed, float damage, float maxTravel, const char* obj, const char* texture);
-void bullet_updatePosition(bullet* B, unsigned int frameTime);
+int bullet_updatePosition(bullet* B, unsigned int frameTime);
 
 #endif // BULLET_H

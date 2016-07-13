@@ -2,56 +2,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-node* list_create(void* data) {
-        node* ret = (node*)malloc(sizeof(node));
-
-        ret -> data = data;
-        ret -> prev = NULL;
-        ret -> next = NULL;
-
-        return ret;
+linkedList* list_create() {
+	linkedList* list = (linkedList*)malloc(sizeof(linkedList));
+	list->head = NULL;
+	list->tail = NULL;
 }
 
-void list_insert(node** head, void *data) {
-	if ((*head) == NULL) {		// Change this?
-		(*head) = (node*)malloc(sizeof(node));
-		(*head)->data = data;
-		(*head)->prev = NULL;
-		(*head)->next = NULL;
+void list_insert(linkedList* list, void *data) {
+	if (list->head == NULL) {		// Change this?
+		list->head = (node*)malloc(sizeof(node));
+		list->tail = (node*)malloc(sizeof(node));
+		list->head->data = data;
+		list->head->prev = NULL;
+		list->head->next = NULL;
+		list->tail = list->head;
 	}
 	else {
         node* new = (node*)malloc(sizeof(node));
 
-        new->data = data;
-        new->next = (*head)->next;
-        new->prev = (*head);
-
-        (*head)->next = new;
-
-		if ((*head)->next != NULL)
-			(*head)->next->prev = new;
+        new->data =data;
+        new->next = NULL;
+        new->prev = list->tail;
+        list->tail->next = new;
+        list->tail = new;
 	}
 }
 
 void append_end(); // TODO
 
-void list_delete_node(node* N) {
-        if (N->prev == NULL) { // is Head
-                node* del = N;
-                N = N->prev;
-                free(del);
-        }
-        else if (N->next == NULL) {
-                N->prev->next = NULL;
-                free(N);
-        }
-        else {
-                N->prev->next = N->next;
-                N->next->prev = N->prev;
-                free(N);
-        }
+node* list_delete_node(linkedList* list, node* N) {
+	// Returns the element that was to the right of the removed element
+	if (N == list->head) { // is head
+		list->head = list->head->next;
+		free(N);
+		return list->head;
+	}
+	else {
+		if (N== list->tail) {
+			list->tail = N->prev;
+			free(N);
+			return NULL;
+		}
+		else {
+			node* aux = N->next;
+			N->data = N->next->data;
+			N->next = N->next->next;
+			free(aux);
+			return N;
+		}
+	}
 }
-
 void list_print(node* head) {
         if (head == NULL)
                 return;

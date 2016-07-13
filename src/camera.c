@@ -2,7 +2,7 @@
 #include "../include/engine.h"
 #include <math.h>
 
-camera* initCamera() {
+camera* camera_init() {
 	//todo: destroy camera
 	camera* C = (camera*)malloc(sizeof(camera));
 	C->eye[0] = 0.0f; C->eye[1] = 0.0f; C->eye[2] = 3.0f;
@@ -22,7 +22,7 @@ void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle
 	vec3_mul_cross(C->up, C->right, C->direction);
 }
 
-void camera_fps_movement(camera* C, player_movement_type movement, unsigned short frameTime) {
+void camera_fps_movement(camera* C, playerMovement movement, unsigned short frameTime) {
 	vec3 scaled_direction, scaled_right;
 
 	if (movement.run) {
@@ -43,7 +43,7 @@ void camera_fps_movement(camera* C, player_movement_type movement, unsigned shor
 		vec3_sub(C->eye, C->eye, scaled_right);
 }
 
-void camera_fps_movement_simulate(vec3 R, camera* C, player_movement_type movement, unsigned short frameTime) {
+void camera_fps_movement_simulate(vec3 R, camera* C, playerMovement movement, unsigned short frameTime) {
 	// UGLY
 	vec3 scaled_direction, scaled_right;
 

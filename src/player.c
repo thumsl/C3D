@@ -3,7 +3,7 @@
 #include "../include/utils.h"
 #include <stdlib.h>
 
-player* initPlayer(vec3 position) {
+player* player_init(vec3 position) {
 	player *P = (player*)malloc(sizeof(player));
 
 	vec3_copy(P->position, position);
@@ -17,7 +17,7 @@ player* initPlayer(vec3 position) {
 	return P;
 }
 
-void updateHitbox(player* P, vec3 position) {
+void player_updateHitbox(player* P, vec3 position) {
 	vec3_copy(P->position, position);
 
 	P->hitbox.min[0] = P->position[0] - PLAYER_WIDTH/2.0f; // optimize

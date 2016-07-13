@@ -5,8 +5,8 @@
 typedef struct {
 	vec3 min;
 	vec3 max;
-} bounding_box;
+} boundingBox;
 
-int aabb_collision(bounding_box a, bounding_box b);
+int aabb_collision(boundingBox a, boundingBox b);
 
 #endif // AABB_H

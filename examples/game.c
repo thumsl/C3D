@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
 
 	/* Set the view matrix (camera) */
 	// TODO: function to initialize camera with default values
-	camera* C = initCamera();
+	camera* C = camera_init();
 
 	vec3_mul_cross(C->up, C->right, C->direction);
 	vec3_add(center, C->eye, C->direction);
@@ -66,14 +66,14 @@ int main(int argc, char* argv[]) {
 	mesh_translate(list[2], 1, 0, 0);
 
 	/* Define the player */
-	player* P = initPlayer(C->eye);
+	player* P = player_init(C->eye);
 
 	// TODO: WEAPON //
 
 	/* Bullet List */
 
-	node *bulletList = NULL; // This is ugly
-	bulletType* defaultBullet  = bullet_createType(0.01f, 1, 200, "res/obj/bullet.obj", "res/textures/test.png");
+	linkedList* bulletList = list_create();
+	bulletType* defaultBullet  = bullet_createType(0.05f, 1, 200, "res/obj/bullet.obj", "res/textures/test.png");
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 		frames++;
 		if (timePassed >= 1000) {
 			timePassed = 0;
-			printf("%d FPS\n", frames);
+			//printf("%d FPS\n", frames);
 			frames = 0;
 		}	
 
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 				}
 			if (e.type == SDL_MOUSEBUTTONDOWN)
 				if (e.button.button == SDL_BUTTON_LEFT) {
-					list_insert(&bulletList, bullet_create(C->eye, C->direction, defaultBullet));
+					list_insert(bulletList, bullet_create(C->eye, C->direction, defaultBullet));
 				}
 		}
 
@@ -157,15 +157,15 @@ int main(int argc, char* argv[]) {
 		vec3_copy(pastPosition, C->eye);
 		vec3_copy(nextPosition, C->eye);
 		camera_fps_movement_simulate(nextPosition, C, P->movement, frameTime);
-		updateHitbox(P, nextPosition);
+		player_updateHitbox(P, nextPosition); // this way the player has the be invisible
 		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C->eye, pastPosition);
-			updateHitbox(P, C->eye);
+			player_updateHitbox(P, C->eye);
 		}
 		else {
 			camera_fps_movement(C, P->movement, frameTime);
-			updateHitbox(P, C->eye);
+			player_updateHitbox(P, C->eye);
 		}
 
 		/* FPS camera control */
@@ -192,23 +192,25 @@ int main(int argc, char* argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (i = 0; i < meshCount; i++) {
-			draw(list[i], view, projection, S, drawBoundingBox);
+			mesh_draw(list[i], view, projection, S, drawBoundingBox);
 		}
 
-		node* aux = bulletList;
+		node* aux = bulletList->head;
 		
 		while (aux != NULL) {
 			mesh* currentBullet = ((bullet*) aux->data) -> model;
-			draw(currentBullet, view, projection, S, drawBoundingBox);
-			bullet_updatePosition((bullet*)aux->data, frameTime);
-			aux = aux->next;
+			mesh_draw(currentBullet, view, projection, S, drawBoundingBox);
+			if (!bullet_updatePosition((bullet*)aux->data, frameTime))
+				aux = list_delete_node(bulletList, aux);
+			else
+				aux = aux->next;
 		}
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);
 	}
 	
-	list_destroy(&bulletList);
+//	list_destroy(&bulletList);
 	quit();
 
 	return 0;

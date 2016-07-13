@@ -10,16 +10,16 @@ typedef struct {
 	bool left;
 	bool right;
 	bool run;
-} player_movement_type;
+} playerMovement;
 
 typedef struct {
 	vec3 position;
-	player_movement_type movement;
-	bounding_box hitbox;
+	playerMovement movement;
+	boundingBox hitbox;
 } player;
 
-player* initPlayer(vec3 position);
+player* player_init(vec3 position);
 
-void updateHitbox(player* P, vec3 position);
+void player_updateHitbox(player* P, vec3 position);
 // TODO: destroy Player
 #endif
