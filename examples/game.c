@@ -31,19 +31,19 @@ int main(int argc, char* argv[]) {
 	initShader(&S);
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.9f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.5f;
+	ambientLight ambient; float intensity = 0.0f;
 
-	initAmbientLight(&ambient, lightColor, intensity);
+	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
 
-	vec3 lightCol = {10.0f, 0.0f, 0.0f};
-	vec3 lightPosition = {0.0f, 2.0f, 0.0f};
+	vec3 lightCol = {1.0f, 1.0f, 1.0f};
+	vec3 lightPosition = {0.0f, 5.0f, 0.0f};
 	float att = 0.5f; pointLight point;
 	initPointLight(&point, lightCol, lightPosition, att);
 	setPointLight(&point, &S);
 
 	GLuint loc = glGetUniformLocation(S.program, "intensity");
-	glUniform1f(loc, 3.0f);
+	glUniform1f(loc, 25.0f);
 
 	/* Set the projection matrix */
 	mat4x4 model_view_projection, projection, view;
@@ -58,12 +58,13 @@ int main(int argc, char* argv[]) {
 	mat4x4_look_at(view, C->eye, center, C->up);
 
 	/* Initialize all meshes */
-	short meshCount = 3; mesh* list[meshCount];
-	list[2] = OBJToMesh("res/obj/jax.obj", "res/textures/jax.tga");
-	list[1] = OBJToMesh("res/obj/raptor.obj", "res/textures/raptor.png");
-	list[0] = OBJToMesh("res/obj/R2-D2.obj", "res/textures/R2-D2.tga");
-	mesh_translate(list[0], -1, 0, 0);
-	mesh_translate(list[2], 1, 0, 0);
+	linkedList* meshList = list_create();
+	list_insert(meshList, OBJToMesh("res/obj/jax.obj", "res/textures/jax.tga"));
+	list_insert(meshList, OBJToMesh("res/obj/raptor.obj", "res/textures/raptor.png"));
+	list_insert(meshList, OBJToMesh("res/obj/plane.obj", "res/textures/test.png"));
+
+	mesh_translate((mesh*)meshList->head->data, -1, 0, 0);
+	mesh_translate((mesh*)meshList->head->next->data, 1, 0, 0);
 
 	/* Define the player */
 	player* P = player_init(C->eye);
@@ -80,12 +81,14 @@ int main(int argc, char* argv[]) {
 		pastTime = currentTime;
 		currentTime = SDL_GetTicks();
 		timePassed += (currentTime - pastTime);
+		frameTime = (currentTime - pastTime);
 		frames++;
 		if (timePassed >= 1000) {
 			timePassed = 0;
-			//printf("%d FPS\n", frames);
+			printf("%d FPS\n", frames);
 			frames = 0;
-		}	
+		}
+
 
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_WINDOWEVENT)
@@ -146,19 +149,13 @@ int main(int argc, char* argv[]) {
 		}
 
 	    SDL_GetMouseState(&x, &y);
-
-	    mesh_rotate_from_ident(list[0], 0.0f, factor, 0.0f);
-	    mesh_rotate_from_ident(list[1], 0.0f, factor, 0.0f);
-	    mesh_rotate_from_ident(list[2], 0.0f, factor, 0.0f);
-	    frameTime = (currentTime - pastTime);
-	    factor += 0.0005 * frameTime;
 		
 		/* Movement */
 		vec3_copy(pastPosition, C->eye);
 		vec3_copy(nextPosition, C->eye);
 		camera_fps_movement_simulate(nextPosition, C, P->movement, frameTime);
 		player_updateHitbox(P, nextPosition); // this way the player has the be invisible
-		if (aabb_collision(P->hitbox, list[1]->hitbox)) {
+		if (aabb_collision(P->hitbox, ((mesh*)meshList->head->data)->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C->eye, pastPosition);
 			player_updateHitbox(P, C->eye);
@@ -191,12 +188,19 @@ int main(int argc, char* argv[]) {
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (i = 0; i < meshCount; i++) {
-			mesh_draw(list[i], view, projection, S, drawBoundingBox);
+		point.position[0] = sinf(factor) * 15;
+		setPointLight(&point, &S);
+	    factor += 0.0005 * frameTime;
+
+		node *aux = meshList->head;
+		while (aux != NULL) {
+			if (aux != meshList->head->next->next)
+				mesh_rotate_from_ident((mesh*)aux->data, 0.0f, factor, 0.0f);
+			mesh_draw((mesh*)aux->data, view, projection, S, drawBoundingBox);
+			aux = aux->next;
 		}
 
-		node* aux = bulletList->head;
-		
+		aux = bulletList->head;
 		while (aux != NULL) {
 			mesh* currentBullet = ((bullet*) aux->data) -> model;
 			mesh_draw(currentBullet, view, projection, S, drawBoundingBox);
