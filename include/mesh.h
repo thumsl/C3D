@@ -49,7 +49,7 @@ void mesh_rotate_from_ident(mesh* model, float x_angle, float y_angle, float z_a
 void mesh_scale(mesh* model, float x, float y, float z);
 void mesh_update_model_matrix(mesh* model);
 
-void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, shader S, bool hitbox);
+void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader S, bool hitbox);
 
 // TODO: Clean up
 #endif

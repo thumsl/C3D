@@ -5,32 +5,51 @@ out vec4 color;
 in vec3 position;
 in vec2 UV;
 in vec3 normal;
+in vec3 transformedWorld;
 
-struct pointLight
-{
-        //int type; for a more generic struct
+struct ambientLight {
+	vec3 color;
+	float intensity;
+};
+
+struct pointLight {
         vec3 position;
-        float attenuation;
         vec3 color;
+        float attenuation;
+        float intensity;
 };
 
 uniform sampler2D sampler;
-uniform pointLight light;
+uniform pointLight point;
+uniform ambientLight ambient;
 
-uniform vec3 ambientLightColor;
-uniform float ambientLightIntensity;
-uniform float intensity;
-
+uniform vec3 eyePos;
 
 void main() {
-	vec4 ambient = vec4((ambientLightColor * ambientLightIntensity), 1.0f);
+	// Ambient
+	vec4 ambientColor = vec4(ambient.color * ambient.intensity, 1.0f);
+	vec4 specularColor = vec4(0,0,0,0);
+	vec4 diffuseColor = vec4(0,0,0,0);
 
-	vec3 lightDirection = position - light.position;
-	float dist = length(lightDirection);
-	lightDirection = normalize(lightDirection);
+	// Diffuse
+	vec3 lightDirection = -normalize(transformedWorld - point.position);
+	float diffuseFactor = dot(normalize(normal), lightDirection);
 
-	float att = 1.0f / (1.0f + light.attenuation * dist + light.attenuation * dist * dist);
-	vec4 point = vec4 ( clamp( (dot(normal, -lightDirection) * light.color) * att, 0.0f, 1.0f) * intensity, 1.0f);
+	if (diffuseFactor > 0) {
+		float distance = length(transformedWorld - point.position);
+		float attenuation = 1.0f / (1.0f + point.attenuation * distance + point.attenuation * distance * distance);
+		diffuseColor = vec4(point.color * diffuseFactor * attenuation * point.intensity, 1.0f);
 
-	color = texture2D(sampler, UV) * (ambient + point);
+		// Specular
+		vec3 vertexToEye = normalize(eyePos - transformedWorld);
+		vec3 LightReflect = normalize(reflect(-lightDirection, normal));
+		float SpecularFactor = dot(vertexToEye, LightReflect);
+		if (SpecularFactor > 0) {
+			SpecularFactor = pow(SpecularFactor, 16);
+		    specularColor = vec4(point.color * 2 * SpecularFactor, 1.0f);
+		}
+	}
+
+	// Phong
+	color = texture2D(sampler, UV) * (ambientColor + diffuseColor + specularColor);
 }

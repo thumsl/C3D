@@ -76,7 +76,7 @@ mesh* OBJToMesh(const char* filename, const char* texturePath) {
 	return model;
 }
 
-void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, shader S, bool hitbox) {
+void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader S, bool hitbox) {
 	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
 	mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
 
@@ -86,6 +86,8 @@ void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, shader S, bool hitbo
 	mat4x4_mul(model_view_projection, projection, model_view_projection);
 
 	glUniformMatrix4fv(S.location.MVP, 1, 0, (GLfloat*)model_view_projection);
+	glUniformMatrix4fv(S.location.Transform, 1, 0, (GLfloat*)model->transform.model);
+	glUniform3fv(S.location.eyePos, 1, (GLfloat*)eyePos);
 
 	glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);

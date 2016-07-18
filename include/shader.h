@@ -10,18 +10,24 @@
 //	TODO: Use enum?
 typedef struct {
 	GLuint MVP;
+	GLuint Transform;
 	GLuint ambientLightColor;
 	GLuint ambientLightIntensity;
 	GLuint pointLightColor;
 	GLuint pointLightPosition;
-	GLuint attenuation;
+	GLuint pointLightAttenuation;
+	GLuint pointLightIntensity;
+	GLuint eyePos;
 } uniform_location;
 
 typedef struct {
 	GLuint program;
+	GLuint vertexShader;
+	GLuint fragmentShader;
 	uniform_location location;
 } shader;
 
-void initShader(shader* S);
-int compileAndAttachShaders(shader *s, const char *vs, const char *fs);
+void shader_getLocations(shader* S);
+int shader_loadFromFile(shader* S, const char *vs, const char *fs);
+void shader_use(shader* S);
 #endif // SHADER_H

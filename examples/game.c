@@ -22,28 +22,27 @@ int main(int argc, char* argv[]) {
 
 	/* Attach and compile shaders */
     shader S;
-	if (!compileAndAttachShaders(&S, "src/glsl/shader.vert", "src/glsl/shader.frag")) {
+	if (!shader_loadFromFile(&S, "src/glsl/shader.vert", "src/glsl/shader.frag")) {
 		quit();
 		return 1;
 	}
 
 	/* Get shader uniform locations, define light parameters */
-	initShader(&S);
+	shader_getLocations(&S);
+	shader_use(&S);
+
 	vec4 pastDirection;
-	vec3 lightColor = {0.9f, 0.9f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.0f;
+	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
+	ambientLight ambient; float intensity = 0.2f;
 
 	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
 
 	vec3 lightCol = {1.0f, 1.0f, 1.0f};
 	vec3 lightPosition = {0.0f, 5.0f, 0.0f};
-	float att = 0.5f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att);
+	float att = 0.001f; pointLight point;
+	initPointLight(&point, lightCol, lightPosition, att, 1.0f); // TODO: add intensity to pointLight struct in frag shader
 	setPointLight(&point, &S);
-
-	GLuint loc = glGetUniformLocation(S.program, "intensity");
-	glUniform1f(loc, 25.0f);
 
 	/* Set the projection matrix */
 	mat4x4 model_view_projection, projection, view;
@@ -59,7 +58,7 @@ int main(int argc, char* argv[]) {
 
 	/* Initialize all meshes */
 	linkedList* meshList = list_create();
-	list_insert(meshList, OBJToMesh("res/obj/jax.obj", "res/textures/jax.tga"));
+	list_insert(meshList, OBJToMesh("res/obj/jax.obj", "res/textures/jax.tga")); // Add initial position to OBJToMesh
 	list_insert(meshList, OBJToMesh("res/obj/raptor.obj", "res/textures/raptor.png"));
 	list_insert(meshList, OBJToMesh("res/obj/plane.obj", "res/textures/test.png"));
 
@@ -72,7 +71,6 @@ int main(int argc, char* argv[]) {
 	// TODO: WEAPON //
 
 	/* Bullet List */
-
 	linkedList* bulletList = list_create();
 	bulletType* defaultBullet  = bullet_createType(0.05f, 1, 200, "res/obj/bullet.obj", "res/textures/test.png");
 
@@ -196,14 +194,14 @@ int main(int argc, char* argv[]) {
 		while (aux != NULL) {
 			if (aux != meshList->head->next->next)
 				mesh_rotate_from_ident((mesh*)aux->data, 0.0f, factor, 0.0f);
-			mesh_draw((mesh*)aux->data, view, projection, S, drawBoundingBox);
+			mesh_draw((mesh*)aux->data, view, projection, &(C->eye), S, drawBoundingBox); // TODO: store view inside camera, send Camera to draw func
 			aux = aux->next;
 		}
 
 		aux = bulletList->head;
 		while (aux != NULL) {
 			mesh* currentBullet = ((bullet*) aux->data) -> model;
-			mesh_draw(currentBullet, view, projection, S, drawBoundingBox);
+			mesh_draw(currentBullet, view, projection, &(C->eye), S, drawBoundingBox);
 			if (!bullet_updatePosition((bullet*)aux->data, frameTime))
 				aux = list_delete_node(bulletList, aux);
 			else

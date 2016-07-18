@@ -5,10 +5,12 @@ layout (location = 1) in vec2 Texture;
 layout (location = 2) in vec3 Normal;
 
 uniform mat4 MVP;
+uniform mat4 Transform;
 
 out vec2 UV;
 out vec3 position;
 out vec3 normal;
+out vec3 transformedWorld;
 
 void main() {
 	gl_Position = MVP * vec4(Position, 1.0);
@@ -16,4 +18,5 @@ void main() {
 	position = Position;
 	UV = Texture;
 	normal = Normal;
+	transformedWorld = (Transform * vec4(position, 1.0)).xyz;
 }
