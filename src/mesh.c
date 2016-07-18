@@ -9,6 +9,9 @@ static void mesh_init(mesh *model) {
 	mat4x4_identity(model->transform.rotate);
 	mat4x4_identity(model->transform.translate);
 	mat4x4_identity(model->transform.scale);
+
+	model->mat.specularPower = 16;
+	model->mat.specularIntensity = 2;
 }
 
 static void mesh_setIndexData(mesh* model, GLuint *indices) {
@@ -88,6 +91,8 @@ void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader
 	glUniformMatrix4fv(S.location.MVP, 1, 0, (GLfloat*)model_view_projection);
 	glUniformMatrix4fv(S.location.Transform, 1, 0, (GLfloat*)model->transform.model);
 	glUniform3fv(S.location.eyePos, 1, (GLfloat*)eyePos);
+	glUniform1f(S.location.specularPower, model->mat.specularPower);
+	glUniform1f(S.location.specularIntensity, model->mat.specularIntensity);
 
 	glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
@@ -114,8 +119,8 @@ void mesh_translate(mesh* model, float x, float y, float z) {
 
 void mesh_translate_from_origin(mesh* model, float x, float y, float z) {
 	mat4x4_identity(model->transform.translate);
-	mat4x4_translate(model->transform.translate, x, y, z);
-	model->hitbox.min[0] += x;
+	mat4x4_translate(model->transform.translate, x, y, z); // TODO: hitbox needs to be reset first
+	model->hitbox.min[0] += x; // this doesnt work
 	model->hitbox.min[1] += y;
 	model->hitbox.min[2] += z;
 	model->hitbox.max[0] += x;

@@ -4,6 +4,7 @@
 #include "GL/glew.h"
 #include "aabb.h"
 #include "linmath.h"
+#include "material.h"
 #include "shader.h"
 
 #include <stdbool.h>
@@ -24,11 +25,12 @@ typedef struct {
 	GLuint VBO; // POSITION BUFFER OBJECT
 	GLuint EBO; // INDEX BUFFER OBJECT
 	GLuint textureID;
-	transformationMatrixes transform;
 	boundingBox hitbox;
 	GLuint hitboxVAO;
 	GLuint hitboxVBO;
 	GLuint hitboxEBO;
+	transformationMatrixes transform;
+	material mat;
 } mesh;
 
 static void mesh_init(mesh *model);

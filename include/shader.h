@@ -18,6 +18,8 @@ typedef struct {
 	GLuint pointLightAttenuation;
 	GLuint pointLightIntensity;
 	GLuint eyePos;
+	GLuint specularPower;
+	GLuint specularIntensity;
 } uniform_location;
 
 typedef struct {

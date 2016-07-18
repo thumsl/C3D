@@ -12,6 +12,8 @@ void shader_getLocations(shader* S) {
     S->location.pointLightAttenuation = glGetUniformLocation(S->program, "point.attenuation");
     S->location.pointLightIntensity = glGetUniformLocation(S->program, "point.intensity");
     S->location.eyePos = glGetUniformLocation(S->program, "eyePos");
+    S->location.specularPower = glGetUniformLocation(S->program, "specularPower");
+    S->location.specularIntensity = glGetUniformLocation(S->program, "specularIntensity");
 }
 
 int shader_loadFromFile(shader *S, const char *vs, const char *fs) {

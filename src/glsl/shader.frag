@@ -2,7 +2,6 @@
 
 out vec4 color;
 
-in vec3 position;
 in vec2 UV;
 in vec3 normal;
 in vec3 transformedWorld;
@@ -13,15 +12,17 @@ struct ambientLight {
 };
 
 struct pointLight {
-        vec3 position;
-        vec3 color;
-        float attenuation;
-        float intensity;
+    vec3 position;
+    vec3 color;
+    float attenuation;
+    float intensity;
 };
 
 uniform sampler2D sampler;
-uniform pointLight point;
 uniform ambientLight ambient;
+uniform pointLight point;
+uniform float specularPower;
+uniform float specularIntensity;
 
 uniform vec3 eyePos;
 
@@ -45,8 +46,8 @@ void main() {
 		vec3 LightReflect = normalize(reflect(-lightDirection, normal));
 		float SpecularFactor = dot(vertexToEye, LightReflect);
 		if (SpecularFactor > 0) {
-			SpecularFactor = pow(SpecularFactor, 16);
-		    specularColor = vec4(point.color * 2 * SpecularFactor, 1.0f);
+			SpecularFactor = pow(SpecularFactor, specularPower);
+		    specularColor = vec4(point.color * specularIntensity * SpecularFactor, 1.0f);
 		}
 	}
 

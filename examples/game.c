@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
 
 	vec3 lightCol = {1.0f, 1.0f, 1.0f};
 	vec3 lightPosition = {0.0f, 5.0f, 0.0f};
-	float att = 0.001f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 1.0f); // TODO: add intensity to pointLight struct in frag shader
+	float att = 0.05f; pointLight point;
+	initPointLight(&point, lightCol, lightPosition, att, 5.0f); // TODO: add intensity to pointLight struct in frag shader
 	setPointLight(&point, &S);
 
 	/* Set the projection matrix */
@@ -64,6 +64,9 @@ int main(int argc, char* argv[]) {
 
 	mesh_translate((mesh*)meshList->head->data, -1, 0, 0);
 	mesh_translate((mesh*)meshList->head->next->data, 1, 0, 0);
+
+	((mesh*)meshList->head->next->data)->mat.specularIntensity = 128;
+	((mesh*)meshList->head->next->data)->mat.specularPower = 16;
 
 	/* Define the player */
 	player* P = player_init(C->eye);
