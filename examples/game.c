@@ -33,15 +33,15 @@ int main(int argc, char* argv[]) {
 
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.2f;
+	ambientLight ambient; float intensity = 0.5f;
 
 	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
 
 	vec3 lightCol = {1.0f, 1.0f, 1.0f};
-	vec3 lightPosition = {0.0f, 5.0f, 0.0f};
-	float att = 0.05f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 5.0f); // TODO: add intensity to pointLight struct in frag shader
+	vec3 lightPosition = {0.0f, 15.0f, 0.0f};
+	float att = 0.005f; pointLight point;
+	initPointLight(&point, lightCol, lightPosition, att, 2.0f); // TODO: add intensity to pointLight struct in frag shader
 	setPointLight(&point, &S);
 
 	/* Set the projection matrix */
@@ -58,15 +58,13 @@ int main(int argc, char* argv[]) {
 
 	/* Initialize all meshes */
 	linkedList* meshList = list_create();
-	list_insert(meshList, OBJToMesh("res/obj/jax.obj", "res/textures/jax.tga")); // Add initial position to OBJToMesh
-	list_insert(meshList, OBJToMesh("res/obj/raptor.obj", "res/textures/raptor.png"));
-	list_insert(meshList, OBJToMesh("res/obj/plane.obj", "res/textures/test.png"));
+	mesh_loadFromFileToList("res/obj/plane.obj", "res/textures/steel.jpg", meshList);
+	mesh_loadFromFileToList("res/obj/raptor.obj", "res/textures/raptor.png", meshList);
+	mesh_loadFromFileToList("res/obj/R2-D2.obj", "res/textures/R2-D2.tga", meshList);
 
-	mesh_translate((mesh*)meshList->head->data, -1, 0, 0);
-	mesh_translate((mesh*)meshList->head->next->data, 1, 0, 0);
-
-	((mesh*)meshList->head->next->data)->mat.specularIntensity = 128;
-	((mesh*)meshList->head->next->data)->mat.specularPower = 16;
+	mesh_translate(meshList->head->next->data, -2.0f, 0.0f, 0.0f);
+	((mesh*)meshList->head->data)->mat.specularPower = 16;
+	((mesh*)meshList->head->data)->mat.specularIntensity = 4;
 
 	/* Define the player */
 	player* P = player_init(C->eye);
@@ -156,7 +154,7 @@ int main(int argc, char* argv[]) {
 		vec3_copy(nextPosition, C->eye);
 		camera_fps_movement_simulate(nextPosition, C, P->movement, frameTime);
 		player_updateHitbox(P, nextPosition); // this way the player has the be invisible
-		if (aabb_collision(P->hitbox, ((mesh*)meshList->head->data)->hitbox)) {
+		if (aabb_collision(P->hitbox, ((mesh*)meshList->head->next->data)->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
 			vec3_copy(C->eye, pastPosition);
 			player_updateHitbox(P, C->eye);
@@ -174,10 +172,10 @@ int main(int argc, char* argv[]) {
 			horizontalAngle += (float)(WIDTH/2 - x) * SENSITIVITY;
 			verticalAngle += (float)(HEIGHT/2 - y) * SENSITIVITY;
 
-			if (verticalAngle > 1.0f)
-				verticalAngle = 1.0f;
-			else if (verticalAngle < -1.0f)
-				verticalAngle = -1.0f;
+			if (verticalAngle > PI/2.0f)
+				verticalAngle = PI/2.0f;
+			else if (verticalAngle < -PI/2.0f)
+				verticalAngle = -PI/2.0f;
 
 			camera_fps_mouse_look(C, horizontalAngle, verticalAngle);
 			SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
@@ -195,9 +193,10 @@ int main(int argc, char* argv[]) {
 
 		node *aux = meshList->head;
 		while (aux != NULL) {
-			if (aux != meshList->head->next->next)
-				mesh_rotate_from_ident((mesh*)aux->data, 0.0f, factor, 0.0f);
-			mesh_draw((mesh*)aux->data, view, projection, &(C->eye), S, drawBoundingBox); // TODO: store view inside camera, send Camera to draw func
+			if (aux != meshList->head)
+				mesh_rotate_from_ident(aux->data, 0, factor, 0);
+			// TODO: store view inside camera, send Camera to draw func
+			mesh_draw((mesh*)aux->data, view, projection, &(C->eye), S, drawBoundingBox);
 			aux = aux->next;
 		}
 

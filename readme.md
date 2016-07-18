@@ -10,7 +10,7 @@ C3D is a OpenGL 3D Game Engine, written in C, as a learning exercise.
 
 ### Features
 ***
-* A (very bad) OBJ Loader
+* ~~A (very bad) OBJ Loader~~ Uses Assimp for model loading
 * AABB collision detection
 * Can display AABB wireframe
 * Point lights, ambient light
@@ -39,7 +39,7 @@ You will need OpenGL 3.3+, sdl2 and sdl2_image. There might be examples in the e
 - [ ] shut memory leaks
 - [ ] weapon.h
 - [ ] more lighting stuff
-- [ ] decent OBJLoader
+- [x] decent OBJLoader (Assimp!)
 - [ ] UI
 - [ ] terrain generator
 - [ ] A.I.

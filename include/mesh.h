@@ -4,11 +4,14 @@
 #include "GL/glew.h"
 #include "aabb.h"
 #include "linmath.h"
+#include "list.h"
 #include "material.h"
 #include "shader.h"
 
 #include <stdbool.h>
-
+#include <assimp/cimport.h>        // Plain-C interface
+#include <assimp/scene.h>          // Output data structure
+#include <assimp/postprocess.h>    // Post processing flags
 // TODO: vertex struct
 
 typedef struct {
@@ -19,11 +22,10 @@ typedef struct {
 } transformationMatrixes;
 
 typedef struct {
-	unsigned int vertexCount;
-	unsigned int indexCount;
 	GLuint VAO;
-	GLuint VBO; // POSITION BUFFER OBJECT
-	GLuint EBO; // INDEX BUFFER OBJECT
+	GLuint VBO;
+	GLuint IBO;
+	unsigned int indexCount;
 	GLuint textureID;
 	boundingBox hitbox;
 	GLuint hitboxVAO;
@@ -34,13 +36,13 @@ typedef struct {
 } mesh;
 
 static void mesh_init(mesh *model);
-static void mesh_setIndexData(mesh* model, GLuint *indices);
-static void mesh_setVertexData(mesh* model, GLfloat *vertices, const char* texturePath);
 
-static void genHitboxVertexData(mesh* model);
-void drawHitbox(mesh* model);
+static void mesh_setData(struct aiMesh* loadedMesh, mesh* model);
+static void mesh_setMaterialData(struct aiMaterial* material, mesh* model, const char* texturePath);
+void mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList);
+mesh* mesh_loadFromFile(const char* filename, const char* texturePath);
 
-mesh* OBJToMesh(const char* filename, const char* texturePath);
+static void mesh_genHitboxMeshData(mesh* model);
 
 void mesh_translate(mesh* model, float x, float y, float z);
 void mesh_translate_from_origin(mesh* model, float x, float y, float z);

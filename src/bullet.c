@@ -29,7 +29,9 @@ bulletType* bullet_createType(float speed, float damage, float maxTravel, const 
 	ret->baseDamage = damage;
 	ret->speed = speed;
 	ret->maximumTravelDistance = maxTravel;
-	ret->model = OBJToMesh(obj, texture);
+	ret->model = mesh_loadFromFile(obj, texture);
+
+	return ret;
 }
 
 int bullet_updatePosition(bullet* B, unsigned int frameTime) {
