@@ -22,8 +22,8 @@
 #include "utils.h"
 #include "window.h"
 
-#define WIDTH 1280
-#define HEIGHT 720
+#define WIDTH 800
+#define HEIGHT 600
 #define PI 3.14159265359f
 #define FOV 60.0f * 0.0174533f
 #define SENSITIVITY 0.001f

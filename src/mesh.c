@@ -172,6 +172,85 @@ mesh* mesh_loadFromFile(const char* filename, const char* texturePath) {
 	}
 }
 
+mesh* mesh_genTerrain(const int terrainSize) {
+	int i, j, k;
+	int vertexCount = terrainSize * terrainSize, quadCount = (terrainSize - 1) * (terrainSize - 1);
+	
+	mesh* model = (mesh*)malloc(sizeof(mesh));
+	model->indexCount = 6 * quadCount;
+
+	GLfloat vertices[vertexCount * 8];
+	GLuint indices[model->indexCount];
+
+	for (i = 0, k = 0; i < terrainSize; i++)
+		for (j = 0; j < terrainSize; j++, k+=8) {
+			vertices[k] = -terrainSize/2 + i;
+			vertices[k+1] = 0;
+			vertices[k+2] = terrainSize/2 - j;
+			vertices[k+3] = 0;
+			vertices[k+4] = 0;
+			vertices[k+5] = 0;
+			vertices[k+6] = 1;
+			vertices[k+7] = 0;
+		}
+
+	printf("Vertices:\n");
+	for (i = 0, k = 1; i < vertexCount * 8; i++, k++) {
+		printf("%.1f ", vertices[i]);
+		if (k == 8) {
+			putchar('\n');
+			k = 0;
+		}
+	}
+
+	for (i = 0, k = 0; i < terrainSize - 1; i++)
+		for (j = i*3; j < i*3 + 2; j++, k+=3) {
+			indices[k] = j;
+			indices[k+1] = j + 1;
+			indices[k+2] = j + 1 + terrainSize;
+		}
+
+	for (i = 1; i < terrainSize; i++)
+		for (j = i*3; j < i*3 + 2; j++, k+=3) {
+			indices[k] = j;
+			indices[k+1] = j + 1;
+			indices[k+2] = j - 2;
+		}
+
+	mesh_init(model);
+
+	glGenVertexArrays(1, &(model->VAO));
+	glBindVertexArray(model->VAO);
+
+	glGenBuffers(1, &(model->VBO));
+	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
+	glBufferData(GL_ARRAY_BUFFER, 8 * vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	
+	// POSITION COORDINATES
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
+	glEnableVertexAttribArray(0);
+
+	// TEXTURE COORDINATES
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// NORMALS
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);		
+
+	// INDICES
+	glGenBuffers(1, &(model->IBO));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	mesh_genHitboxMeshData(model);
+
+	return model;
+}
+
 void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader S, bool hitbox) {
 	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
 	mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
