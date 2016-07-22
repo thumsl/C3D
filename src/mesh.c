@@ -4,22 +4,73 @@
 #include <stdlib.h>
 
 static void mesh_init(mesh *model) {
+	model->vertexCount = 0;
+	model->indexCount = 0;
+	model->mat.specularPower = 32;
+	model->mat.specularIntensity = 4;
+    model->hitbox.min[0] =  INFINITY; model->hitbox.min[1] =  INFINITY; model->hitbox.min[2] =  INFINITY;
+    model->hitbox.max[0] = -INFINITY; model->hitbox.max[1] = -INFINITY; model->hitbox.max[2] = -INFINITY;
 	mat4x4_identity(model->transform.rotate);
 	mat4x4_identity(model->transform.translate);
 	mat4x4_identity(model->transform.scale);
 
-	model->mat.specularPower = 32;
-	model->mat.specularIntensity = 2;
+    glGenVertexArrays(1, &(model->VAO));
+    glGenBuffers(1, &(model->VBO));
+    glGenBuffers(1, &(model->IBO));
+    glGenTextures(1, &(model->textureID));
+}
 
-    model->hitbox.min[0] =  INFINITY; model->hitbox.min[1] =  INFINITY; model->hitbox.min[2] =  INFINITY;
-    model->hitbox.max[0] = -INFINITY; model->hitbox.max[1] = -INFINITY; model->hitbox.max[2] = -INFINITY;
+static void mesh_loadToVAO(mesh* model, GLfloat* vertices, GLuint *indices) {
+	glBindVertexArray(model->VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
+	glBufferData(GL_ARRAY_BUFFER, 8 * model->vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	
+	// POSITION COORDINATES
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
+	glEnableVertexAttribArray(0);
+
+	// TEXTURE COORDINATES
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// NORMALS
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);		
+
+	// INDICES
+	glGenBuffers(1, &(model->IBO));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+static void mesh_textureFromFile(mesh *model, const char *texturePath) {
+	SDL_Surface *image;
+	image = IMG_Load(texturePath);
+
+	if(!image) {
+	    fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
+	    return;
+	}
+
+	glBindVertexArray(model->VAO);
+	glBindTexture(GL_TEXTURE_2D, model->textureID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+	SDL_FreeSurface(image);
 }
 
 static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 	model->indexCount = loadedMesh->mNumFaces * 3;
+	model->vertexCount = loadedMesh->mNumVertices;
 
 	GLfloat vertices[loadedMesh->mNumVertices * 8];
-	GLuint indices[model->indexCount];
+	GLuint indices[model->indexCount]; // use malloc!
 	int i, j;
 
 	for (i = 0, j = 0; j < loadedMesh->mNumVertices; i += 8, j++) {
@@ -63,33 +114,7 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 		indices[i+2] = loadedMesh->mFaces[j].mIndices[2];
 	}
 
-	glGenVertexArrays(1, &(model->VAO));
-	glBindVertexArray(model->VAO);
-
-	glGenBuffers(1, &(model->VBO));
-	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
-	glBufferData(GL_ARRAY_BUFFER, 8 * loadedMesh->mNumVertices * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	
-	// POSITION COORDINATES
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
-	glEnableVertexAttribArray(0);
-
-	// TEXTURE COORDINATES
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	// NORMALS
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);		
-
-	// INDICES
-	glGenBuffers(1, &(model->IBO));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glBindVertexArray(0);
+	mesh_loadToVAO(model, vertices, indices);
 }
 
 static void mesh_setMaterialData(struct aiMaterial* mat, mesh* model, const char* texturePath) {
@@ -102,7 +127,7 @@ static void mesh_setMaterialData(struct aiMaterial* mat, mesh* model, const char
 	
 	SDL_Surface *image;
 	if (texturePath != NULL)
-		image=IMG_Load(texturePath);
+		mesh_textureFromFile(model, texturePath);
 	else if (aiGetMaterialString(mat, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), &path) == AI_SUCCESS) {
 		char filename[9+path.length];
 		char r[] = "res/obj/";
@@ -116,24 +141,10 @@ static void mesh_setMaterialData(struct aiMaterial* mat, mesh* model, const char
 		}
 		filename[i] = 0;
 
-		image=IMG_Load(filename);
+		mesh_textureFromFile(model, texturePath);
 	}
 	else
 		return;
-
-	if(!image) {
-	    printf("IMG_Load: %s\n", IMG_GetError());
-	    return;
-	}
-
-	glBindVertexArray(model->VAO);
-	glGenTextures(1, &(model->textureID));
-	glBindTexture(GL_TEXTURE_2D, model->textureID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels); // vertices == image data
-
-	SDL_FreeSurface(image);
 }
 
 void mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList) {
@@ -172,30 +183,31 @@ mesh* mesh_loadFromFile(const char* filename, const char* texturePath) {
 	}
 }
 
-mesh* mesh_genTerrain(const int terrainSize) {
-	int i, j, k;
-	int vertexCount = terrainSize * terrainSize, quadCount = (terrainSize - 1) * (terrainSize - 1);
-	
-	mesh* model = (mesh*)malloc(sizeof(mesh));
-	model->indexCount = 6 * quadCount;
+mesh* mesh_genTerrain(const int terrainSize, const char *texturePath) {
+	if (terrainSize <= 0)
+		return NULL;
 
-	GLfloat vertices[vertexCount * 8];
-	GLuint indices[model->indexCount];
+	int i, j, k;
+	mesh* model = (mesh*)malloc(sizeof(mesh));
+	mesh_init(model);
+
+	model->indexCount = 6 * (terrainSize - 1) * (terrainSize - 1);
+	model->vertexCount = terrainSize * terrainSize;
+
+	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * model->vertexCount * 8);
+	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * model->indexCount);
 
 	for (i = 0, k = 0; i < terrainSize; i++)
 		for (j = 0; j < terrainSize; j++, k+=8) {
 			vertices[k] = -terrainSize/2 + i;
 			vertices[k+1] = 0;
 			vertices[k+2] = terrainSize/2 - j;
-			vertices[k+3] = 0;
-			vertices[k+4] = 0;
+			vertices[k+3] = (float)((int)j % 2);
+			vertices[k+4] = (float)((int)i % 2);
 			vertices[k+5] = 0;
 			vertices[k+6] = 1;
 			vertices[k+7] = 0;
 		}
-
-	for (i = 0; i < model->indexCount; i++)
-		indices[i] = -1;
 
 	for (i = 0, k = 0; i < terrainSize - 1; i++) {
 		for (j = 0; j < terrainSize - 1; j++, k+=6) {
@@ -213,38 +225,55 @@ mesh* mesh_genTerrain(const int terrainSize) {
 		}
 	}
 
-	mesh_init(model);
+	mesh_loadToVAO(model, vertices, indices);
+	mesh_textureFromFile(model, texturePath);
 
-	glGenVertexArrays(1, &(model->VAO));
-	glBindVertexArray(model->VAO);
-
-	glGenBuffers(1, &(model->VBO));
-	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
-	glBufferData(GL_ARRAY_BUFFER, 8 * vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	
-	// POSITION COORDINATES
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
-	glEnableVertexAttribArray(0);
-
-	// TEXTURE COORDINATES
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	// NORMALS
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);		
-
-	// INDICES
-	glGenBuffers(1, &(model->IBO));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	mesh_genHitboxMeshData(model);
-
+	free(indices);
+	free(vertices);
 	return model;
+}
+
+static void mesh_genHitboxMeshData(mesh* model) {	
+	float position[] = {
+		model->hitbox.min[0], model->hitbox.min[1], model->hitbox.min[2],
+		model->hitbox.max[0], model->hitbox.min[1], model->hitbox.min[2],
+		model->hitbox.max[0], model->hitbox.min[1], model->hitbox.max[2],
+		model->hitbox.min[0], model->hitbox.min[1], model->hitbox.max[2],
+		model->hitbox.min[0], model->hitbox.max[1], model->hitbox.max[2],
+		model->hitbox.min[0], model->hitbox.max[1], model->hitbox.min[2],
+		model->hitbox.max[0], model->hitbox.max[1], model->hitbox.min[2],
+		model->hitbox.max[0], model->hitbox.max[1], model->hitbox.max[2]
+    };
+
+    GLuint indices[] = {
+        0, 1,
+        1, 2,
+        2, 3,
+        3, 4,
+        4, 5,
+        5, 0,
+        5, 6,
+        6, 7,
+        7, 2,
+        6, 1,
+        4, 7,
+        3, 0
+    };
+
+	glGenVertexArrays(1, &(model->hitboxVAO));
+	glGenBuffers(1, &(model->hitboxVBO));
+	glGenBuffers(1, &(model->hitboxEBO));
+
+	glBindVertexArray(model->hitboxVAO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->hitboxEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, (model->hitboxVBO));
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader S, bool hitbox) {
@@ -326,80 +355,3 @@ void mesh_update_model_matrix(mesh* model) {
 	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
 	mat4x4_mul (model->transform.model, model->transform.translate, model->transform.model);
 }
-
-static void mesh_genHitboxMeshData(mesh* model) {	
-	float position[] = {
-		model->hitbox.min[0], model->hitbox.min[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.min[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.min[1], model->hitbox.max[2],
-		model->hitbox.min[0], model->hitbox.min[1], model->hitbox.max[2],
-		model->hitbox.min[0], model->hitbox.max[1], model->hitbox.max[2],
-		model->hitbox.min[0], model->hitbox.max[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.max[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.max[1], model->hitbox.max[2]
-    };
-
-    GLuint indices[] = {
-        0, 1,
-        1, 2,
-        2, 3,
-        3, 4,
-        4, 5,
-        5, 0,
-        5, 6,
-        6, 7,
-        7, 2,
-        6, 1,
-        4, 7,
-        3, 0
-    };
-
-	glGenVertexArrays(1, &(model->hitboxVAO));
-	glGenBuffers(1, &(model->hitboxVBO));
-	glGenBuffers(1, &(model->hitboxEBO));
-
-	glBindVertexArray(model->hitboxVAO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->hitboxEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, (model->hitboxVBO));
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-}
-
-// static void mesh_setIndexData(mesh* model, GLuint *indices) {
-// 	glBindVertexArray(model->VAO);
-// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->EBO);
-// 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
-// }
-
-// static void mesh_setVertexData(mesh *model, GLfloat *vertices, const char* texLocation) {
-// 	glBindVertexArray(model->VAO);
-// 	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
-// 	glBufferData(GL_ARRAY_BUFFER, 8 * model->vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-
-// 	glEnableVertexAttribArray(0);    // Position
-// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);   //The starting point of the VBO, for the vertices
-
-// 	glEnableVertexAttribArray(1);    // Texture
-// 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
-
-// 	glEnableVertexAttribArray(2);    // Normal
-// 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
-
-// 	SDL_Surface *image;
-// 	image=IMG_Load(texLocation);
-// 	if(!image) {
-// 	    printf("IMG_Load: %s\n", IMG_GetError());
-// 	}
-
-// 	glBindTexture(GL_TEXTURE_2D, model->textureID);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels); // vertices == image data
-
-// 	SDL_FreeSurface(image);
-// }

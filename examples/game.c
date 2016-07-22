@@ -33,15 +33,15 @@ int main(int argc, char* argv[]) {
 
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.5f;
+	ambientLight ambient; float intensity = 0.3f;
 
 	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
 
-	vec3 lightCol = {1.0f, 1.0f, 1.0f};
-	vec3 lightPosition = {0.0f, 5.0f, 0.0f};
+	vec3 lightCol = {1.0f, 1.0f, 0.8f};
+	vec3 lightPosition = {0.0f, 7.0f, 0.0f};
 	float att = 0.005f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 2.0f); // TODO: add intensity to pointLight struct in frag shader
+	initPointLight(&point, lightCol, lightPosition, att, 1.0f);
 	setPointLight(&point, &S);
 
 	/* Set the projection matrix */
@@ -61,19 +61,27 @@ int main(int argc, char* argv[]) {
 	mesh_loadFromFileToList("res/obj/R2-D2.obj", "res/textures/R2-D2.tga", meshList);
 	mesh_loadFromFileToList("res/obj/jax.obj", "res/textures/jax.tga", meshList);
 
-	mesh_translate(meshList->head->next->data, -2.0f, 0.0f, 0.0f);
-	((mesh*)meshList->head->data)->mat.specularPower = 16;
-	((mesh*)meshList->head->data)->mat.specularIntensity = 4;
+	mesh_translate(meshList->head->data, -2.0f, 0.0f, 0.0f);
+	mesh_translate(meshList->head->next->data, 2.0f, 0.0f, 0.0f);
 
 	/* Define the player */
 	player* P = player_init(C->eye);
 
-	mesh* terrain = mesh_genTerrain(100);
+	mesh* terrain = mesh_genTerrain(200, "res/textures/grass.jpg");
+	if (terrain == NULL) {
+		fprintf(stderr, "Invalid terrain size.\n");
+		quit();
+		return 1;
+	}
+
+	terrain->mat.specularPower = 1;
+	terrain->mat.specularIntensity = 0;
+
 	// TODO: WEAPON //
 
 	/* Bullet List */
 	linkedList* bulletList = list_create();
-	bulletType* defaultBullet  = bullet_createType(0.05f, 1, 200, "res/obj/bullet.obj", "res/textures/test.png");
+	bulletType* defaultBullet  = bullet_createType(0.05f, 1, 200, "res/obj/bullet.obj", "res/textures/steel.jpg");
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
@@ -187,16 +195,15 @@ int main(int argc, char* argv[]) {
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		point.position[0] = sinf(factor) * 15;
-		setPointLight(&point, &S);
+		//point.position[0] = sinf(factor) * 15;
+		//setPointLight(&point, &S);
 	    factor += 0.0005 * frameTime;
 
 	    mesh_draw(terrain, view, projection, &(C->eye), S, drawBoundingBox);
 
 		node *aux = meshList->head;
 		while (aux != NULL) {
-			if (aux != meshList->head)
-				mesh_rotate_from_ident(aux->data, 0, factor, 0);
+			mesh_rotate_from_ident(aux->data, 0, factor, 0);
 			// TODO: store view inside camera, send Camera to draw func
 			mesh_draw((mesh*)aux->data, view, projection, &(C->eye), S, drawBoundingBox);
 			aux = aux->next;
