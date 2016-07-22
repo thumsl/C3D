@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 
 	/* Create Window */
-	if (!createWindow(WIDTH, HEIGHT, "3D Game Engine")) {
+	if (!createWindow(WIDTH, HEIGHT, "C3D Game Engine")) {
 		quit();
 		return 1;
 	}
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 	setAmbientLight(&ambient, &S);
 
 	vec3 lightCol = {1.0f, 1.0f, 1.0f};
-	vec3 lightPosition = {0.0f, 15.0f, 0.0f};
+	vec3 lightPosition = {0.0f, 5.0f, 0.0f};
 	float att = 0.005f; pointLight point;
 	initPointLight(&point, lightCol, lightPosition, att, 2.0f); // TODO: add intensity to pointLight struct in frag shader
 	setPointLight(&point, &S);
@@ -49,7 +49,6 @@ int main(int argc, char* argv[]) {
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.001f, 1000.f);
 
 	/* Set the view matrix (camera) */
-	// TODO: function to initialize camera with default values
 	camera* C = camera_init();
 
 	vec3_mul_cross(C->up, C->right, C->direction);

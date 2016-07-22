@@ -194,28 +194,24 @@ mesh* mesh_genTerrain(const int terrainSize) {
 			vertices[k+7] = 0;
 		}
 
-	printf("Vertices:\n");
-	for (i = 0, k = 1; i < vertexCount * 8; i++, k++) {
-		printf("%.1f ", vertices[i]);
-		if (k == 8) {
-			putchar('\n');
-			k = 0;
+	for (i = 0; i < model->indexCount; i++)
+		indices[i] = -1;
+
+	for (i = 0, k = 0; i < terrainSize - 1; i++) {
+		for (j = 0; j < terrainSize - 1; j++, k+=6) {
+			indices[k] = i + terrainSize*j;
+			indices[k+1] = i + terrainSize + 1 + terrainSize*j;
+			indices[k+2] = i + 1 + terrainSize*j;
 		}
 	}
 
-	for (i = 0, k = 0; i < terrainSize - 1; i++)
-		for (j = i*3; j < i*3 + 2; j++, k+=3) {
-			indices[k] = j;
-			indices[k+1] = j + 1;
-			indices[k+2] = j + 1 + terrainSize;
+	for (i = 0, k = 3; i < terrainSize - 1; i++) {
+		for (j = 0; j < terrainSize - 1; j++, k+=6) {
+			indices[k] = i + terrainSize*j;
+			indices[k+1] = terrainSize + i + terrainSize*j;
+			indices[k+2] = i + terrainSize + 1 + terrainSize*j;
 		}
-
-	for (i = 1; i < terrainSize; i++)
-		for (j = i*3; j < i*3 + 2; j++, k+=3) {
-			indices[k] = j;
-			indices[k+1] = j + 1;
-			indices[k+2] = j - 2;
-		}
+	}
 
 	mesh_init(model);
 

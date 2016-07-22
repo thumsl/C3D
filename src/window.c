@@ -32,7 +32,7 @@ int createWindow(int width, int height, const char* title) {
 	SDL_SetWindowFullscreen(window, FULLSCREEN);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	// TODO: destroy context on fail / on program ending
-	glClearColor(0.2f, 0.0f, 1.0f, 0.0f);
+	glClearColor(0.2f, 0.3f, 1.0f, 0.0f);
 
 	return 1;
 }
