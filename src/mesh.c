@@ -1,13 +1,15 @@
 #include "../include/mesh.h"
+#include "../include/engine.h"
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 static void mesh_init(mesh *model) {
 	model->vertexCount = 0;
 	model->indexCount = 0;
-	model->mat.specularPower = 32;
-	model->mat.specularIntensity = 4;
+	model->mat.specularPower = 16;
+	model->mat.specularIntensity = 8;
     model->hitbox.min[0] =  INFINITY; model->hitbox.min[1] =  INFINITY; model->hitbox.min[2] =  INFINITY;
     model->hitbox.max[0] = -INFINITY; model->hitbox.max[1] = -INFINITY; model->hitbox.max[2] = -INFINITY;
 	mat4x4_identity(model->transform.rotate);
@@ -200,13 +202,13 @@ mesh* mesh_genTerrain(const int terrainSize, const char *texturePath) {
 	for (i = 0, k = 0; i < terrainSize; i++)
 		for (j = 0; j < terrainSize; j++, k+=8) {
 			vertices[k] = -terrainSize/2 + i;
-			vertices[k+1] = 0;
+			vertices[k+1] = rand() % TERRAIN_MAXHEIGHT;
 			vertices[k+2] = terrainSize/2 - j;
 			vertices[k+3] = (float)((int)j % 2);
 			vertices[k+4] = (float)((int)i % 2);
-			vertices[k+5] = 0;
-			vertices[k+6] = 1;
-			vertices[k+7] = 0;
+			vertices[k+5] = vertices[k+1] * 1.0f/TERRAIN_MAXHEIGHT;
+			vertices[k+6] = vertices[k+1] * -1.0f/TERRAIN_MAXHEIGHT + 1;
+			vertices[k+7] = vertices[k+1] * 1.0f/TERRAIN_MAXHEIGHT;
 		}
 
 	for (i = 0, k = 0; i < terrainSize - 1; i++) {

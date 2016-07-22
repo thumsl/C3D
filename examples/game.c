@@ -33,15 +33,15 @@ int main(int argc, char* argv[]) {
 
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.3f;
+	ambientLight ambient; float intensity = 0.0f;
 
 	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
 
-	vec3 lightCol = {1.0f, 1.0f, 0.8f};
-	vec3 lightPosition = {0.0f, 7.0f, 0.0f};
-	float att = 0.005f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 1.0f);
+	vec3 lightCol = {1.0f, 0.8f, 0.65f};
+	vec3 lightPosition = {0.0f, 30.0f, 0.0f};
+	float att = 0.1f; pointLight point;
+	initPointLight(&point, lightCol, lightPosition, att, 3.0f);
 	setPointLight(&point, &S);
 
 	/* Set the projection matrix */
@@ -74,8 +74,8 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	terrain->mat.specularPower = 1;
-	terrain->mat.specularIntensity = 0;
+	terrain->mat.specularPower = 32;
+	terrain->mat.specularIntensity = 4;
 
 	// TODO: WEAPON //
 
@@ -124,6 +124,14 @@ int main(int argc, char* argv[]) {
 						break;
 					case SDLK_h:
 						drawBoundingBox = !drawBoundingBox;
+						break;
+					case SDLK_j:
+						ambient.intensity -= 0.05;
+						setAmbientLight(&ambient, &S);
+						break;
+					case SDLK_k:
+						ambient.intensity += 0.05;
+						setAmbientLight(&ambient, &S);
 						break;
 					case SDLK_LSHIFT:
 						DEBUG_PRINT(("Running\n"));
@@ -195,8 +203,8 @@ int main(int argc, char* argv[]) {
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//point.position[0] = sinf(factor) * 15;
-		//setPointLight(&point, &S);
+		point.position[0] = sinf(factor) * 15;
+		setPointLight(&point, &S);
 	    factor += 0.0005 * frameTime;
 
 	    mesh_draw(terrain, view, projection, &(C->eye), S, drawBoundingBox);

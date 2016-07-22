@@ -22,16 +22,17 @@
 #include "utils.h"
 #include "window.h"
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1280
+#define HEIGHT 720
 #define PI 3.14159265359f
-#define FOV 60.0f * 0.0174533f
+#define FOV 90.0f * 0.0174533f
 #define SENSITIVITY 0.001f
-#define WALK 0.01f
+#define WALK 0.005f
 #define RUN 0.05f
-#define FULLSCREEN 0 // SDL_FULLSCREEN SDL_WINDOW_FULLSCREEN_DESKTOP (fake fullscreen) // 0 Windowed
+#define FULLSCREEN 0
 #define PLAYER_HEIGHT 2
 #define PLAYER_WIDTH 1
+#define TERRAIN_MAXHEIGHT 10
 
 void quit();
 
