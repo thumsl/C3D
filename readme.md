@@ -7,6 +7,7 @@ C3D is a OpenGL 3D Game Engine, written in C, as a learning exercise.
 * SDL2_image
 * OpenGL
 * [linmath.h](https://github.com/datenwolf/linmath.h) for linear math.
+* Assimp
 
 ### Features
 ***
@@ -41,7 +42,7 @@ You will need OpenGL 3.3+, sdl2 and sdl2_image. There might be examples in the e
 - [ ] more lighting stuff
 - [x] decent OBJLoader (Assimp!)
 - [ ] UI
-- [ ] terrain generator
+- [x] terrain generator (not finished)
 - [ ] A.I.
 - [ ] shadows
 - [ ] finish a game with it

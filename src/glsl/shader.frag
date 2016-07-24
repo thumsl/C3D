@@ -27,19 +27,17 @@ uniform float specularIntensity;
 uniform vec3 eyePos;
 
 void main() {
-	vec3 flashlightPos = eyePos;
-	flashlightPos.y += 2.0f;
 	// Ambient
 	vec4 ambientColor = vec4(ambient.color * ambient.intensity, 1.0f);
 	vec4 specularColor = vec4(0,0,0,0);
 	vec4 diffuseColor = vec4(0,0,0,0);
 
 	// Diffuse
-	vec3 lightDirection = -normalize(transformedWorld - flashlightPos);
+	vec3 lightDirection = -normalize(transformedWorld - point.position);
 	float diffuseFactor = dot(normalize(normal), lightDirection);
 
 	if (diffuseFactor > 0) {
-		float distance = length(transformedWorld - flashlightPos);
+		float distance = length(transformedWorld - point.position);
 		float attenuation = 1.0f / (1.0f + point.attenuation * distance + point.attenuation * distance * distance);
 		diffuseColor = vec4(point.color * diffuseFactor * attenuation * point.intensity, 1.0f);
 

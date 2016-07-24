@@ -1,10 +1,13 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include "linmath.h"
+#include <time.h>
 #include <GL/glew.h>
 
-
-#define toRadian(i) i*0.0174533f;
+#define access_2df_array(a, size, i, j) ((*((float*)a + (i)*size + (j))))
+#define setRandSeed() srand(time(NULL))
+#define randomValue(i) (rand() / (RAND_MAX / i + 1))
+#define toRadian(i) (i*0.0174533f)
 
 int readfile(char** s, const char* filename);
 

@@ -5,7 +5,7 @@
 camera* camera_init() {
 	//todo: destroy camera
 	camera* C = (camera*)malloc(sizeof(camera));
-	C->eye[0] = 0.0f; C->eye[1] = 2.0f; C->eye[2] = 3.0f;
+	C->eye[0] = 0.0f; C->eye[1] = 2.0f; C->eye[2] = 0.0f;
 	C->direction[0] = cosf(0) * sinf(PI); C->direction[1] = sinf(0); C->direction[2] = cosf(PI) * cosf(0);
 	C->right[0] = sinf(PI - PI/2.0f); C->right[1] = 0.0f; C->right[2] =  cosf(PI - PI/2.0f);
 }

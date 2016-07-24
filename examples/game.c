@@ -9,21 +9,21 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 
 	/* Create Window */
-	if (!createWindow(WIDTH, HEIGHT, "C3D Game Engine")) {
-		quit();
+	if (!createWindow(WIDTH, HEIGHT, "C3D Game Engine")) {	// TODO: return a window pointer
+		engine_quit();
 		return 1;
 	}
 
 	/* Initialize OpenGL */
 	if (!initOpenGL()) {
-		quit();
+		engine_quit();
 		return 1;
 	}
 
 	/* Attach and compile shaders */
     shader S;
 	if (!shader_loadFromFile(&S, "src/glsl/shader.vert", "src/glsl/shader.frag")) {
-		quit();
+		engine_quit();
 		return 1;
 	}
 
@@ -33,15 +33,15 @@ int main(int argc, char* argv[]) {
 
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.0f;
+	ambientLight ambient; float intensity = 0.3f;
 
 	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
 
-	vec3 lightCol = {1.0f, 0.8f, 0.65f};
-	vec3 lightPosition = {0.0f, 30.0f, 0.0f};
+	vec3 lightCol = {1.0f, 0.1f, 0.25f};
+	vec3 lightPosition = {0.0f, 20.0f, 0.0f};
 	float att = 0.1f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 3.0f);
+	initPointLight(&point, lightCol, lightPosition, att, 2.0f);
 	setPointLight(&point, &S);
 
 	/* Set the projection matrix */
@@ -67,15 +67,12 @@ int main(int argc, char* argv[]) {
 	/* Define the player */
 	player* P = player_init(C->eye);
 
-	mesh* terrain = mesh_genTerrain(200, "res/textures/grass.jpg");
-	if (terrain == NULL) {
-		fprintf(stderr, "Invalid terrain size.\n");
-		quit();
-		return 1;
-	}
+	terrain* mainTerrain = terrain_genDiamondSquare(513);
+	mesh_genTerrain(mainTerrain, "res/textures/grass.jpg");
+	// TODO: check for errors
 
-	terrain->mat.specularPower = 32;
-	terrain->mat.specularIntensity = 4;
+	mainTerrain->model->mat.specularPower = 18;
+	mainTerrain->model->mat.specularIntensity = 10;
 
 	// TODO: WEAPON //
 
@@ -92,10 +89,9 @@ int main(int argc, char* argv[]) {
 		frames++;
 		if (timePassed >= 1000) {
 			timePassed = 0;
-			printf("%d FPS\n", frames);
+			//printf("%d FPS\n", frames);
 			frames = 0;
 		}
-
 
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_WINDOWEVENT)
@@ -203,12 +199,18 @@ int main(int argc, char* argv[]) {
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		point.position[0] = sinf(factor) * 15;
+		// Update point light
+		//point.position[0] = sinf(factor) * 15;
+		point.position[0] = C->eye[0];
+		point.position[1] = C->eye[1];
+		point.position[2] = C->eye[2];
 		setPointLight(&point, &S);
 	    factor += 0.0005 * frameTime;
 
-	    mesh_draw(terrain, view, projection, &(C->eye), S, drawBoundingBox);
+	    // Terrain rendering
+	    mesh_draw(mainTerrain->model, view, projection, &(C->eye), S, drawBoundingBox);
 
+	    // MeshList rendering
 		node *aux = meshList->head;
 		while (aux != NULL) {
 			mesh_rotate_from_ident(aux->data, 0, factor, 0);
@@ -217,6 +219,7 @@ int main(int argc, char* argv[]) {
 			aux = aux->next;
 		}
 
+		// Bullets rendering
 		aux = bulletList->head;
 		while (aux != NULL) {
 			mesh* currentBullet = ((bullet*) aux->data) -> model;
@@ -227,12 +230,13 @@ int main(int argc, char* argv[]) {
 				aux = aux->next;
 		}
 
+		// Update framebuffer
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);
 	}
 	
-//	list_destroy(&bulletList);
-	quit();
+	// TODO: CLEAN UP;
+	engine_quit();
 
 	return 0;
 }

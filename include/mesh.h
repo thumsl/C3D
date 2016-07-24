@@ -7,12 +7,16 @@
 #include "list.h"
 #include "material.h"
 #include "shader.h"
+#include "terrain.h"
+#include "utils.h"
 
 #include <stdbool.h>
 #include <assimp/cimport.h>        // Plain-C interface
 #include <assimp/scene.h>          // Output data structure
 #include <assimp/postprocess.h>    // Post processing flags
 // TODO: vertex struct
+
+typedef struct terrain terrain;
 
 typedef struct {
 	mat4x4 translate;
@@ -21,7 +25,7 @@ typedef struct {
 	mat4x4 model;
 } transformationMatrixes;
 
-typedef struct {
+typedef struct mesh {
 	unsigned int vertexCount;
 	unsigned int indexCount;
 	GLuint VAO;
@@ -43,7 +47,7 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model);
 static void mesh_setMaterialData(struct aiMaterial* material, mesh* model, const char* texturePath);
 void mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList);
 mesh* mesh_loadFromFile(const char* filename, const char* texturePath);
-mesh* mesh_genTerrain(const int terrainSize, const char *texturePath);
+void mesh_genTerrain(terrain* T, const char *texturePath);
 static void mesh_genHitboxMeshData(mesh* model);
 
 void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader S, bool hitbox);

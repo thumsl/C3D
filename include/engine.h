@@ -19,6 +19,7 @@
 #include "player.h"
 #include "render.h"
 #include "shader.h"
+#include "terrain.h"
 #include "utils.h"
 #include "window.h"
 
@@ -32,8 +33,7 @@
 #define FULLSCREEN 0
 #define PLAYER_HEIGHT 2
 #define PLAYER_WIDTH 1
-#define TERRAIN_MAXHEIGHT 10
 
-void quit();
+void engine_quit();
 
 #endif

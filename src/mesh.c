@@ -185,54 +185,77 @@ mesh* mesh_loadFromFile(const char* filename, const char* texturePath) {
 	}
 }
 
-mesh* mesh_genTerrain(const int terrainSize, const char *texturePath) {
-	if (terrainSize <= 0)
-		return NULL;
+void mesh_genTerrain(terrain* T, const char *texturePath) {
+	if (T->size <= 0)
+		return;
 
 	int i, j, k;
-	mesh* model = (mesh*)malloc(sizeof(mesh));
-	mesh_init(model);
+	T->model = (struct mesh*)malloc(sizeof(mesh));
+		
+	mesh_init(T->model);
+	T->model->indexCount = 6 * (T->size - 1) * (T->size - 1);
+	T->model->vertexCount = T->size * T->size;
 
-	model->indexCount = 6 * (terrainSize - 1) * (terrainSize - 1);
-	model->vertexCount = terrainSize * terrainSize;
+	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * T->model->vertexCount * 8);
+	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * T->model->indexCount);
 
-	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * model->vertexCount * 8);
-	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * model->indexCount);
-
-	for (i = 0, k = 0; i < terrainSize; i++)
-		for (j = 0; j < terrainSize; j++, k+=8) {
-			vertices[k] = -terrainSize/2 + i;
-			vertices[k+1] = rand() % TERRAIN_MAXHEIGHT;
-			vertices[k+2] = terrainSize/2 - j;
+	for (i = 0, k = 0; i < T->size; i++)
+		for (j = 0; j < T->size; j++, k+=8) {
+			vertices[k] = (-T->size/2 + i);
+			vertices[k+1] = access_2df_array(T->heightMap, T->size, i, j);
+			vertices[k+2] = (T->size/2 - j);
 			vertices[k+3] = (float)((int)j % 2);
 			vertices[k+4] = (float)((int)i % 2);
-			vertices[k+5] = vertices[k+1] * 1.0f/TERRAIN_MAXHEIGHT;
-			vertices[k+6] = vertices[k+1] * -1.0f/TERRAIN_MAXHEIGHT + 1;
-			vertices[k+7] = vertices[k+1] * 1.0f/TERRAIN_MAXHEIGHT;
+			vertices[k+5] = 0;
+			vertices[k+6] = 1;
+			vertices[k+7] = 0;
+			if (i != 0 && j != 0 && i != T->size - 1 && j != T->size-1) {
+				float hL = access_2df_array(T->heightMap, T->size, i, j-1);
+				float hR = access_2df_array(T->heightMap, T->size, i, j+1);
+				float hD = access_2df_array(T->heightMap, T->size, i+1, j);
+				float hU = access_2df_array(T->heightMap, T->size, i-1, j);
+				vec3 N;
+				N[0] = hL - hR;
+				N[1] = hD - hU;
+				N[2] = 2.0f;
+				vec3_norm(N, N);
+			}
+
+
 		}
 
-	for (i = 0, k = 0; i < terrainSize - 1; i++) {
-		for (j = 0; j < terrainSize - 1; j++, k+=6) {
-			indices[k] = i + terrainSize*j;
-			indices[k+1] = i + terrainSize + 1 + terrainSize*j;
-			indices[k+2] = i + 1 + terrainSize*j;
+	for (i = 0, k = 0; i < T->size - 1; i++) {
+		for (j = 0; j < T->size - 1; j++, k+=6) {
+			indices[k] = i + T->size*j;
+			indices[k+1] = i + T->size + 1 + T->size*j;
+			indices[k+2] = i + 1 + T->size*j;
 		}
 	}
 
-	for (i = 0, k = 3; i < terrainSize - 1; i++) {
-		for (j = 0; j < terrainSize - 1; j++, k+=6) {
-			indices[k] = i + terrainSize*j;
-			indices[k+1] = terrainSize + i + terrainSize*j;
-			indices[k+2] = i + terrainSize + 1 + terrainSize*j;
+	for (i = 0, k = 3; i < T->size - 1; i++) {
+		for (j = 0; j < T->size - 1; j++, k+=6) {
+			indices[k] = i + T->size*j;
+			indices[k+1] = T->size + i + T->size*j;
+			indices[k+2] = i + T->size + 1 + T->size*j;
 		}
 	}
+	// printf("Vertices\n");
+	// for (i = 0; i < T->model->vertexCount; i++)
+	// 	printf("%.1f ", vertices[i]);
+	// putchar('\n');
 
-	mesh_loadToVAO(model, vertices, indices);
-	mesh_textureFromFile(model, texturePath);
+	mesh_loadToVAO(T->model, vertices, indices);
+	mesh_textureFromFile(T->model, texturePath);
 
 	free(indices);
 	free(vertices);
-	return model;
+
+	// printf("Map\n");
+	// for (i = 0; i < T->size; i++) {
+	// 	for (j = 0; j < T->size; j++)
+	// 		printf("%.1f\t", *((float*)T->heightMap + (i)*T->size + (j)));
+	// 	putchar('\n');
+	// }
 }
 
 static void mesh_genHitboxMeshData(mesh* model) {	

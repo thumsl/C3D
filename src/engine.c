@@ -1,6 +1,6 @@
 #include "../include/engine.h"
 
-void quit() {
+void engine_quit() {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
