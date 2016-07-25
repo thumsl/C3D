@@ -44,7 +44,7 @@ terrain* terrain_genDiamondSquare(int size) {
 	*((float*)ret->heightMap + (size-1) * size + (size-1)) = 0;
 
     setRandSeed();
-    terrain_diamondSquare(ret->heightMap, size, 25, 1.0);
+    terrain_diamondSquare(ret->heightMap, size, 50, 1.0);
 
     return ret;
 }

@@ -219,6 +219,9 @@ void mesh_genTerrain(terrain* T, const char *texturePath) {
 				N[1] = hD - hU;
 				N[2] = 2.0f;
 				vec3_norm(N, N);
+				vertices[k+5] = N[0];
+				vertices[k+6] = N[1];
+				vertices[k+7] = N[2];
 			}
 
 
