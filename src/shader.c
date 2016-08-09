@@ -4,6 +4,8 @@
 
 void shader_getLocations(shader* S) {
 	S->location.MVP = glGetUniformLocation(S->program, "MVP");
+    S->location.ModelView = glGetUniformLocation(S->program, "ModelView");
+    S->location.Projection = glGetUniformLocation(S->program, "Projection");
     S->location.Transform = glGetUniformLocation(S->program, "Transform");
 	S->location.ambientLightColor = glGetUniformLocation(S->program, "ambient.color"); // TODO: check for errors
     S->location.ambientLightIntensity = glGetUniformLocation(S->program, "ambient.intensity");
@@ -14,6 +16,8 @@ void shader_getLocations(shader* S) {
     S->location.eyePos = glGetUniformLocation(S->program, "eyePos");
     S->location.specularPower = glGetUniformLocation(S->program, "specularPower");
     S->location.specularIntensity = glGetUniformLocation(S->program, "specularIntensity");
+
+    S->location.skyColor = glGetUniformLocation(S->program, "skyColor");
 }
 
 int shader_loadFromFile(shader *S, const char *vs, const char *fs) {
@@ -68,5 +72,8 @@ int shader_loadFromFile(shader *S, const char *vs, const char *fs) {
 
 void shader_use(shader* S) {
     glUseProgram(S->program);
+}
 
+void shader_setSkyColor(shader *S, vec3 color) {
+    glUniform3fv(S->location.skyColor, 1, (GLfloat*)color);
 }

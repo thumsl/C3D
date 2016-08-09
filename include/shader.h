@@ -2,6 +2,7 @@
 #define SHADER_H
 
 #include <GL/glew.h>
+#include "linmath.h"
 
 #define POSITION_LOCATION 0
 #define TEXTURE_LOCATION 1
@@ -10,6 +11,8 @@
 //	TODO: Use enum?
 typedef struct {
 	GLuint MVP;
+	GLuint ModelView;
+	GLuint Projection;
 	GLuint Transform;
 	GLuint ambientLightColor;
 	GLuint ambientLightIntensity;
@@ -20,6 +23,8 @@ typedef struct {
 	GLuint eyePos;
 	GLuint specularPower;
 	GLuint specularIntensity;
+
+	GLuint skyColor;
 } uniform_location;
 
 typedef struct {
@@ -32,4 +37,5 @@ typedef struct {
 void shader_getLocations(shader* S);
 int shader_loadFromFile(shader* S, const char *vs, const char *fs);
 void shader_use(shader* S);
+void shader_setSkyColor(shader* S, vec3 color);
 #endif // SHADER_H

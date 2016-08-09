@@ -39,10 +39,13 @@ int main(int argc, char* argv[]) {
 	setAmbientLight(&ambient, &S);
 
 	vec3 lightCol = {1.0f, 0.1f, 0.25f};
-	vec3 lightPosition = {0.0f, 20.0f, 0.0f};
-	float att = 0.1f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 2.0f);
+	vec3 lightPosition = {0.0f, 35.0f, 0.0f};
+	float att = 0.03f; pointLight point;
+	initPointLight(&point, lightCol, lightPosition, att, 8.0f);
 	setPointLight(&point, &S);
+
+	vec3 color = {0.0f, 0.0f, 1.0f};
+	shader_setSkyColor(&S, color);
 
 	/* Set the projection matrix */
 	mat4x4 model_view_projection, projection, view;
@@ -199,6 +202,9 @@ int main(int argc, char* argv[]) {
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	    // Terrain rendering
+	    mesh_draw(mainTerrain->model, view, projection, &(C->eye), S, drawBoundingBox);
+
 		// Update point light
 		//point.position[0] = sinf(factor) * 15;
 		point.position[0] = C->eye[0];
@@ -206,9 +212,6 @@ int main(int argc, char* argv[]) {
 		point.position[2] = C->eye[2];
 		setPointLight(&point, &S);
 	    factor += 0.0005 * frameTime;
-
-	    // Terrain rendering
-	    mesh_draw(mainTerrain->model, view, projection, &(C->eye), S, drawBoundingBox);
 
 	    // MeshList rendering
 		node *aux = meshList->head;

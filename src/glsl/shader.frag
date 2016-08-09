@@ -5,6 +5,7 @@ out vec4 color;
 in vec2 UV;
 in vec3 normal;
 in vec3 transformedWorld;
+in float visibility;
 
 struct ambientLight {
 	vec3 color;
@@ -24,6 +25,7 @@ uniform pointLight point;
 uniform float specularPower;
 uniform float specularIntensity;
 
+uniform vec3 skyColor;
 uniform vec3 eyePos;
 
 void main() {
@@ -52,5 +54,6 @@ void main() {
 	}
 
 	// Phong
-	color = texture2D(sampler, UV) * (ambientColor + diffuseColor + specularColor);
+	color = texture2D(sampler, UV) * (ambientColor +  diffuseColor + specularColor);
+	color = mix(vec4(skyColor, 1.0), color, visibility);
 }

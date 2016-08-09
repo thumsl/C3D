@@ -209,22 +209,20 @@ void mesh_genTerrain(terrain* T, const char *texturePath) {
 			vertices[k+5] = 0;
 			vertices[k+6] = 1;
 			vertices[k+7] = 0;
-			if (i != 0 && j != 0 && i != T->size - 1 && j != T->size-1) {
-				float hL = access_2df_array(T->heightMap, T->size, i, j-1);
-				float hR = access_2df_array(T->heightMap, T->size, i, j+1);
-				float hD = access_2df_array(T->heightMap, T->size, i+1, j);
-				float hU = access_2df_array(T->heightMap, T->size, i-1, j);
-				vec3 N;
-				N[0] = hL - hR;
-				N[1] = hD - hU;
-				N[2] = 2.0f;
-				vec3_norm(N, N);
-				vertices[k+5] = N[0];
-				vertices[k+6] = N[1];
-				vertices[k+7] = N[2];
-			}
-
-
+			// if (i != 0 && j != 0 && i != T->size - 1 && j != T->size-1) {
+			// 	float hL = access_2df_array(T->heightMap, T->size, i, j-1);
+			// 	float hR = access_2df_array(T->heightMap, T->size, i, j+1);
+			// 	float hD = access_2df_array(T->heightMap, T->size, i+1, j);
+			// 	float hU = access_2df_array(T->heightMap, T->size, i-1, j);
+			// 	vec3 N;
+			// 	N[0] = hL - hR;
+			// 	N[1] = hD - hU;
+			// 	N[2] = 2.0f;
+			// 	vec3_norm(N, N);
+			// 	vertices[k+5] = N[0];
+			// 	vertices[k+6] = N[1];
+			// 	vertices[k+7] = N[2];
+			// }
 		}
 
 	for (i = 0, k = 0; i < T->size - 1; i++) {
@@ -308,12 +306,14 @@ void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader
 	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
 	mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
 
-	mat4x4 model_view_projection;
+	//mat4x4 model_view_projection;
+	mat4x4 modelView;
 
-	mat4x4_mul(model_view_projection, view, model->transform.model);
-	mat4x4_mul(model_view_projection, projection, model_view_projection);
+	mat4x4_mul(modelView, view, model->transform.model);
+	//mat4x4_mul(model_view_projection, projection, model_view_projection);
 
-	glUniformMatrix4fv(S.location.MVP, 1, 0, (GLfloat*)model_view_projection);
+	glUniformMatrix4fv(S.location.ModelView, 1, 0, (GLfloat*)modelView);
+	glUniformMatrix4fv(S.location.Projection, 1, 0, (GLfloat*)projection);
 	glUniformMatrix4fv(S.location.Transform, 1, 0, (GLfloat*)model->transform.model);
 	glUniform3fv(S.location.eyePos, 1, (GLfloat*)eyePos);
 	glUniform1f(S.location.specularPower, model->mat.specularPower);
