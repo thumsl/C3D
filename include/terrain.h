@@ -10,7 +10,6 @@ typedef struct terrain {
 } terrain;
 
 void terrain_destroy(terrain *toDestroy);
-static void terrain_diamondSquare(float** map, int size, float range, float factor);
-terrain* terrain_genDiamondSquare(int size);
+terrain* terrain_genDiamondSquare(int size, float range, float factor, const char* texturePath);
 
 #endif // TERRAIN_H

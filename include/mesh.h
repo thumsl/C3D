@@ -40,14 +40,14 @@ typedef struct mesh {
 	material mat;
 } mesh;
 
-static void mesh_init(mesh *model);
-static void mesh_loadToVAO(mesh* model, GLfloat* vertices, GLuint *indices);
-static void mesh_textureFromFile(mesh *model, const char *texturePath);
+void mesh_init(mesh *model);
+void mesh_loadToVAO(mesh* model, GLfloat* vertices, GLuint *indices);
+void mesh_textureFromFile(mesh *model, const char *texturePath);
 static void mesh_setData(struct aiMesh* loadedMesh, mesh* model);
 static void mesh_setMaterialData(struct aiMaterial* material, mesh* model, const char* texturePath);
 void mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList);
 mesh* mesh_loadFromFile(const char* filename, const char* texturePath);
-void mesh_genTerrain(terrain* T, const char *texturePath);
+mesh* mesh_genFlatFloor(int size, const char *texturePath);
 static void mesh_genHitboxMeshData(mesh* model);
 
 void mesh_draw(mesh *model, mat4x4 view, mat4x4 projection, vec3* eyePos, shader S, bool hitbox);

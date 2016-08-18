@@ -18,6 +18,8 @@ void shader_getLocations(shader* S) {
     S->location.specularIntensity = glGetUniformLocation(S->program, "specularIntensity");
 
     S->location.skyColor = glGetUniformLocation(S->program, "skyColor");
+    S->location.fogDensity = glGetUniformLocation(S->program, "fogDensity");
+    S->location.fogGradient = glGetUniformLocation(S->program, "fogGradient");
 }
 
 int shader_loadFromFile(shader *S, const char *vs, const char *fs) {
@@ -76,4 +78,9 @@ void shader_use(shader* S) {
 
 void shader_setSkyColor(shader *S, vec3 color) {
     glUniform3fv(S->location.skyColor, 1, (GLfloat*)color);
+}
+
+void shader_setFogParams(shader *S, float density, float gradient) {
+    glUniform1f(S->location.fogDensity, density);
+    glUniform1f(S->location.fogGradient, gradient);
 }

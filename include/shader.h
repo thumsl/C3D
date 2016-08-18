@@ -25,6 +25,8 @@ typedef struct {
 	GLuint specularIntensity;
 
 	GLuint skyColor;
+	GLuint fogDensity;
+	GLuint fogGradient;
 } uniform_location;
 
 typedef struct {
@@ -38,4 +40,5 @@ void shader_getLocations(shader* S);
 int shader_loadFromFile(shader* S, const char *vs, const char *fs);
 void shader_use(shader* S);
 void shader_setSkyColor(shader* S, vec3 color);
+void shader_setFogParams(shader *S, float density, float gradient);
 #endif // SHADER_H
