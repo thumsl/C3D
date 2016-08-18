@@ -2,10 +2,12 @@
 #include "../include/engine.h"
 #include <GL/glew.h>
 
-int createWindow(int width, int height, const char* title) {
+SDL_Window* window_create(int width, int height, const char* title) {
+	SDL_Window* window;
+
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		fprintf(stderr, SDL_GetError());
-		return 0;
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return NULL;
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -15,18 +17,16 @@ int createWindow(int width, int height, const char* title) {
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	// TODO: Create separate function for handling mouse grab?
+	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
 
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_SetWindowGrab(window, SDL_TRUE);
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 
-	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
-
 	if (window == NULL) {
 		fprintf(stderr, "Could not create window: %s\n", SDL_GetError());
 		SDL_Quit();
-		return 0;
+		return NULL;
 	}
 
 	SDL_SetWindowFullscreen(window, FULLSCREEN);
@@ -34,10 +34,10 @@ int createWindow(int width, int height, const char* title) {
 	// TODO: destroy context on fail / on program ending
 	glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
 
-	return 1;
+	return window;
 }
 
-void grabCursor(bool grab) {
+void window_grabCursor(SDL_Window *window, bool grab) {
 	if (grab) {
 		SDL_ShowCursor(SDL_DISABLE);
 		SDL_SetWindowGrab(window, SDL_TRUE);

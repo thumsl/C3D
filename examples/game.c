@@ -9,7 +9,8 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 
 	/* Create Window */
-	if (!createWindow(WIDTH, HEIGHT, "C3D Game Engine")) {	// TODO: return a window pointer
+	SDL_Window* window = window_create(WIDTH, HEIGHT, "C3D Game Engine");
+	if (window == NULL) {
 		engine_quit();
 		return 1;
 	}
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
 
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.05f;
+	ambientLight ambient; float intensity = 0.7f;
 
 	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
 	setAmbientLight(&ambient, &S);
@@ -47,16 +48,16 @@ int main(int argc, char* argv[]) {
 	initPointLight(&point, lightCol, lightPosition, att, 3.0f);
 	setPointLight(&point, &S);
 
-	/* Set the projection matrix */
-	mat4x4 model_view_projection, projection, view;
-	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.001f, 1000.f);
-
 	/* Set the view matrix (camera) */
 	camera* C = camera_init();
 
+		/* Set the projection matrix */
+	mat4x4 model_view_projection, projection;
+	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.001f, 1000.f);
+
 	vec3_mul_cross(C->up, C->right, C->direction);
 	vec3_add(center, C->eye, C->direction);
-	mat4x4_look_at(view, C->eye, center, C->up);
+	mat4x4_look_at(C->view, C->eye, center, C->up);
 
 	/* Initialize all meshes */
 	linkedList* meshList = list_create();
@@ -73,9 +74,8 @@ int main(int argc, char* argv[]) {
 	terrain *mainTerrain = terrain_genDiamondSquare(129, 10, 2, "res/textures/grass.jpg");
 	// TODO: check for errors
 
-	linkedList* terrainList = list_create();
-	list_insert(terrainList, mesh_genFlatFloor(16, "res/textures/grass.jpg")); // CHECK FOR ERRORS
-
+	level* mainLevel = level_loadMeshes("../C3d_mapLoader/map.bmp");
+	list_insert(mainLevel->meshList, mesh_genFlatFloor(mainLevel->size, "res/textures/grass.jpg")); // CHECK FOR ERRORS
 	// TODO: WEAPON //
 
 	/* Bullet List */
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
 				switch(e.key.keysym.sym) {
 					case SDLK_ESCAPE:
 						mouseGrab = !mouseGrab;
-						grabCursor(mouseGrab);
+						window_grabCursor(window, mouseGrab);
 						break;
 					case SDLK_q:
 						running = false;
@@ -196,39 +196,38 @@ int main(int argc, char* argv[]) {
 	    }
 
 		vec3_add(center, C->eye, C->direction);
-		mat4x4_look_at(view, C->eye, center, C->up);		
-
-		/* Rendering */
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		mat4x4_look_at(C->view, C->eye, center, C->up);		
+		
 		// Update point light
-		//point.position[0] = sinf(factor) * 15;
 		point.position[0] = C->eye[0];
 		point.position[1] = C->eye[1];
 		point.position[2] = C->eye[2];
 		setPointLight(&point, &S);
 	    factor += 0.0005 * frameTime;
 
-		node* aux = terrainList->head;
+		/* Rendering */
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	    // Terrain pieces
+		node* aux = mainLevel->meshList->head;
 		while (aux != NULL) {
-			mesh_draw((mesh*)aux->data, view, projection, &(C->eye), S, drawBoundingBox);
+			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
 			aux = aux->next;
 		}
 
-	    // MeshList rendering
+	    // MeshList
 		aux = meshList->head;
 		while (aux != NULL) {
 			mesh_rotate_from_ident(aux->data, 0, factor, 0);
-			// TODO: store view inside camera, send Camera to draw func
-			mesh_draw((mesh*)aux->data, view, projection, &(C->eye), S, drawBoundingBox);
+			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
 			aux = aux->next;
 		}
 
-		// Bullets rendering
+		// Bullets
 		aux = bulletList->head;
 		while (aux != NULL) {
 			mesh* currentBullet = ((bullet*) aux->data) -> model;
-			mesh_draw(currentBullet, view, projection, &(C->eye), S, drawBoundingBox);
+			mesh_draw(currentBullet, C, projection, S, drawBoundingBox);
 			if (!bullet_updatePosition((bullet*)aux->data, frameTime))
 				aux = list_delete_node(bulletList, aux);
 			else

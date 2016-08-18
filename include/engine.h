@@ -12,6 +12,7 @@
 #include "aabb.h"
 #include "bullet.h"
 #include "camera.h"
+#include "level.h"
 #include "light.h"
 #include "linmath.h"
 #include "list.h"

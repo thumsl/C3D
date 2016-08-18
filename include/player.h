@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "linmath.h"
-#include "mesh.h"
+#include "aabb.h"
 #include <stdbool.h>
 
 typedef struct {

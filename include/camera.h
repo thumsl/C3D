@@ -8,6 +8,7 @@ typedef struct {
 	vec3 direction;
 	vec3 right;
 	vec3 up;
+	mat4x4 view;
 } camera;
 
 camera* camera_init();
