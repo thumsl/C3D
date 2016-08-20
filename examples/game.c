@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 	float angle = 0.0f, verticalAngle = 0.0f, horizontalAngle = PI, factor = 0;
 	SDL_Event e;
 
-	/* Create Window */
+	/* Create Window2 */
 	SDL_Window* window = window_create(WIDTH, HEIGHT, "C3D Game Engine");
 	if (window == NULL) {
 		engine_quit();
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 	terrain *mainTerrain = terrain_genDiamondSquare(129, 10, 2, "res/textures/grass.jpg");
 	// TODO: check for errors
 
-	level* mainLevel = level_loadMeshes("../C3d_mapLoader/map.bmp");
+	level* mainLevel = level_loadMeshes("res/maps/map.bmp");
 	list_insert(mainLevel->meshList, mesh_genFlatFloor(mainLevel->size, "res/textures/grass.jpg")); // CHECK FOR ERRORS
 	// TODO: WEAPON //
 
@@ -214,6 +214,10 @@ int main(int argc, char* argv[]) {
 			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
 			aux = aux->next;
 		}
+		/*while (aux != NULL) {
+			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
+			aux = aux->next;
+		}*/
 
 	    // MeshList
 		aux = meshList->head;

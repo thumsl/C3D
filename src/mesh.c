@@ -202,9 +202,9 @@ mesh* mesh_genFlatFloor(int size, const char *texturePath) {
 
 	for (i = 0, k = 0; i < size; i++)
 		for (j = 0; j < size; j++, k+=8) {
-			vertices[k] = -size/2 + i;
+			vertices[k] = i;
 			vertices[k+1] = 0;
-			vertices[k+2] = size/2 - j;
+			vertices[k+2] = -j;
 			vertices[k+3] = (float)((int)j % 2);
 			vertices[k+4] = (float)((int)i % 2);
 			vertices[k+5] = 0;

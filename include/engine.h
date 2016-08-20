@@ -34,6 +34,8 @@
 #define FULLSCREEN 0
 #define PLAYER_HEIGHT 2
 #define PLAYER_WIDTH 1
+#define WALL_HEIGHT 2.0f
+#define WALL_WIDTH 0.3f
 
 void engine_quit();
 
