@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "../include/shader.h"
 #include "../include/utils.h"
 
@@ -22,22 +23,25 @@ void shader_getLocations(shader* S) {
     S->location.fogGradient = glGetUniformLocation(S->program, "fogGradient");
 }
 
-int shader_loadFromFile(shader *S, const char *vs, const char *fs) {
+shader* shader_loadFromFile(const char *vs, const char *fs) {
     char *vertexSource, *fragmentSource;
 
     if (!readfile(&vertexSource, vs)) {
         fprintf(stderr, "Failed to open file %s\n", vs);
-        return 0;
+        return NULL;
     }
+
+    if (!readfile(&fragmentSource, fs)) {
+        fprintf(stderr, "Failed to open file %s\n", fs);
+        return NULL;
+    }
+
+    shader *S = (shader*)malloc(sizeof(shader));
 
     S->vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(S->vertexShader, 1, (const char * const*)&vertexSource, NULL);
     glCompileShader(S->vertexShader);
 
-    if (!readfile(&fragmentSource, fs)) {
-        fprintf(stderr, "Failed to open file %s\n", fs);
-        return 0;
-    }
     S->fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(S->fragmentShader, 1, (const char * const*)&fragmentSource, NULL);
     glCompileShader(S->fragmentShader);
@@ -60,7 +64,7 @@ int shader_loadFromFile(shader *S, const char *vs, const char *fs) {
     }
 
     if (status1 != GL_TRUE || status2 != GL_TRUE)
-        return 0;
+        return NULL;
 
     /** ---------------------------- **/
 
@@ -69,7 +73,14 @@ int shader_loadFromFile(shader *S, const char *vs, const char *fs) {
     glAttachShader(S->program, S->vertexShader);
     glAttachShader(S->program, S->fragmentShader);
     glLinkProgram(S->program);
-    return 1;
+
+    vec3 color = {0.0f, 0.0f, 0.0f};
+    shader_use(S);
+    shader_getLocations(S);
+    shader_setFogParams(S, 0, 1);
+    shader_setSkyColor(S, color);
+
+    return S;
 }
 
 void shader_use(shader* S) {

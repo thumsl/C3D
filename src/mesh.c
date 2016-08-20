@@ -280,7 +280,7 @@ static void mesh_genHitboxMeshData(mesh* model) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-void mesh_draw(mesh *model, camera *C, mat4x4 projection, shader S, bool hitbox) {
+void mesh_draw(mesh *model, camera *C, mat4x4 projection, shader *S, bool hitbox) {
 	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
 	mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
 
@@ -290,12 +290,12 @@ void mesh_draw(mesh *model, camera *C, mat4x4 projection, shader S, bool hitbox)
 	mat4x4_mul(modelView, C->view, model->transform.model);
 	//mat4x4_mul(model_view_projection, projection, model_view_projection);
 
-	glUniformMatrix4fv(S.location.ModelView, 1, 0, (GLfloat*)modelView);
-	glUniformMatrix4fv(S.location.Projection, 1, 0, (GLfloat*)projection);
-	glUniformMatrix4fv(S.location.Transform, 1, 0, (GLfloat*)model->transform.model);
-	glUniform3fv(S.location.eyePos, 1, (GLfloat*)C->eye);
-	glUniform1f(S.location.specularPower, model->mat.specularPower);
-	glUniform1f(S.location.specularIntensity, model->mat.specularIntensity);
+	glUniformMatrix4fv(S->location.ModelView, 1, 0, (GLfloat*)modelView);
+	glUniformMatrix4fv(S->location.Projection, 1, 0, (GLfloat*)projection);
+	glUniformMatrix4fv(S->location.Transform, 1, 0, (GLfloat*)model->transform.model);
+	glUniform3fv(S->location.eyePos, 1, (GLfloat*)C->eye);
+	glUniform1f(S->location.specularPower, model->mat.specularPower);
+	glUniform1f(S->location.specularIntensity, model->mat.specularIntensity);
 
 	glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);

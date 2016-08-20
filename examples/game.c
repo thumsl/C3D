@@ -22,31 +22,21 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* Attach and compile shaders */
-    shader S;
-	if (!shader_loadFromFile(&S, "src/glsl/shader.vert", "src/glsl/shader.frag")) {
+    shader *S = shader_loadFromFile("src/glsl/shader.vert", "src/glsl/shader.frag");
+    // After being loaded with shader_loadFromFile, the shader is also applied (shader_use())
+	if (S == NULL) {
 		engine_quit();
 		return 1;
 	}
 
-	/* Get shader uniform locations, define light parameters */
-	shader_getLocations(&S);
-	shader_use(&S);
-	shader_setFogParams(&S, 0, 1);
-	vec3 color = {0.0f, 0.0f, 1.0f};
-	shader_setSkyColor(&S, color);
-
 	vec4 pastDirection;
-	vec3 lightColor = {0.9f, 0.8f, 0.7f}, center, nextPosition, pastPosition; 
-	ambientLight ambient; float intensity = 0.7f;
+	vec3 lightColor = {0.9f, 0.8f, 0.7f}, lightPosition = {0.0f, 35.0f, 0.0f}, center, nextPosition, pastPosition; 
+	ambientLight *ambient = initAmbientLight(lightColor, 0.07f);
+	setAmbientLight(ambient, S);
 
-	initAmbientLight(&ambient, lightColor, intensity); // make it return a pointer to ambientLight?
-	setAmbientLight(&ambient, &S);
-
-	vec3 lightCol = {1.0f, 1.0f, 1.0f};
-	vec3 lightPosition = {0.0f, 35.0f, 0.0f};
-	float att = 0.5f; pointLight point;
-	initPointLight(&point, lightCol, lightPosition, att, 3.0f);
-	setPointLight(&point, &S);
+	lightColor[0] = 1.0f; lightColor[1] = 1.0f; lightColor[2] = 1.0f;
+	pointLight *point = initPointLight(lightColor, lightPosition, 0.5f, 3.0f);
+	setPointLight(point, S);
 
 	/* Set the view matrix (camera) */
 	camera* C = camera_init();
@@ -71,7 +61,7 @@ int main(int argc, char* argv[]) {
 	/* Define the player */
 	player* P = player_init(C->eye);
 
-	terrain *mainTerrain = terrain_genDiamondSquare(129, 10, 2, "res/textures/grass.jpg");
+	//terrain *mainTerrain = terrain_genDiamondSquare(129, 10, 2, "res/textures/grass.jpg");
 	// TODO: check for errors
 
 	level* mainLevel = level_loadMeshes("res/maps/map.bmp");
@@ -124,12 +114,12 @@ int main(int argc, char* argv[]) {
 						drawBoundingBox = !drawBoundingBox;
 						break;
 					case SDLK_j:
-						ambient.intensity -= 0.05;
-						setAmbientLight(&ambient, &S);
+						ambient->intensity -= 0.05;
+						setAmbientLight(ambient, S);
 						break;
 					case SDLK_k:
-						ambient.intensity += 0.05;
-						setAmbientLight(&ambient, &S);
+						ambient->intensity += 0.05;
+						setAmbientLight(ambient, S);
 						break;
 					case SDLK_LSHIFT:
 						DEBUG_PRINT(("Running\n"));
@@ -199,10 +189,10 @@ int main(int argc, char* argv[]) {
 		mat4x4_look_at(C->view, C->eye, center, C->up);		
 		
 		// Update point light
-		point.position[0] = C->eye[0];
-		point.position[1] = C->eye[1];
-		point.position[2] = C->eye[2];
-		setPointLight(&point, &S);
+		point->position[0] = C->eye[0];
+		point->position[1] = C->eye[1];
+		point->position[2] = C->eye[2];
+		setPointLight(point, S);
 	    factor += 0.0005 * frameTime;
 
 		/* Rendering */

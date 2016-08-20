@@ -3,7 +3,7 @@
 #include "../include/mesh.h"
 #include <SDL2/SDL_image.h>
 
-mesh* genVertices(int z, int x, int lenght) {
+mesh* genVertices(int z, int x, int lenght, GLuint *indices) {
 	GLfloat vertices[] = {
 		x,						0,				-z + 1,		0,		0,		 1,	0,  1,
 		x,						0,				-z,			1,		0,		 1,	0, -1,
@@ -13,17 +13,6 @@ mesh* genVertices(int z, int x, int lenght) {
 		x,						WALL_HEIGHT,	-z,			1,		1,		 1,	0, -1,
 		x-lenght-WALL_WIDTH,	WALL_HEIGHT,	-z,			0,		1,		-1,	0, -1,
 		x-lenght-WALL_WIDTH,	WALL_HEIGHT,	-z + 1,		1,		1,		-1,	0,  1
-	};
-
-	GLuint indices[] = {
-		0, 1, 4,
-		1, 5, 4,
-		7, 2, 3,
-		7, 6, 2,
-		4, 3, 0,
-		4, 7, 3,
-		1, 2, 5,
-		2, 6, 5
 	};
 
 	mesh* model = (struct mesh*)malloc(sizeof(mesh));
@@ -50,29 +39,37 @@ level* level_loadMeshes(const char *path) {
 	ret->size = map->w;
 	ret->meshList = list_create();
 
-	unsigned int i, j, z, c;
-	for (i = 0, j = 1, c = 1; i < 3 * map->w * map->h; i+=3, j++) {
-		//printf("Count = %d, J = %d\n", count++ + 1, j);
+	GLuint indices[] = {
+		0, 1, 4,
+		1, 5, 4,
+		7, 2, 3,
+		7, 6, 2,
+		4, 3, 0,
+		4, 7, 3,
+		1, 2, 5,
+		2, 6, 5
+	};
+
+	unsigned int i, row, delta;
+	for (i = 0, row = 1, delta = 1; i < 3 * map->w * map->h; i+=3, row++) {
 		int x = ((char*)map->pixels)[i] | ((char*)map->pixels)[i+1] << 8 | ((char*)map->pixels)[i+2] << 16;
 
-		if (x == WALL && j + 1 < ret->size) {
+		if (x == WALL && (row+1) < ret->size) {
 			int next = ((char*)map->pixels)[i+3] | ((char*)map->pixels)[i+4] << 8 | ((char*)map->pixels)[i+5] << 16;
 			if (next == WALL)
-				c++;
+				delta++;
 			else {
-				list_insert(ret->meshList, genVertices(i/(ret->size * 3), j-1, c));
-				//printf("1. Wall starts at %d, ends at %d. Z = %d\n", j-1-c, j-1, i/(ret->size * 3));
-				c = 1;
+				list_insert(ret->meshList, genVertices(i/(ret->size * 3), row-1, delta, indices));
+				delta = 1;
 			}
 		}
 		else if (x == WALL) {
-			//printf("2. Wall starts at %d, ends at %d. Z = %d\n", j-1-c, j-1, i/(ret->size * 3));
-			list_insert(ret->meshList, genVertices(i/(ret->size * 3), j-1, c));
-			c = 1;
+			list_insert(ret->meshList, genVertices(i/(ret->size * 3), row-1, delta, indices));
+			delta = 1;
 		}
 
-		if (j == ret->size)
-			j = 0;
+		if (row == ret->size)
+			row = 0;
 	}
 
 	SDL_FreeSurface(map);

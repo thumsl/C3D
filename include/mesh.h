@@ -51,7 +51,7 @@ mesh* mesh_loadFromFile(const char* filename, const char* texturePath);
 mesh* mesh_genFlatFloor(int size, const char *texturePath);
 static void mesh_genHitboxMeshData(mesh* model);
 
-void mesh_draw(mesh *model, camera *C, mat4x4 projection, shader S, bool hitbox);
+void mesh_draw(mesh *model, camera *C, mat4x4 projection, shader *S, bool hitbox);
 void mesh_translate(mesh* model, float x, float y, float z);
 void mesh_translate_from_origin(mesh* model, float x, float y, float z);
 void mesh_rotate_x(mesh* model, float angle);

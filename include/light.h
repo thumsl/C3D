@@ -17,10 +17,10 @@ typedef struct {
 	float intensity;
 } pointLight;
 
-void initAmbientLight(ambientLight* ambient, vec3 color, float intensity);
+ambientLight* initAmbientLight(vec3 color, float intensity);
 void setAmbientLight(ambientLight* ambient, shader *S);
 
-void initPointLight(pointLight* point, vec3 color, vec3 pos, float att, float intensity);
+pointLight* initPointLight(vec3 color, vec3 pos, float att, float intensity);
 void setPointLight(pointLight* point, shader *S);
 
 #endif // LIGHT_H
