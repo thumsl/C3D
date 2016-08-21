@@ -1,4 +1,6 @@
 #include "../include/render.h"
+#include <GL/glew.h>
+#include <stdio.h>
 
 int initOpenGL() {
 	glewExperimental = GL_TRUE;

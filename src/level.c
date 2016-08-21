@@ -15,7 +15,7 @@ mesh* genVertices(int z, int x, int lenght, GLuint *indices) {
 		x-lenght-WALL_WIDTH,	WALL_HEIGHT,	-z + 1,		1,		1,		-1,	0,  1
 	};
 
-	mesh* model = (struct mesh*)malloc(sizeof(mesh));
+	mesh* model = (mesh*)malloc(sizeof(mesh));
 	mesh_init(model);
 	model->indexCount = 24;
 	model->vertexCount = 8;

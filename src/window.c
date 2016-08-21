@@ -29,7 +29,6 @@ SDL_Window* window_create(int width, int height, const char* title) {
 		return NULL;
 	}
 
-	SDL_SetWindowFullscreen(window, FULLSCREEN);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	// TODO: destroy context on fail / on program ending
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -46,4 +45,11 @@ void window_grabCursor(SDL_Window *window, bool grab) {
 		SDL_ShowCursor(SDL_ENABLE);
 		SDL_SetWindowGrab(window, SDL_FALSE);
 	}
+}
+
+void window_fullscreen(SDL_Window *window, bool flag) {
+	if (flag)
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+	else
+		SDL_SetWindowFullscreen(window, 0);
 }

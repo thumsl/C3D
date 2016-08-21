@@ -22,8 +22,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* Attach and compile shaders */
-    shader *S = shader_loadFromFile("src/glsl/shader.vert", "src/glsl/shader.frag");
-    // After being loaded with shader_loadFromFile, the shader is also applied (shader_use())
+    textShader *textShader = textShader_load("src/glsl/textShader.vert", "src/glsl/textShader.frag");
+    phongShader *S = phongShader_load("src/glsl/shader.vert", "src/glsl/shader.frag");
+
 	if (S == NULL) {
 		engine_quit();
 		return 1;
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
 
 	vec4 pastDirection;
 	vec3 lightColor = {0.9f, 0.8f, 0.7f}, lightPosition = {0.0f, 35.0f, 0.0f}, center, nextPosition, pastPosition; 
-	ambientLight *ambient = initAmbientLight(lightColor, 0.07f);
+	ambientLight *ambient = initAmbientLight(lightColor, 1.0f);
 	setAmbientLight(ambient, S);
 
 	lightColor[0] = 1.0f; lightColor[1] = 1.0f; lightColor[2] = 1.0f;
@@ -39,10 +40,14 @@ int main(int argc, char* argv[]) {
 	setPointLight(point, S);
 
 	/* Set the view matrix (camera) */
-	camera* C = camera_init();
+	camera *C = camera_init();
+	camera *previousCamera = camera_init();
+
+	/* Define the player */
+	player* P = player_init(C->eye);
 
 		/* Set the projection matrix */
-	mat4x4 model_view_projection, projection;
+	mat4x4 projection;
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.001f, 1000.f);
 
 	vec3_mul_cross(C->up, C->right, C->direction);
@@ -58,9 +63,6 @@ int main(int argc, char* argv[]) {
 	mesh_translate(meshList->head->data, -2.0f, 0.0f, 0.0f);
 	mesh_translate(meshList->head->next->data, 2.0f, 0.0f, 0.0f);
 
-	/* Define the player */
-	player* P = player_init(C->eye);
-
 	//terrain *mainTerrain = terrain_genDiamondSquare(129, 10, 2, "res/textures/grass.jpg");
 	// TODO: check for errors
 
@@ -72,6 +74,15 @@ int main(int argc, char* argv[]) {
 	linkedList* bulletList = list_create();
 	bulletType* defaultBullet  = bullet_createType(0.05f, 1, 200, "res/obj/bullet.obj", "res/textures/steel.jpg");
 
+	// GUI
+	mat4x4 ortho;
+	mat4x4_ortho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f);
+	camera *GUI_Camera;	GUI_Camera = camera_init();
+	mat4x4_identity(GUI_Camera->view);
+
+	font* pixFont = font_load(12, 16, "res/fonts/pixfont.jpg");
+	text *FPS = text_create("FPS:     ", pixFont, 2, 0, 0);
+
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
 		pastTime = currentTime;
@@ -81,7 +92,18 @@ int main(int argc, char* argv[]) {
 		frames++;
 		if (timePassed >= 1000) {
 			timePassed = 0;
-			printf("%d FPS\n", frames);
+			char FPS_String[10];
+			FPS_String[0] = 'F';
+			FPS_String[1] = 'P';
+			FPS_String[2] = 'S';
+			FPS_String[3] = ':';
+			FPS_String[4] = ' ';
+			FPS_String[5] = (frames / 1000) % 10 + 48;
+			FPS_String[6] = (frames / 100) % 10 + 48;
+			FPS_String[7] = (frames / 10) % 10 + 48;
+			FPS_String[8] = frames % 10 + 48;
+			FPS_String[9] = 0;
+			text_update(FPS, FPS_String);
 			frames = 0;
 		}
 
@@ -111,6 +133,8 @@ int main(int argc, char* argv[]) {
 						P->movement.backward = true;
 						break;
 					case SDLK_h:
+						((mesh*)(FPS->modelList->head->data))->textureOffsetX = (rand() % 10)/10.0f;
+						((mesh*)(FPS->modelList->head->next->next->data))->textureOffsetX = (rand() % 10)/10.0f;
 						drawBoundingBox = !drawBoundingBox;
 						break;
 					case SDLK_j:
@@ -154,18 +178,14 @@ int main(int argc, char* argv[]) {
 	    SDL_GetMouseState(&x, &y);
 		
 		/* Movement */
-		vec3_copy(pastPosition, C->eye);
-		vec3_copy(nextPosition, C->eye);
-		camera_fps_movement_simulate(nextPosition, C, P->movement, frameTime);
-		player_updateHitbox(P, nextPosition); // this way the player has the be invisible
+		camera_copy(previousCamera, C);
+		camera_fps_movement(C, P, frameTime);
+		player_setPosition(P, C->eye);
+
 		if (aabb_collision(P->hitbox, ((mesh*)meshList->head->next->data)->hitbox)) {
 			DEBUG_PRINT(("Collision!\n"));
-			vec3_copy(C->eye, pastPosition);
-			player_updateHitbox(P, C->eye);
-		}
-		else {
-			camera_fps_movement(C, P->movement, frameTime);
-			player_updateHitbox(P, C->eye);
+			camera_copy(C, previousCamera);
+			player_setPosition(P, C->eye);
 		}
 
 		/* FPS camera control */
@@ -193,40 +213,32 @@ int main(int argc, char* argv[]) {
 		point->position[1] = C->eye[1];
 		point->position[2] = C->eye[2];
 		setPointLight(point, S);
-	    factor += 0.0005 * frameTime;
 
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		// GUI
+		shader_use(textShader->program);
+		text_draw(FPS, ortho, textShader);
 
-	    // Terrain pieces
-		node* aux = mainLevel->meshList->head;
-		while (aux != NULL) {
-			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
-			aux = aux->next;
-		}
-		/*while (aux != NULL) {
-			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
-			aux = aux->next;
-		}*/
-
+		// Terrain pieces
+		shader_use(S->program);
+		phongShader_drawList(mainLevel->meshList, S, C, projection);
 	    // MeshList
-		aux = meshList->head;
-		while (aux != NULL) {
-			mesh_rotate_from_ident(aux->data, 0, factor, 0);
-			mesh_draw((mesh*)aux->data, C, projection, S, drawBoundingBox);
-			aux = aux->next;
-		}
+		phongShader_drawList(meshList, S, C, projection);
+    	
+		// // Bullets
+		// node* aux = bulletList->head;
+		// while (aux != NULL) {
+		// 	mesh* currentBullet = ((bullet*) aux->data) -> model;
+		// 	mesh_updateModel(currentBullet);
+		// 	mesh_draw(currentBullet);
+		// 	if (!bullet_updatePosition((bullet*)aux->data, frameTime))
+		// 		aux = list_delete_node(bulletList, aux);
+		// 	else
+		// 		aux = aux->next;
+		// }
 
-		// Bullets
-		aux = bulletList->head;
-		while (aux != NULL) {
-			mesh* currentBullet = ((bullet*) aux->data) -> model;
-			mesh_draw(currentBullet, C, projection, S, drawBoundingBox);
-			if (!bullet_updatePosition((bullet*)aux->data, frameTime))
-				aux = list_delete_node(bulletList, aux);
-			else
-				aux = aux->next;
-		}
 
 		// Update framebuffer
 		SDL_GL_SwapWindow(window);

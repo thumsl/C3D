@@ -1,6 +1,5 @@
-#include "../include/list.h"
-#include <stdio.h>
 #include <stdlib.h>
+#include "../include/list.h"
 
 linkedList* list_create() {
 	linkedList* list = (linkedList*)malloc(sizeof(linkedList));
@@ -53,27 +52,17 @@ node* list_delete_node(linkedList* list, node* N) {
 	}
 }
 
-void list_print(node* head) {
-    if (head == NULL)
-            return;
+void list_destroy(linkedList *list) {
+	node *aux = list->head;
+	node *prev;
+	while (aux != NULL) {
+		prev = aux;
+		aux = aux->next;
+		free(prev->data);
+		free(prev);
+	}
 
-    node* P = head;
-    while (P != NULL) {
-            printf("%p\n", P->data);
-            P = P->next;
-    }
-}
-
-void list_destroy(node** head) {
-    node *next = (*head)->next;
-    node *aux;
-
-    while (next != NULL) {
-            aux = next->next;
-            free(next);
-            next = aux;
-    }
-
-    free(*head);
-    *head = NULL;
+	free(list->head);
+	free(list->tail);
+	free(list);
 }

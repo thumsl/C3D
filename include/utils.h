@@ -1,8 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
+
+#include <GL/glew.h>
 #include "linmath.h"
 #include <time.h>
-#include <GL/glew.h>
 
 #define access_2df_array(a, size, i, j) ((*((float*)a + (i)*size + (j))))
 #define setRandSeed() srand(time(NULL))

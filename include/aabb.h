@@ -1,12 +1,17 @@
 #ifndef AABB_H
 #define AABB_H
-#include "linmath.h"
 
-typedef struct {
+#include "linmath.h"
+#include "mesh.h"
+
+typedef struct mesh_s mesh;
+
+typedef struct boundingBox_s {
 	vec3 min;
 	vec3 max;
 } boundingBox;
 
-int aabb_collision(boundingBox a, boundingBox b);
+int aabb_collision(boundingBox *a, boundingBox *b);
+int aabb_collisionMeshes(mesh *a, mesh *b);
 
 #endif // AABB_H

@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['player',['player',['../structplayer.html',1,'']]],
-  ['playermovement',['playerMovement',['../structplayerMovement.html',1,'']]],
-  ['pointlight',['pointLight',['../structpointLight.html',1,'']]]
+  ['node_5fs',['node_s',['../structnode__s.html',1,'']]]
 ];

@@ -3,8 +3,8 @@
 
 #include "mesh.h"
 
-typedef struct terrain {
-	struct mesh *model;
+typedef struct terrain_s {
+	mesh *model;
 	float **heightMap;
 	int size;
 } terrain;

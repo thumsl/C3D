@@ -1,21 +1,4 @@
 var searchData=
 [
-  ['pi',['PI',['../engine_8h.html#a598a3330b3c21701223ee0ca14316eca',1,'engine.h']]],
-  ['player',['player',['../structplayer.html',1,'']]],
-  ['player_2eh',['player.h',['../player_8h.html',1,'']]],
-  ['player_5fheight',['PLAYER_HEIGHT',['../engine_8h.html#a2712b06fd52f25adca031d05c3e0c09b',1,'engine.h']]],
-  ['player_5finit',['player_init',['../player_8h.html#a7c037221fe60fa06cb43f39aadf308e7',1,'player.h']]],
-  ['player_5fupdatehitbox',['player_updateHitbox',['../player_8h.html#a2e15e31c7525de9a8f2bd5be307f395f',1,'player.h']]],
-  ['player_5fwidth',['PLAYER_WIDTH',['../engine_8h.html#a89e2ac9092225702ac543695d0771d38',1,'engine.h']]],
-  ['playermovement',['playerMovement',['../structplayerMovement.html',1,'']]],
-  ['pointlight',['pointLight',['../structpointLight.html',1,'']]],
-  ['pointlightattenuation',['pointLightAttenuation',['../structuniform__location.html#a325d8beff2f8478433c18b151bdb270c',1,'uniform_location']]],
-  ['pointlightcolor',['pointLightColor',['../structuniform__location.html#ae24ad58e6e6b011c77d8e7a558d5ae68',1,'uniform_location']]],
-  ['pointlightintensity',['pointLightIntensity',['../structuniform__location.html#a23c8b95d95ff943b2160798e0c0039ed',1,'uniform_location']]],
-  ['pointlightposition',['pointLightPosition',['../structuniform__location.html#aeac963207cd15ae86ef7610e2447aff2',1,'uniform_location']]],
-  ['position',['position',['../structbullet.html#a9c71eb40c197fe01584a88207256951e',1,'bullet::position()'],['../structpointLight.html#a1927d2742d7f1cdb48eec21808829f2d',1,'pointLight::position()'],['../structplayer.html#aa01f696523ed0c00888a1eaadc4214c9',1,'player::position()']]],
-  ['position_5flocation',['POSITION_LOCATION',['../shader_8h.html#a07e3b4345595467370ea6f1f6e235b25',1,'shader.h']]],
-  ['prev',['prev',['../structnode.html#a7ee3d227c728ce18a86e43ebc301046e',1,'node']]],
-  ['program',['program',['../structshader.html#a31749168a52c6676d55ba08c3eeefb51',1,'shader']]],
-  ['projection',['Projection',['../structuniform__location.html#aeac7bd1cc98d2b12ebae45a314818e59',1,'uniform_location']]]
+  ['y',['y',['../structtext__s.html#a20c956f21df08c39bde5395303cfe265',1,'text_s']]]
 ];

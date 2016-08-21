@@ -101,7 +101,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = /home/luancristian/C3D
+INPUT                  = /home/luancristian/Documents/C3D
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c, *.h
 RECURSIVE              = YES

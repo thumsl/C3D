@@ -42,7 +42,7 @@ terrain* terrain_genDiamondSquare(int size, float range, float factor, const cha
 		}
 	}
 
-	ret->model = (struct mesh*)malloc(sizeof(mesh));
+	ret->model = (mesh*)malloc(sizeof(mesh));
 		
 	mesh_init(ret->model);
 	ret->model->indexCount = 6 * (ret->size - 1) * (ret->size - 1);

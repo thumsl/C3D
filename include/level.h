@@ -4,7 +4,7 @@
 #include "list.h"
 #define WALL 0xffffffff // WHITE
 
-typedef struct {
+typedef struct level_s {
 	unsigned int size;
 	linkedList *meshList;
 } level;

@@ -2,15 +2,15 @@
 #define LIGHT_H
 
 #include "linmath.h"
-#include "shader.h"
+#include "phongShader.h"
 #include <GL/glew.h>
 
-typedef struct {
+typedef struct ambientLight_s {
 	vec3 color;
 	float intensity;
 } ambientLight;
 
-typedef struct {
+typedef struct pointLight_s {
 	vec3 color;
 	vec3 position;
 	float attenuation;
@@ -18,9 +18,9 @@ typedef struct {
 } pointLight;
 
 ambientLight* initAmbientLight(vec3 color, float intensity);
-void setAmbientLight(ambientLight* ambient, shader *S);
+void setAmbientLight(ambientLight* ambient, phongShader *S);
 
 pointLight* initPointLight(vec3 color, vec3 pos, float att, float intensity);
-void setPointLight(pointLight* point, shader *S);
+void setPointLight(pointLight* point, phongShader *S);
 
 #endif // LIGHT_H

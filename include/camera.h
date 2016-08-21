@@ -3,7 +3,9 @@
 #include "linmath.h"
 #include "player.h"
 
-typedef struct {
+typedef struct player_s player;
+
+typedef struct camera_s {
 	vec3 eye;
 	vec3 direction;
 	vec3 right;
@@ -13,7 +15,7 @@ typedef struct {
 
 camera* camera_init();
 void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle);
-void camera_fps_movement(camera* C, playerMovement movement, unsigned short frameTime);
-void camera_fps_movement_simulate(vec3 R, camera* C, playerMovement movement, unsigned short frameTime);
+void camera_fps_movement(camera* C, player *P, unsigned short frameTime);
+void camera_copy(camera *a, camera *b);
 
 #endif // CAMERA_H	

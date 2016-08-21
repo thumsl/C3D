@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ambientlight',['ambientLight',['../structambientLight.html',1,'']]]
+  ['ambientlight_5fs',['ambientLight_s',['../structambientLight__s.html',1,'']]]
 ];

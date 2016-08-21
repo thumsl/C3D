@@ -10,8 +10,7 @@ void mesh_init(mesh *model) {
 	model->indexCount = 0;
 	model->mat.specularPower = 16;
 	model->mat.specularIntensity = 8;
-    model->hitbox.min[0] =  INFINITY; model->hitbox.min[1] =  INFINITY; model->hitbox.min[2] =  INFINITY;
-    model->hitbox.max[0] = -INFINITY; model->hitbox.max[1] = -INFINITY; model->hitbox.max[2] = -INFINITY;
+    model->hitbox = NULL;
 	mat4x4_identity(model->transform.rotate);
 	mat4x4_identity(model->transform.translate);
 	mat4x4_identity(model->transform.scale);
@@ -53,12 +52,12 @@ void mesh_textureFromFile(mesh *model, const char *texturePath) {
 	SDL_Surface *image;
 	image = IMG_Load(texturePath);
 
-	if(!image) {
+	if(image == NULL) {
 	    fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
 	    return;
 	}
 
-	glBindVertexArray(model->VAO);
+	//glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -73,27 +72,32 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 
 	GLfloat vertices[loadedMesh->mNumVertices * 8];
 	GLuint indices[model->indexCount]; // use malloc!
-	int i, j;
+	
+	model->hitbox = (boundingBox*)malloc(sizeof(boundingBox));
 
+	model->hitbox->min[0] =  INFINITY; model->hitbox->min[1] =  INFINITY; model->hitbox->min[2] =  INFINITY;
+    model->hitbox->max[0] = -INFINITY; model->hitbox->max[1] = -INFINITY; model->hitbox->max[2] = -INFINITY;
+
+	int i, j;
 	for (i = 0, j = 0; j < loadedMesh->mNumVertices; i += 8, j++) {
 		vertices[i]   = loadedMesh->mVertices[j].x;
-		if (loadedMesh->mVertices[j].x < model->hitbox.min[0]) {
-			model->hitbox.min[0] = loadedMesh->mVertices[j].x;
+		if (loadedMesh->mVertices[j].x < model->hitbox->min[0]) {
+			model->hitbox->min[0] = loadedMesh->mVertices[j].x;
 		}
-		else if (loadedMesh->mVertices[j].x > model->hitbox.max[0])
-			model->hitbox.max[0] = loadedMesh->mVertices[j].x;
+		else if (loadedMesh->mVertices[j].x > model->hitbox->max[0])
+			model->hitbox->max[0] = loadedMesh->mVertices[j].x;
 
 		vertices[i+1] = loadedMesh->mVertices[j].y;
-		if (loadedMesh->mVertices[j].y < model->hitbox.min[1])
-			model->hitbox.min[1] = loadedMesh->mVertices[j].y;
-		else if (loadedMesh->mVertices[j].y > model->hitbox.max[1])
-			model->hitbox.max[1] = loadedMesh->mVertices[j].y;
+		if (loadedMesh->mVertices[j].y < model->hitbox->min[1])
+			model->hitbox->min[1] = loadedMesh->mVertices[j].y;
+		else if (loadedMesh->mVertices[j].y > model->hitbox->max[1])
+			model->hitbox->max[1] = loadedMesh->mVertices[j].y;
 
 		vertices[i+2] = loadedMesh->mVertices[j].z;
-		if (loadedMesh->mVertices[j].z < model->hitbox.min[2])
-			model->hitbox.min[2] = loadedMesh->mVertices[j].z;
-		else if (loadedMesh->mVertices[j].z > model->hitbox.max[2])
-			model->hitbox.max[2] = loadedMesh->mVertices[j].z;
+		if (loadedMesh->mVertices[j].z < model->hitbox->min[2])
+			model->hitbox->min[2] = loadedMesh->mVertices[j].z;
+		else if (loadedMesh->mVertices[j].z > model->hitbox->max[2])
+			model->hitbox->max[2] = loadedMesh->mVertices[j].z;
 	}
 
 	if (loadedMesh->mTextureCoords[0] != NULL) {
@@ -185,13 +189,12 @@ mesh* mesh_loadFromFile(const char* filename, const char* texturePath) {
 	}
 }
 
-// TODO: Move terrain generation functions to terrain.c
 mesh* mesh_genFlatFloor(int size, const char *texturePath) {
 	if (size <= 0)
 		return NULL;
 
 	int i, j, k;
-	mesh* model = (struct mesh*)malloc(sizeof(mesh));
+	mesh* model = (mesh*)malloc(sizeof(mesh));
 		
 	mesh_init(model);
 	model->indexCount = 6 * (size - 1) * (size - 1);
@@ -239,14 +242,14 @@ mesh* mesh_genFlatFloor(int size, const char *texturePath) {
 
 static void mesh_genHitboxMeshData(mesh* model) {	
 	float position[] = {
-		model->hitbox.min[0], model->hitbox.min[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.min[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.min[1], model->hitbox.max[2],
-		model->hitbox.min[0], model->hitbox.min[1], model->hitbox.max[2],
-		model->hitbox.min[0], model->hitbox.max[1], model->hitbox.max[2],
-		model->hitbox.min[0], model->hitbox.max[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.max[1], model->hitbox.min[2],
-		model->hitbox.max[0], model->hitbox.max[1], model->hitbox.max[2]
+		model->hitbox->min[0], model->hitbox->min[1], model->hitbox->min[2],
+		model->hitbox->max[0], model->hitbox->min[1], model->hitbox->min[2],
+		model->hitbox->max[0], model->hitbox->min[1], model->hitbox->max[2],
+		model->hitbox->min[0], model->hitbox->min[1], model->hitbox->max[2],
+		model->hitbox->min[0], model->hitbox->max[1], model->hitbox->max[2],
+		model->hitbox->min[0], model->hitbox->max[1], model->hitbox->min[2],
+		model->hitbox->max[0], model->hitbox->max[1], model->hitbox->min[2],
+		model->hitbox->max[0], model->hitbox->max[1], model->hitbox->max[2]
     };
 
     GLuint indices[] = {
@@ -280,54 +283,50 @@ static void mesh_genHitboxMeshData(mesh* model) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-void mesh_draw(mesh *model, camera *C, mat4x4 projection, shader *S, bool hitbox) {
-	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
-	mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
-
-	//mat4x4 model_view_projection;
-	mat4x4 modelView;
-
-	mat4x4_mul(modelView, C->view, model->transform.model);
-	//mat4x4_mul(model_view_projection, projection, model_view_projection);
-
-	glUniformMatrix4fv(S->location.ModelView, 1, 0, (GLfloat*)modelView);
-	glUniformMatrix4fv(S->location.Projection, 1, 0, (GLfloat*)projection);
-	glUniformMatrix4fv(S->location.Transform, 1, 0, (GLfloat*)model->transform.model);
-	glUniform3fv(S->location.eyePos, 1, (GLfloat*)C->eye);
-	glUniform1f(S->location.specularPower, model->mat.specularPower);
-	glUniform1f(S->location.specularIntensity, model->mat.specularIntensity);
-
+void mesh_draw(mesh *model) {
 	glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glDrawElements(GL_TRIANGLES, model->indexCount, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
 
-	if (hitbox) {
-		glBindVertexArray(model->hitboxVAO);
-		glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
-		glBindVertexArray(0);
+	// if (hitbox && model->hitbox != NULL) {
+	// 	glBindVertexArray(model->hitboxVAO);
+	// 	glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
+	// 	glBindVertexArray(0);
+	// }
+}
+
+void mesh_drawList(linkedList *list) {
+	node *aux = list->head;
+	while (aux != NULL) {
+		mesh_draw((mesh*)aux->data);
+		aux = aux->next;
 	}
 }
 
 void mesh_translate(mesh* model, float x, float y, float z) {
 	mat4x4_translate(model->transform.translate, x, y, z);
-	model->hitbox.min[0] += x;
-	model->hitbox.min[1] += y;
-	model->hitbox.min[2] += z;
-	model->hitbox.max[0] += x;
-	model->hitbox.max[1] += y;
-	model->hitbox.max[2] += z;
+	if (model->hitbox != NULL) {
+		model->hitbox->min[0] += x;
+		model->hitbox->min[1] += y;
+		model->hitbox->min[2] += z;
+		model->hitbox->max[0] += x;
+		model->hitbox->max[1] += y;
+		model->hitbox->max[2] += z;
+	}
 }
 
 void mesh_translate_from_origin(mesh* model, float x, float y, float z) {
 	mat4x4_identity(model->transform.translate);
 	mat4x4_translate(model->transform.translate, x, y, z); // TODO: hitbox needs to be reset first
-	model->hitbox.min[0] += x; // this doesnt work
-	model->hitbox.min[1] += y;
-	model->hitbox.min[2] += z;
-	model->hitbox.max[0] += x;
-	model->hitbox.max[1] += y;
-	model->hitbox.max[2] += z;
+	if (model->hitbox != NULL) {
+		model->hitbox->min[0] += x; // this doesnt work
+		model->hitbox->min[1] += y;
+		model->hitbox->min[2] += z;
+		model->hitbox->max[0] += x;
+		model->hitbox->max[1] += y;
+		model->hitbox->max[2] += z;
+	}
 }
 
 // Use quaternions?
@@ -351,13 +350,10 @@ void mesh_rotate_from_ident(mesh* model, float x_angle, float y_angle, float z_a
 }
 
 void mesh_scale(mesh* model, float x, float y, float z) {
-	// model->transform.scale[0][0] *= k;
-	// model->transform.scale[1][1] *= k;
-	// model->transform.scale[2][2] *= k;
 	mat4x4_scale_aniso(model->transform.scale, model->transform.scale, x, y, z);
 }
 
-void mesh_update_model_matrix(mesh* model) {
-	mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
-	mat4x4_mul (model->transform.model, model->transform.translate, model->transform.model);
+void mesh_updateModel(mesh* model) {
+    mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
+    mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
 }

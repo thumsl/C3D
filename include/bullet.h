@@ -3,14 +3,14 @@
 #include "mesh.h"
 #include "linmath.h"
 
-typedef struct {
+typedef struct bulletType_s {
 	float baseDamage;
 	float speed;
 	float maximumTravelDistance;
 	mesh* model;
 } bulletType;
 
-typedef struct {
+typedef struct bullet_s {
 	vec3 direction;
 	vec3 position;
 	mesh* model;
