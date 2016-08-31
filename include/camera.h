@@ -3,9 +3,9 @@
 #include "linmath.h"
 #include "player.h"
 
-typedef struct player_s player;
+typedef struct player player;
 
-typedef struct camera_s {
+typedef struct camera {
 	vec3 eye;
 	vec3 direction;
 	vec3 right;

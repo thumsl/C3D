@@ -5,45 +5,41 @@
 #include <stdlib.h>
 #include "camera.h"
 #include "linmath.h"
-#include "list.h"
 #include "mesh.h"
+#include "shader.h"
 
 #define POSITION_LOCATION 0
 #define TEXTURE_LOCATION 1
 #define NORMAL_LOCATION 2
 
-typedef struct camera_s camera;
-typedef struct mesh_s mesh;
+typedef struct camera camera;
+typedef struct mesh mesh;
 
-//	TODO: Use enum?
-typedef struct phongLocations_s {
-	GLuint MVP;
-	GLuint ModelView;
-	GLuint Projection;
-	GLuint Transform;
-	GLuint ambientLightColor;
-	GLuint ambientLightIntensity;
-	GLuint pointLightColor;
-	GLuint pointLightPosition;
-	GLuint pointLightAttenuation;
-	GLuint pointLightIntensity;
-	GLuint eyePos;
-	GLuint specularPower;
-	GLuint specularIntensity;
-	GLuint skyColor;
-	GLuint fogDensity;
-	GLuint fogGradient;
-} phongLocations;
+typedef enum {
+	MVP = 0,
+	MODEL_VIEW,
+	PROJECTION,
+	TRANSFORM,
+	AMBIENT_LIGHT_COLOR,
+	AMBIENT_LIGHT_INTENSITY,
+	POINT_LIGHT_COLOR,
+	POINT_LIGHT_POSITION,
+	POINT_LIGHT_INTENSITY,
+	POINT_LIGHT_ATTENUATION,
+	EYE_POSITION,
+	SPECULAR_POWER,
+	SPECULAR_INTENSITY,
+	SKY_COLOR,
+	FOG_DENSITY,
+	FOG_GRADIENT,
+	PHONG_SHADER_UNIFORM_COUNT
+} phongShaderUniforms;
 
-typedef struct PhongShader_s {
-	GLuint program;
-	phongLocations locations;
-} phongShader;
+void phongShader_getUniformLocations(shader *S);
+void phongShader_updateUniforms(mesh *model, shader *S, camera *C, mat4x4 projection);
+void phongShader_init(shader *S);
 
-phongShader* phongShader_load(const char *vs, const char *fs);
-static void phongShader_getLocations(phongShader* S);
-void phongShader_setSkyColor(phongShader* S, vec3 color);
-void phongShader_setFogParams(phongShader *S, float density, float gradient);
-void phongShader_drawList(linkedList *modelList, phongShader *S, camera *C, mat4x4 projection);
+//void phongShader_setSkyColor(phongShader* S, vec3 color);
+//void phongShader_setFogParams(phongShader *S, float density, float gradient);
 
 #endif // PHONG_SHADER_H

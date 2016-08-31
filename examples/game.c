@@ -22,8 +22,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* Attach and compile shaders */
-    textShader *textShader = textShader_load("src/glsl/textShader.vert", "src/glsl/textShader.frag");
-    phongShader *S = phongShader_load("src/glsl/shader.vert", "src/glsl/shader.frag");
+	// textShader *textShader = textShader_load("src/glsl/textShader.vert", "src/glsl/textShader.frag");
+	shader *S = shader_loadFromFile("src/glsl/shader.vert", "src/glsl/shader.frag", PHONG);
 
 	if (S == NULL) {
 		engine_quit();
@@ -56,8 +56,12 @@ int main(int argc, char* argv[]) {
 
 	/* Initialize all meshes */
 	linkedList* meshList = list_create();
+	printf("Cube\n");
+	// TODO: return pointer to mesh and add that to list inside main()
 	mesh_loadFromFileToList("res/obj/raptor.obj", "res/textures/raptor.png", meshList);
+	printf("R2\n");
 	mesh_loadFromFileToList("res/obj/R2-D2.obj", "res/textures/R2-D2.tga", meshList);
+	printf("Jax\n");
 	mesh_loadFromFileToList("res/obj/jax.obj", "res/textures/jax.tga", meshList);
 
 	mesh_translate(meshList->head->data, -2.0f, 0.0f, 0.0f);
@@ -80,8 +84,8 @@ int main(int argc, char* argv[]) {
 	camera *GUI_Camera;	GUI_Camera = camera_init();
 	mat4x4_identity(GUI_Camera->view);
 
-	font* pixFont = font_load(12, 16, "res/fonts/pixfont.jpg");
-	text *FPS = text_create("FPS:     ", pixFont, 2, 0, 0);
+	// font* pixFont = font_load(12, 16, "res/fonts/pixfont.jpg");
+	// text *FPS = text_create("FPS:     ", pixFont, 2, 0, 0);
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
 	while (running) {
@@ -103,7 +107,7 @@ int main(int argc, char* argv[]) {
 			FPS_String[7] = (frames / 10) % 10 + 48;
 			FPS_String[8] = frames % 10 + 48;
 			FPS_String[9] = 0;
-			text_update(FPS, FPS_String);
+			// text_update(FPS, FPS_String);
 			frames = 0;
 		}
 
@@ -133,8 +137,6 @@ int main(int argc, char* argv[]) {
 						P->movement.backward = true;
 						break;
 					case SDLK_h:
-						((mesh*)(FPS->modelList->head->data))->textureOffsetX = (rand() % 10)/10.0f;
-						((mesh*)(FPS->modelList->head->next->next->data))->textureOffsetX = (rand() % 10)/10.0f;
 						drawBoundingBox = !drawBoundingBox;
 						break;
 					case SDLK_j:
@@ -218,15 +220,15 @@ int main(int argc, char* argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// GUI
-		shader_use(textShader->program);
-		text_draw(FPS, ortho, textShader);
+		// shader_use(textShader->program);
+		// text_draw(FPS, ortho, textShader);
 
 		// Terrain pieces
-		shader_use(S->program);
-		phongShader_drawList(mainLevel->meshList, S, C, projection);
-	    // MeshList
-		phongShader_drawList(meshList, S, C, projection);
-    	
+		shader_use(S);
+		mesh_drawList(mainLevel->meshList, S, C, projection);
+		// MeshList
+		mesh_drawList(meshList, S, C, projection);
+		    	
 		// // Bullets
 		// node* aux = bulletList->head;
 		// while (aux != NULL) {

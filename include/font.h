@@ -1,7 +1,7 @@
 #ifndef FONT_H
 #define FONT_H
 
-typedef struct font_s {
+typedef struct font {
 	unsigned int char_width;
 	unsigned int char_height;
 	unsigned int w;

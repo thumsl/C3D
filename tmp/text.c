@@ -53,13 +53,13 @@ text* text_create(const char *string, font *F, float size, float x, float y) {
 
 
 void text_draw(text *T, mat4x4 projection, textShader *S) {
-	shader_use(S->program);
+	shader_use(S);
 	glUniformMatrix4fv(S->locations.projection, 1, 0, (GLfloat*)projection);
 
 	node *aux = T->modelList->head;
 	while (aux != NULL) {
 		glUniform2f(S->locations.offset, ((mesh*)aux->data)->textureOffsetX, ((mesh*)aux->data)->textureOffsetY);
-		mesh_draw((mesh*)aux->data);
+		mesh_draw((mesh*)aux->data, S, TEXT, NULL, NULL);
 		aux = aux->next;
 	}
 }

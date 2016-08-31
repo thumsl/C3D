@@ -4,9 +4,9 @@
 #include "linmath.h"
 #include "mesh.h"
 
-typedef struct mesh_s mesh;
+typedef struct mesh mesh;
 
-typedef struct boundingBox_s {
+typedef struct boundingBox {
 	vec3 min;
 	vec3 max;
 } boundingBox;

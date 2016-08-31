@@ -1,24 +1,25 @@
-#include "../include/mesh.h"
-#include "../include/engine.h"
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "../include/engine.h"
+#include "../include/mesh.h"
+
 void mesh_init(mesh *model) {
 	model->vertexCount = 0;
 	model->indexCount = 0;
-	model->mat.specularPower = 16;
-	model->mat.specularIntensity = 8;
-    model->hitbox = NULL;
-	mat4x4_identity(model->transform.rotate);
-	mat4x4_identity(model->transform.translate);
-	mat4x4_identity(model->transform.scale);
+	model->mat.specularPower = 32;
+	model->mat.specularIntensity = 1;
+	model->hitbox = NULL;
+	mat4x4_identity(model->matrices.rotate);
+	mat4x4_identity(model->matrices.translate);
+	mat4x4_identity(model->matrices.scale);
 
-    glGenVertexArrays(1, &(model->VAO));
-    glGenBuffers(1, &(model->VBO));
-    glGenBuffers(1, &(model->IBO));
-    glGenTextures(1, &(model->textureID));
+	glGenVertexArrays(1, &(model->VAO));
+	glGenBuffers(1, &(model->VBO));
+	glGenBuffers(1, &(model->IBO));
+	glGenTextures(1, &(model->textureID));
 }
 
 void mesh_loadToVAO(mesh* model, GLfloat* vertices, GLuint *indices) {
@@ -70,8 +71,9 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 	model->indexCount = loadedMesh->mNumFaces * 3;
 	model->vertexCount = loadedMesh->mNumVertices;
 
-	GLfloat vertices[loadedMesh->mNumVertices * 8];
-	GLuint indices[model->indexCount]; // use malloc!
+	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * loadedMesh->mNumVertices * 8);
+	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * model->indexCount);
+
 	
 	model->hitbox = (boundingBox*)malloc(sizeof(boundingBox));
 
@@ -121,13 +123,19 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 	}
 
 	mesh_loadToVAO(model, vertices, indices);
+
+	free(vertices);
+	free(indices);
 }
 
 static void mesh_setMaterialData(struct aiMaterial* mat, mesh* model, const char* texturePath) {
-	// if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &(model->mat.specularPower), NULL) == AI_SUCCESS)
-	// 	printf("Power changed: %f\n", model->mat.specularPower);
-	// if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &(model->mat.specularIntensity), NULL) == AI_SUCCESS)
-	// 	printf("Intensity changed: %f\n", model->mat.specularIntensity);
+	int max = 1; float x;
+//	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &x, &max) == AI_SUCCESS)
+//		model->mat.specularPower = x;
+//	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &x, &max) == AI_SUCCESS)
+//		model->mat.specularIntensity = x;
+
+	printf("POWER: %.2f, INTENSITY %.2f\n", model->mat.specularPower, model->mat.specularIntensity);
 
 	struct aiString path;
 	
@@ -165,7 +173,7 @@ void mesh_loadFromFileToList(const char* filename, const char* texturePath, link
 		mesh* model = (mesh*)malloc(sizeof(mesh));
 		mesh_init(model);
 		mesh_setData(scene->mMeshes[i], model);
-		mesh_setMaterialData(scene->mMaterials[0], model, texturePath);
+		mesh_setMaterialData(scene->mMaterials[scene->mMeshes[i]->mMaterialIndex], model, texturePath);
 		mesh_genHitboxMeshData(model);
 		list_insert(meshList, model);
 	}
@@ -283,7 +291,17 @@ static void mesh_genHitboxMeshData(mesh* model) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-void mesh_draw(mesh *model) {
+void mesh_draw(mesh *model, shader *S, camera *C, mat4x4 projection) {
+	mesh_updateModelMatrix(model);
+
+	switch (S->type) {
+		case PHONG:
+			phongShader_updateUniforms(model, S, C, projection);
+			break;
+		case TEXT:
+			break;
+	}
+	
 	glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glDrawElements(GL_TRIANGLES, model->indexCount, GL_UNSIGNED_INT, (void*)0);
@@ -296,16 +314,18 @@ void mesh_draw(mesh *model) {
 	// }
 }
 
-void mesh_drawList(linkedList *list) {
+void mesh_drawList(linkedList *list, shader *S, camera *C, mat4x4 projection) {
 	node *aux = list->head;
+
 	while (aux != NULL) {
-		mesh_draw((mesh*)aux->data);
+		mesh_draw((mesh*)aux->data, S, C, projection);
 		aux = aux->next;
 	}
 }
 
 void mesh_translate(mesh* model, float x, float y, float z) {
-	mat4x4_translate(model->transform.translate, x, y, z);
+	mat4x4_translate(model->matrices.translate, x, y, z);
+
 	if (model->hitbox != NULL) {
 		model->hitbox->min[0] += x;
 		model->hitbox->min[1] += y;
@@ -317,8 +337,8 @@ void mesh_translate(mesh* model, float x, float y, float z) {
 }
 
 void mesh_translate_from_origin(mesh* model, float x, float y, float z) {
-	mat4x4_identity(model->transform.translate);
-	mat4x4_translate(model->transform.translate, x, y, z); // TODO: hitbox needs to be reset first
+	mat4x4_identity(model->matrices.translate);
+	mat4x4_translate(model->matrices.translate, x, y, z); // TODO: hitbox needs to be reset first
 	if (model->hitbox != NULL) {
 		model->hitbox->min[0] += x; // this doesnt work
 		model->hitbox->min[1] += y;
@@ -331,29 +351,29 @@ void mesh_translate_from_origin(mesh* model, float x, float y, float z) {
 
 // Use quaternions?
 void mesh_rotate_x(mesh* model, float angle) {
-	mat4x4_rotate(model->transform.rotate, model->transform.rotate, 1.0f, 0.0f, 0.0f, angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1.0f, 0.0f, 0.0f, angle);
 }
 
 void mesh_rotate_y(mesh* model, float angle) {
-	mat4x4_rotate(model->transform.rotate, model->transform.rotate, 0, 1, 0, angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 1, 0, angle);
 }
 
 void mesh_rotate_z(mesh* model, float angle) {
-	mat4x4_rotate(model->transform.rotate, model->transform.rotate, 0, 0, 1, angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 0, 1, angle);
 }
 
 void mesh_rotate_from_ident(mesh* model, float x_angle, float y_angle, float z_angle) {
-	mat4x4_identity(model->transform.rotate);
-	mat4x4_rotate(model->transform.rotate, model->transform.rotate, 1, 0, 0, x_angle);
-	mat4x4_rotate(model->transform.rotate, model->transform.rotate, 0, 1, 0, y_angle);
-	mat4x4_rotate(model->transform.rotate, model->transform.rotate, 0, 0, 1, z_angle);
+	mat4x4_identity(model->matrices.rotate);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1, 0, 0, x_angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 1, 0, y_angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 0, 1, z_angle);
 }
 
 void mesh_scale(mesh* model, float x, float y, float z) {
-	mat4x4_scale_aniso(model->transform.scale, model->transform.scale, x, y, z);
+	mat4x4_scale_aniso(model->matrices.scale, model->matrices.scale, x, y, z);
 }
 
-void mesh_updateModel(mesh* model) {
-    mat4x4_mul(model->transform.model, model->transform.rotate, model->transform.scale);
-    mat4x4_mul(model->transform.model, model->transform.translate, model->transform.model);
+void mesh_updateModelMatrix(mesh* model) {
+    mat4x4_mul(model->matrices.transform, model->matrices.rotate, model->matrices.scale);
+    mat4x4_mul(model->matrices.transform, model->matrices.translate, model->matrices.transform);
 }

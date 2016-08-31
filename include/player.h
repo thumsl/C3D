@@ -5,9 +5,9 @@
 #include "linmath.h"
 #include <stdbool.h>
 
-typedef struct boundingBox_s boundingBox;
+typedef struct boundingBox boundingBox;
 
-typedef struct playerMovement_s {
+typedef struct playerMovement {
 	bool forward;
 	bool backward;
 	bool left;
@@ -15,7 +15,7 @@ typedef struct playerMovement_s {
 	bool run;
 } playerMovement;
 
-typedef struct player_s {
+typedef struct player {
 	vec3 position;
 	playerMovement movement;
 	boundingBox* hitbox;

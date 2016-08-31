@@ -1,19 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/shader.h"
+#include "../include/phongShader.h"
 #include "../include/utils.h"
 
-bool shader_loadFromFile(const char *vs, const char *fs, GLuint *program) {
+static void shader_getUniformLocations(shader *S) {
+	int i;
+
+	S->uniforms = (GLuint*) malloc(sizeof(GLuint) * PHONG_SHADER_UNIFORM_COUNT * 2);
+
+	switch (S->type) {
+		case PHONG:
+			phongShader_init(S);
+			phongShader_getUniformLocations(S);
+			break;
+		case TEXT:
+			break;
+	}
+}
+
+shader* shader_loadFromFile(const char *vs, const char *fs, shaderType type) {
     char *vertexSource, *fragmentSource;
 
     if (!readfile(&vertexSource, vs)) {
         fprintf(stderr, "Failed to open file %s\n", vs);
-        return false;
+        return NULL;
     }
 
     if (!readfile(&fragmentSource, fs)) {
         fprintf(stderr, "Failed to open file %s\n", fs);
-        return false;
+        return NULL;
     }
 
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -46,15 +62,22 @@ bool shader_loadFromFile(const char *vs, const char *fs, GLuint *program) {
 
     /** ---------------------------- **/
 
-    *program = glCreateProgram();
+    shader *S = (shader*) malloc(sizeof(shader));
 
-    glAttachShader(*program, vertexShader);
-    glAttachShader(*program, fragmentShader);
-    glLinkProgram(*program);
+    S->program = glCreateProgram();
+    S->type = type;
 
-    return true;
+    glAttachShader(S->program, vertexShader);
+    glAttachShader(S->program, fragmentShader);
+    glLinkProgram(S->program);
+
+    shader_use(S);
+    
+    shader_getUniformLocations(S);
+
+    return S;
 }
 
-void shader_use(GLuint program) {
-    glUseProgram(program);
+void shader_use(shader *S) {
+    glUseProgram(S->program);
 }
