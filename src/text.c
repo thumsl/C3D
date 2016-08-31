@@ -32,12 +32,11 @@ text* text_create(const char *string, font *F, float size, float x, float y) {
 		model->textureOffsetY = texture_height * row;
 
 		GLfloat vertices[] = {
-			x,					y,					0,	0,				texture_height,	0,	0,	0,
-			x,					y + font_size_y,	0,	0,				0,				0,	0,	0,
-			x + font_size_x,	y + font_size_y,	0,	texture_width,	0,				0,	0,	0,
-			x + font_size_x, 	y,					0,	texture_width,	texture_height,	0,	0,	0
+			x,			y,			0,	0,		texture_height,	0,	0,	0,
+			x,			y + font_size_y,	0,	0,		0,		0,	0,	0,
+			x + font_size_x,	y + font_size_y,	0,	texture_width,	0,		0,	0,	0,
+			x + font_size_x, 	y,			0,	texture_width,	texture_height,	0,	0,	0
 		};
-
 
 		model->indexCount = 6;
 		model->vertexCount = 4;
@@ -46,20 +45,22 @@ text* text_create(const char *string, font *F, float size, float x, float y) {
 		list_insert(ret->modelList, model);
 	}
 
-	ret->length = i;
+	ret->length = i;	
 
 	return ret;
 }
 
-
-void text_draw(text *T, mat4x4 projection, textShader *S) {
+void text_draw(text *T, shader *S, mat4x4 projection) {
 	shader_use(S);
-	glUniformMatrix4fv(S->locations.projection, 1, 0, (GLfloat*)projection);
 
 	node *aux = T->modelList->head;
+
 	while (aux != NULL) {
-		glUniform2f(S->locations.offset, ((mesh*)aux->data)->textureOffsetX, ((mesh*)aux->data)->textureOffsetY);
-		mesh_draw((mesh*)aux->data, S, TEXT, NULL, NULL);
+		glUniform2f(S->uniforms[TEXT_SHADER_OFFSET], ((mesh*)aux->data)->textureOffsetX, ((mesh*)aux->data)->textureOffsetY);
+		glUniformMatrix4fv(S->uniforms[TEXT_SHADER_PROJECTION], 1, 0, (GLfloat*)projection);
+
+		mesh_draw((mesh*)aux->data, S, NULL, NULL);
+
 		aux = aux->next;
 	}
 }

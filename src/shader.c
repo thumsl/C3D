@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/shader.h"
+#include "../include/textShader.h"
 #include "../include/phongShader.h"
 #include "../include/utils.h"
 
@@ -11,10 +12,11 @@ static void shader_getUniformLocations(shader *S) {
 
 	switch (S->type) {
 		case PHONG:
-			phongShader_init(S);
 			phongShader_getUniformLocations(S);
+			phongShader_init(S);
 			break;
 		case TEXT:
+			textShader_getUniformLocations(S);
 			break;
 	}
 }
@@ -72,7 +74,7 @@ shader* shader_loadFromFile(const char *vs, const char *fs, shaderType type) {
     glLinkProgram(S->program);
 
     shader_use(S);
-    
+
     shader_getUniformLocations(S);
 
     return S;

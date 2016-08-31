@@ -292,13 +292,15 @@ static void mesh_genHitboxMeshData(mesh* model) {
 }
 
 void mesh_draw(mesh *model, shader *S, camera *C, mat4x4 projection) {
-	mesh_updateModelMatrix(model);
-
 	switch (S->type) {
 		case PHONG:
+			shader_use(S);
+			mesh_updateModelMatrix(model);
 			phongShader_updateUniforms(model, S, C, projection);
 			break;
 		case TEXT:
+			// text_draw() does all the work with uniforms before calling mesh_draw()
+			// TODO: create a new "mesh" type for text and do all rendering inside text_draw()
 			break;
 	}
 	
@@ -306,12 +308,6 @@ void mesh_draw(mesh *model, shader *S, camera *C, mat4x4 projection) {
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glDrawElements(GL_TRIANGLES, model->indexCount, GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
-
-	// if (hitbox && model->hitbox != NULL) {
-	// 	glBindVertexArray(model->hitboxVAO);
-	// 	glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)0);
-	// 	glBindVertexArray(0);
-	// }
 }
 
 void mesh_drawList(linkedList *list, shader *S, camera *C, mat4x4 projection) {

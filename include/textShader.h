@@ -1,18 +1,14 @@
 #ifndef TEXT_SHADER_H
 #define TEXT_SHADER_H
 
-#include <GL/glew.h>
+#include "shader.h"
 
-typedef struct textLocations_s {
-	GLuint projection;
-	GLuint offset;
-} textLocations;
+typedef enum {
+	TEXT_SHADER_PROJECTION = 0,
+	TEXT_SHADER_OFFSET,
+	TEXT_SHADER_UNIFORM_COUNT
+} textShaderUniforms; 
 
-typedef struct textShader_h {
-	GLuint program;
-	textLocations locations;
-} textShader;
+void textShader_getUniformLocations(shader *S);
 
-textShader* textShader_load(const char *vs, const char *fs);
-static void textShader_getLocations(textShader *S);
 #endif // TEXT_SHADER_H

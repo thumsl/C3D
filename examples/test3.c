@@ -22,8 +22,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* Attach and compile shaders */
-	shader *textShader = shader_loadFromFile("src/glsl/textShader.vert", "src/glsl/textShader.frag", TEXT);
-	shader *S = shader_loadFromFile("src/glsl/shader.vert", "src/glsl/shader.frag", PHONG);
+    textShader *textShader = textShader_load("src/glsl/textShader.vert", "src/glsl/textShader.frag");
+    phongShader *S = phongShader_load("src/glsl/shader.vert", "src/glsl/shader.frag");
 
 	if (S == NULL) {
 		engine_quit();
@@ -56,12 +56,8 @@ int main(int argc, char* argv[]) {
 
 	/* Initialize all meshes */
 	linkedList* meshList = list_create();
-	printf("Cube\n");
-	// TODO: return pointer to mesh and add that to list inside main()
 	mesh_loadFromFileToList("res/obj/raptor.obj", "res/textures/raptor.png", meshList);
-	printf("R2\n");
 	mesh_loadFromFileToList("res/obj/R2-D2.obj", "res/textures/R2-D2.tga", meshList);
-	printf("Jax\n");
 	mesh_loadFromFileToList("res/obj/jax.obj", "res/textures/jax.tga", meshList);
 
 	mesh_translate(meshList->head->data, -2.0f, 0.0f, 0.0f);
@@ -86,12 +82,10 @@ int main(int argc, char* argv[]) {
 
 	font* pixFont = font_load(12, 16, "res/fonts/pixfont.jpg");
 	text *FPS = text_create("FPS:     ", pixFont, 2, 0, 0);
+	text *title = text_create("C3D", pixFont, 5, 0.45f, 0.90f);
+	text *wall = text_create("Map loading/generation (kinda buggy)", pixFont, 2.5, 0.2f, 0.85f);
 
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
-
-	GLuint loc = glGetUniformLocation(textShader->program, "offset");
-	GLuint loc1 = glGetUniformLocation(textShader->program, "projection");
-
 	while (running) {
 		pastTime = currentTime;
 		currentTime = SDL_GetTicks();
@@ -141,6 +135,8 @@ int main(int argc, char* argv[]) {
 						P->movement.backward = true;
 						break;
 					case SDLK_h:
+						((mesh*)(FPS->modelList->head->data))->textureOffsetX = (rand() % 10)/10.0f;
+						((mesh*)(FPS->modelList->head->next->next->data))->textureOffsetX = (rand() % 10)/10.0f;
 						drawBoundingBox = !drawBoundingBox;
 						break;
 					case SDLK_j:
@@ -181,7 +177,7 @@ int main(int argc, char* argv[]) {
 				}
 		}
 
-		SDL_GetMouseState(&x, &y);
+	    SDL_GetMouseState(&x, &y);
 		
 		/* Movement */
 		camera_copy(previousCamera, C);
@@ -195,10 +191,10 @@ int main(int argc, char* argv[]) {
 		}
 
 		/* FPS camera control */
-		deltax = x - WIDTH/2;
-		deltay = y - HEIGHT/2;
+	    deltax = x - WIDTH/2;
+	    deltay = y - HEIGHT/2;
 
-		if ((deltax != 0 || deltay != 0) && mouseGrab) {
+	    if ((deltax != 0 || deltay != 0) && mouseGrab) {
 			horizontalAngle += (float)(WIDTH/2 - x) * SENSITIVITY;
 			verticalAngle += (float)(HEIGHT/2 - y) * SENSITIVITY;
 
@@ -209,7 +205,7 @@ int main(int argc, char* argv[]) {
 
 			camera_fps_mouse_look(C, horizontalAngle, verticalAngle);
 			SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
-		}
+	    }
 
 		vec3_add(center, C->eye, C->direction);
 		mat4x4_look_at(C->view, C->eye, center, C->up);		
@@ -220,20 +216,21 @@ int main(int argc, char* argv[]) {
 		point->position[2] = C->eye[2];
 		setPointLight(point, S);
 
-		// glUniform2f(loc, 0.0f, 0.0f);
-		// glUniformMatrix4fv(loc1, 1, 0, (GLfloat*)ortho);
-
 		/* Rendering */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// GUI
-		text_draw(FPS, textShader, ortho);
+		shader_use(textShader->program);
+		text_draw(FPS, ortho, textShader);
+		text_draw(title, ortho, textShader);
+		text_draw(wall, ortho, textShader);
 
 		// Terrain pieces
-		mesh_drawList(mainLevel->meshList, S, C, projection);
-		// MeshList
-		mesh_drawList(meshList, S, C, projection);
-				
+		shader_use(S->program);
+		phongShader_drawList(mainLevel->meshList, S, C, projection);
+	    // MeshList
+		phongShader_drawList(meshList, S, C, projection);
+    	
 		// // Bullets
 		// node* aux = bulletList->head;
 		// while (aux != NULL) {
@@ -245,6 +242,7 @@ int main(int argc, char* argv[]) {
 		// 	else
 		// 		aux = aux->next;
 		// }
+
 
 		// Update framebuffer
 		SDL_GL_SwapWindow(window);

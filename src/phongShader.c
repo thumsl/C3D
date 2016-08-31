@@ -27,12 +27,7 @@ void phongShader_getUniformLocations(shader *S) {
 
 	for (i = 0; i < PHONG_SHADER_UNIFORM_COUNT; i++)
 		S->uniforms[i] = glGetUniformLocation(S->program, uniformNames[i]);
-
-	for (i = 0; i < PHONG_SHADER_UNIFORM_COUNT; i++) {
-		printf("S->uniforms[%d] = %d\n", i, S->uniforms[i]);
-	}
 }
-
 
 void phongShader_setSkyColor(shader *S, vec3 color) {
 	glUniform3fv(S->uniforms[SKY_COLOR], 1, (GLfloat*)color);
@@ -59,7 +54,7 @@ void phongShader_init(shader *S) {
 	vec3 color = {1.0f, 0.0f, 0.0f};
 	
 	phongShader_setSkyColor(S, color);
-	phongShader_setFogParams(S, 0.5f, 1.0f);
+	phongShader_setFogParams(S, 0.0f, 1.0f);
 
 	color[0] = color[1] = color[2] = 1.0f;
 	glUniform3fv(S->uniforms[AMBIENT_LIGHT_COLOR], 1, (GLfloat*)color);

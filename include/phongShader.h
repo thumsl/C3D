@@ -39,7 +39,7 @@ void phongShader_getUniformLocations(shader *S);
 void phongShader_updateUniforms(mesh *model, shader *S, camera *C, mat4x4 projection);
 void phongShader_init(shader *S);
 
-//void phongShader_setSkyColor(phongShader* S, vec3 color);
-//void phongShader_setFogParams(phongShader *S, float density, float gradient);
+void phongShader_setSkyColor(shader* S, vec3 color);
+void phongShader_setFogParams(shader *S, float density, float gradient);
 
 #endif // PHONG_SHADER_H

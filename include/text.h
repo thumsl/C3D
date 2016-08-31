@@ -43,6 +43,6 @@ typedef struct text_s {
 text* text_create(const char *string, font *F, float size, float x, float y);
 
 void text_update(text *T, const char *string);
-void text_draw(text *T, mat4x4 projection, textShader *S);
+void text_draw(text *T, shader *S, mat4x4 projection);
 
 #endif // TEXT_H

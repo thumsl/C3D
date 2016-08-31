@@ -12,7 +12,7 @@
 #include "aabb.h"
 #include "bullet.h"
 #include "camera.h"
-//#include "font.h"
+#include "font.h"
 #include "level.h"
 #include "light.h"
 #include "linmath.h"
@@ -23,7 +23,7 @@
 #include "phongShader.h"
 #include "textShader.h"
 #include "terrain.h"
-//#include "text.h"
+#include "text.h"
 #include "utils.h"
 #include "window.h"
 
