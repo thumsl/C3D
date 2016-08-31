@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['level_5fs',['level_s',['../structlevel__s.html',1,'']]],
-  ['linkedlist_5fs',['linkedList_s',['../structlinkedList__s.html',1,'']]]
+  ['level',['level',['../structlevel.html',1,'']]],
+  ['linkedlist',['linkedList',['../structlinkedList.html',1,'']]]
 ];

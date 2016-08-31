@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['node_5fs',['node_s',['../structnode__s.html',1,'']]]
+  ['node',['node',['../structnode.html',1,'']]]
 ];

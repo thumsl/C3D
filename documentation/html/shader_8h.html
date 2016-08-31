@@ -86,6 +86,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">shader.h File Reference</div>  </div>
@@ -100,44 +103,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <p><a href="shader_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structshader.html">shader</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a174f6f82bc74dd21899364a4ba996584"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a174f6f82bc74dd21899364a4ba996584"></a>
+typedef struct <a class="el" href="structshader.html">shader</a>&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b></td></tr>
+<tr class="separator:a174f6f82bc74dd21899364a4ba996584"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a88fd7ea0553f44fa8f7634f4574ca493"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="shader_8h.html#a88fd7ea0553f44fa8f7634f4574ca493">shaderType</a> { <b>PHONG</b>, 
+<b>TEXT</b>
+ }</td></tr>
+<tr class="separator:a88fd7ea0553f44fa8f7634f4574ca493"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a16b23d143fc9d849472650a900fb585f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="shader_8h.html#a16b23d143fc9d849472650a900fb585f">shader_loadFromFile</a> (const char *vs, const char *fs, GLuint *program)</td></tr>
-<tr class="separator:a16b23d143fc9d849472650a900fb585f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97bf2599aec888db9c4654ca3c1e03f0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97bf2599aec888db9c4654ca3c1e03f0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>shader_use</b> (GLuint program)</td></tr>
-<tr class="separator:a97bf2599aec888db9c4654ca3c1e03f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3719686fdfd4efb21ceb94d063f09d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac3719686fdfd4efb21ceb94d063f09d6"></a>
+<a class="el" href="structshader.html">shader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>shader_loadFromFile</b> (const char *vs, const char *fs, <a class="el" href="shader_8h.html#a88fd7ea0553f44fa8f7634f4574ca493">shaderType</a> type)</td></tr>
+<tr class="separator:ac3719686fdfd4efb21ceb94d063f09d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa060db7957676142985d14a4f838aa9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa060db7957676142985d14a4f838aa9"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>shader_use</b> (<a class="el" href="structshader.html">shader</a> *S)</td></tr>
+<tr class="separator:aaa060db7957676142985d14a4f838aa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>All things shader. </p>
 <dl class="section author"><dt>Author</dt><dd>Thums </dd></dl>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a16b23d143fc9d849472650a900fb585f"></a>
+</div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a class="anchor" id="a88fd7ea0553f44fa8f7634f4574ca493"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool shader_loadFromFile </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>vs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>fs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">GLuint *&#160;</td>
-          <td class="paramname"><em>program</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="memname">enum <a class="el" href="shader_8h.html#a88fd7ea0553f44fa8f7634f4574ca493">shaderType</a></td>
         </tr>
       </table>
 </div><div class="memdoc">

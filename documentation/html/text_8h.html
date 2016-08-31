@@ -125,15 +125,15 @@ typedef struct <a class="el" href="structtext__s.html">text_s</a>&#160;</td><td 
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a02bc6203f57ac68254dc7a5fa83e14f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="text_8h.html#a7c771f21f5be19ea8084f9c0f614e8f3">text</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="text_8h.html#a02bc6203f57ac68254dc7a5fa83e14f3">text_create</a> (const char *string, <a class="el" href="structfont__s.html">font</a> *F, float size, float x, float y)</td></tr>
+<tr class="memitem:a02bc6203f57ac68254dc7a5fa83e14f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="text_8h.html#a7c771f21f5be19ea8084f9c0f614e8f3">text</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="text_8h.html#a02bc6203f57ac68254dc7a5fa83e14f3">text_create</a> (const char *string, <a class="el" href="structfont.html">font</a> *F, float size, float x, float y)</td></tr>
 <tr class="memdesc:a02bc6203f57ac68254dc7a5fa83e14f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is used to create a new text element.  <a href="#a02bc6203f57ac68254dc7a5fa83e14f3">More...</a><br /></td></tr>
 <tr class="separator:a02bc6203f57ac68254dc7a5fa83e14f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada7cfeeb29aa81e04b5ab945b205ed58"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada7cfeeb29aa81e04b5ab945b205ed58"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>text_update</b> (<a class="el" href="text_8h.html#a7c771f21f5be19ea8084f9c0f614e8f3">text</a> *T, const char *string)</td></tr>
 <tr class="separator:ada7cfeeb29aa81e04b5ab945b205ed58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9357af77f68d42c4cf3b68739ecbc35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9357af77f68d42c4cf3b68739ecbc35"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>text_draw</b> (<a class="el" href="text_8h.html#a7c771f21f5be19ea8084f9c0f614e8f3">text</a> *T, mat4x4 projection, <a class="el" href="structtextShader__h.html">textShader</a> *S)</td></tr>
-<tr class="separator:ab9357af77f68d42c4cf3b68739ecbc35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc77a830bff6f74bd39b387047df5024"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc77a830bff6f74bd39b387047df5024"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>text_draw</b> (<a class="el" href="text_8h.html#a7c771f21f5be19ea8084f9c0f614e8f3">text</a> *T, <a class="el" href="structshader.html">shader</a> *S, mat4x4 projection)</td></tr>
+<tr class="separator:abc77a830bff6f74bd39b387047df5024"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Allows text to be rendered to the screen. </p>
@@ -152,7 +152,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>text_draw</b> (<a cla
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structfont__s.html">font</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structfont.html">font</a> *&#160;</td>
           <td class="paramname"><em>F</em>, </td>
         </tr>
         <tr>
