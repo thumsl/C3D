@@ -3,6 +3,7 @@
 #include "linmath.h"
 #include "player.h"
 
+typedef struct Movement Movement;
 typedef struct player player;
 
 typedef struct camera {
@@ -13,9 +14,10 @@ typedef struct camera {
 	mat4x4 view;
 } camera;
 
-camera* camera_init();
-void camera_fps_mouse_look(camera* C, float horizontalAngle, float verticalAngle);
-void camera_fps_movement(camera* C, player *P, unsigned short frameTime);
+camera* camera_init(vec3 pos, float horizontalAngle, float verticalAngle);
+void camera_angle(camera* C, float horizontalAngle, float verticalAngle);
+void camera_move(camera *C, Movement* M, unsigned int factor);
 void camera_copy(camera *a, camera *b);
+void camera_update(camera *C);
 
 #endif // CAMERA_H	

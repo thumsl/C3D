@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../include/engine.h"
+#include "../include/c3d.h"
 #include "../include/mesh.h"
 
 void mesh_init(mesh *model) {
@@ -130,10 +130,10 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 
 static void mesh_setMaterialData(struct aiMaterial* mat, mesh* model, const char* texturePath) {
 	int max = 1; float x;
-//	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &x, &max) == AI_SUCCESS)
-//		model->mat.specularPower = x;
-//	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &x, &max) == AI_SUCCESS)
-//		model->mat.specularIntensity = x;
+	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &x, &max) == AI_SUCCESS)
+		model->mat.specularPower = x;
+	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &x, &max) == AI_SUCCESS)
+		model->mat.specularIntensity = x;
 
 	printf("POWER: %.2f, INTENSITY %.2f\n", model->mat.specularPower, model->mat.specularIntensity);
 

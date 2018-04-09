@@ -3,6 +3,9 @@
 
 #include "list.h"
 #define WALL 0xffffffff // WHITE
+// TODO: move this to the wall? struct
+#define WALL_WIDTH 1 
+#define WALL_HEIGHT 3
 
 typedef struct level {
 	unsigned int size;

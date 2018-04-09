@@ -17,7 +17,6 @@ void vec3_copy(vec3 r, vec3 a) {
 
 int readfile(char** s, const char* filename) {
     struct stat st;
-    int i;
 
     if(stat(filename, &st) == -1)
         return 0;
@@ -45,7 +44,6 @@ void mat4x4_debug_print(mat4x4 a) {
 
 void mat4x4_mult(mat4x4 a, mat4x4 b, mat4x4 r) {
     int i, j, k;
-    float sum;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 4; j++) {
             r[i][j] = 0;

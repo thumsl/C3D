@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <stdlib.h>
-#include "../include/engine.h"
+#include "../include/c3d.h"
 #include "../include/font.h"
 #include "../include/mesh.h"
 #include "../include/text.h"

@@ -1,5 +1,5 @@
 #include "../include/window.h"
-#include "../include/engine.h"
+#include "../include/c3d.h"
 #include <GL/glew.h>
 
 SDL_Window* window_create(int width, int height, const char* title) {
@@ -21,7 +21,7 @@ SDL_Window* window_create(int width, int height, const char* title) {
 
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_SetWindowGrab(window, SDL_TRUE);
-	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
+	SDL_WarpMouseInWindow(window, width/2, height/2);
 
 	if (window == NULL) {
 		fprintf(stderr, "Could not create window: %s\n", SDL_GetError());

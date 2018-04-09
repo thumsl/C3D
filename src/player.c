@@ -1,5 +1,5 @@
 #include "../include/player.h"
-#include "../include/engine.h"
+#include "../include/c3d.h"
 #include "../include/utils.h"
 #include <stdlib.h>
 
@@ -8,11 +8,11 @@ player* player_init(vec3 position) {
 	P->hitbox = (boundingBox*)malloc(sizeof(boundingBox));
 	player_setPosition(P, position);
 
-	P->movement.forward 	= 0;
-	P->movement.backward 	= 0;
-	P->movement.left 		= 0;
-	P->movement.right 		= 0;
-	P->movement.run 		= 0;
+	P->movement.forward 	= false;
+	P->movement.backward 	= false;
+	P->movement.left 		= false;
+	P->movement.right 		= false;
+	P->movement.run 		= false;
 
 	return P;
 }

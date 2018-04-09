@@ -5,19 +5,23 @@
 #include "linmath.h"
 #include <stdbool.h>
 
+// TODO: these should come be a func parameter
+#define PLAYER_HEIGHT 2
+#define PLAYER_WIDTH 1
+
 typedef struct boundingBox boundingBox;
 
-typedef struct playerMovement {
+typedef struct Movement {
 	bool forward;
 	bool backward;
 	bool left;
 	bool right;
 	bool run;
-} playerMovement;
+} Movement;
 
 typedef struct player {
 	vec3 position;
-	playerMovement movement;
+	Movement movement;
 	boundingBox* hitbox;
 } player;
 
