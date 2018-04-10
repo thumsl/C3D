@@ -3,3 +3,4 @@ main.c
 game
 *.out
 res/
+.*

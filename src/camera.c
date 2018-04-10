@@ -24,20 +24,22 @@ void camera_angle(camera* C, float horizontalAngle, float verticalAngle) {
 	vec3_mul_cross(C->up, C->right, C->direction);
 }
 
-void camera_move(camera *C, Movement* M, unsigned int factor) {
-	vec3 scaled_direction, scaled_right;
+void camera_move(camera *C, Movement* M, double factor) {
+	if (M->forward || M->backward || M->right || M->left) {
+		vec3 scaled_direction, scaled_right;
 
-	vec3_scale(scaled_direction, C->direction, factor);
-	vec3_scale(scaled_right, C->right, factor);
+		vec3_scale(scaled_direction, C->direction, factor);
+		vec3_scale(scaled_right, C->right, factor);
 
-	if (M->forward)
-		vec3_add(C->eye, C->eye, scaled_direction);
-	if (M->backward)
-		vec3_sub(C->eye, C->eye, scaled_direction);
-	if (M->right)
-		vec3_add(C->eye, C->eye, scaled_right);
-	if (M->left)
-		vec3_sub(C->eye, C->eye, scaled_right);
+		if (M->forward)
+			vec3_add(C->eye, C->eye, scaled_direction);
+		if (M->backward)
+			vec3_sub(C->eye, C->eye, scaled_direction);
+		if (M->right)
+			vec3_add(C->eye, C->eye, scaled_right);
+		if (M->left)
+			vec3_sub(C->eye, C->eye, scaled_right);
+	}
 }
 
 void camera_copy(camera *a, camera *b) {

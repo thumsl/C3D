@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-void terrain_destroy(terrain *toDestroy) {
-	free(toDestroy->model);
-	free(toDestroy->heightMap);
-	free(toDestroy);
-}
-
 terrain* terrain_genDiamondSquare(int size, float range, float factor, const char* texturePath) {
     terrain* ret = (terrain*)malloc(sizeof(terrain));
     ret->model = NULL;
@@ -89,3 +83,8 @@ terrain* terrain_genDiamondSquare(int size, float range, float factor, const cha
     return ret;
 }
 
+void terrain_destroy(terrain *toDestroy) {
+	free(toDestroy->model);
+	free(toDestroy->heightMap);
+	free(toDestroy);
+}

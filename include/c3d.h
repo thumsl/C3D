@@ -33,9 +33,6 @@
 #define WIDTH 1280
 #define HEIGHT 720
 #define FOV 90.0f * 0.0174533f
-#define SENSITIVITY 0.001f
-#define WALK 0.3f
-#define RUN 1.0f
 #define PLAYER_HEIGHT 2
 #define PLAYER_WIDTH 1
 

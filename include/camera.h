@@ -16,7 +16,7 @@ typedef struct camera {
 
 camera* camera_init(vec3 pos, float horizontalAngle, float verticalAngle);
 void camera_angle(camera* C, float horizontalAngle, float verticalAngle);
-void camera_move(camera *C, Movement* M, unsigned int factor);
+void camera_move(camera *C, Movement* M, double factor);
 void camera_copy(camera *a, camera *b);
 void camera_update(camera *C);
 

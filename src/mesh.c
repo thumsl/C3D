@@ -345,7 +345,7 @@ void mesh_translate_from_origin(mesh* model, float x, float y, float z) {
 	}
 }
 
-// Use quaternions?
+// TODO: Use quaternions?
 void mesh_rotate_x(mesh* model, float angle) {
 	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1.0f, 0.0f, 0.0f, angle);
 }

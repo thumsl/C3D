@@ -9,7 +9,7 @@ typedef struct terrain {
 	int size;
 } terrain;
 
-void terrain_destroy(terrain *toDestroy);
 terrain* terrain_genDiamondSquare(int size, float range, float factor, const char* texturePath);
+void terrain_destroy(terrain *toDestroy);
 
 #endif // TERRAIN_H
