@@ -1,4 +1,8 @@
 #include "include/c3d.h"
+#include "include/window.h"
+#include "include/camera.h"
+#include "include/text.h"
+#include "include/light.h"
 #include <math.h>
 
 #define SPEED 0.0035
@@ -6,6 +10,7 @@
 
 int main(int argc, char* argv[]) {
 	SDL_Window* window = window_create(WIDTH, HEIGHT, "Testing");
+
 	if (window == NULL) {
 		c3d_quit();
 		return EXIT_FAILURE;
@@ -18,6 +23,7 @@ int main(int argc, char* argv[]) {
 	
 	/* Attach and compile shaders */
 	shader *S = shader_loadFromFile("src/glsl/shader.vert", "src/glsl/shader.frag", PHONG);
+	shader *textShader = shader_loadFromFile("src/glsl/textShader.vert", "src/glsl/textShader.frag", TEXT);
 	
 	if (S == NULL) {
 		c3d_quit();
@@ -31,8 +37,12 @@ int main(int argc, char* argv[]) {
 	
 	vec3 init_cam_position = {2, 0.5f, -2.0f};
 	camera *C = camera_init(init_cam_position, horizontalAngle, verticalAngle);
+
 	mat4x4 projection;
 	mat4x4_perspective(projection, FOV, (float)WIDTH/(float)HEIGHT, 0.001f, 1000.f);
+
+	mat4x4 ortho;
+	mat4x4_ortho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f);
 
 	vec3 lightColor = {1.0f, 1.0f, 1.0f}, lightPosition = {0.0f, 35.0f, 0.0f};
 
@@ -46,6 +56,9 @@ int main(int argc, char* argv[]) {
 
 	linkedList* meshList = list_create();
 	mesh_loadFromFileToList("res/obj/raptor.obj", "res/textures/raptor.png", meshList);
+
+	font* font = font_load(12, 16, "res/fonts/pixfont.jpg");
+	text* fps_counter_label = text_create("FPS:		", font, 1, 0, 0);
 
 	Movement* movement = (Movement*)malloc(sizeof(Movement));
 	movement->forward = movement->backward = movement->right = movement->left = false;
@@ -128,6 +141,8 @@ int main(int argc, char* argv[]) {
 		camera_angle(C, horizontalAngle, verticalAngle);
 		camera_move(C, movement, SPEED * frameTime);
 		camera_update(C);
+
+		text_draw(fps_counter_label, textShader, ortho);
 
 		mesh_draw(floor, S, C, projection);
 		//mesh_drawList(mainLevel->meshList, S, C, projection);

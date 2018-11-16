@@ -4,3 +4,5 @@ game
 *.out
 res/
 .*
+tags
+./*/tags
