@@ -1,6 +1,8 @@
 # C3D
 C3D is a OpenGL 3D Game Engine, written in C, as a learning exercise.
 
+[YouTube videos showcasing features](https://www.youtube.com/watch?v=a591XlVhg2s&t=0s&index=2&list=PLjRugBWdnpzGRwpwNgbzrJWdNYixQwfZE)
+
 ---
 * C
 * SDL2
@@ -31,9 +33,13 @@ Q. How do I use it?
 A. Why would you do that?
 
 `git clone https://github.com/lcthums/C3D`
+
 `cd C3D`
+
 `cp examples/basic.c ./main.c`
+
 `make`
+
 `./game.out`
 
 You will need OpenGL 3.3+, sdl2 and sdl2_image. There might be examples in the examples directory.
