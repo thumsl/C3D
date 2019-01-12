@@ -12,6 +12,6 @@ typedef struct level {
 	linkedList *meshList;
 } level;
 
-level* level_loadMeshes(const char *path);
+level* level_loadMeshes(const char *path, const char *texture_path);
 
 #endif // LEVEL_H

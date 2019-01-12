@@ -3,7 +3,7 @@
 #include "../include/mesh.h"
 #include <SDL2/SDL_image.h>
 
-mesh* genVertices(int z, int x, int lenght, GLuint *indices) {
+mesh* genVertices(int z, int x, int lenght, GLuint *indices, const char *texture_path) {
 	GLfloat vertices[] = {
 		x,						0,				-z + 1,		0,		0,		 1,	0,  1,
 		x,						0,				-z,			1,		0,		 1,	0, -1,
@@ -21,12 +21,12 @@ mesh* genVertices(int z, int x, int lenght, GLuint *indices) {
 	model->vertexCount = 8;
 
 	mesh_loadToVAO(model, vertices, indices);
-	mesh_textureFromFile(model, "res/textures/steel.jpg");
+	mesh_textureFromFile(model, texture_path);
 
     return model;
 }
 
-level* level_loadMeshes(const char *path) {
+level* level_loadMeshes(const char *path, const char *texture_path) {
 	SDL_Surface *map = IMG_Load(path);
 
 	if (map == NULL) {
@@ -59,12 +59,12 @@ level* level_loadMeshes(const char *path) {
 			if (next == WALL)
 				delta++;
 			else {
-				list_insert(ret->meshList, genVertices(i/(ret->size * 3), row-1, delta, indices));
+				list_insert(ret->meshList, genVertices(i/(ret->size * 3), row-1, delta, indices, texture_path));
 				delta = 1;
 			}
 		}
 		else if (x == WALL) {
-			list_insert(ret->meshList, genVertices(i/(ret->size * 3), row-1, delta, indices));
+			list_insert(ret->meshList, genVertices(i/(ret->size * 3), row-1, delta, indices, texture_path));
 			delta = 1;
 		}
 
