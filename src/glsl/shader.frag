@@ -54,6 +54,6 @@ void main() {
 	}
 
 	// Phong
-	color = texture2D(sampler, UV) * (ambientColor +  diffuseColor + specularColor);
+	color = texture(sampler, UV) * (ambientColor +  diffuseColor + specularColor);
 	color = mix(vec4(skyColor, 1.0), color, visibility);
 }
