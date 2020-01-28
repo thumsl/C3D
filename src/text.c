@@ -14,7 +14,8 @@ text* text_create(const char *string, font *F, float size, float x, float y) {
 
 	int i, row, col;
 	float texture_width = (float)ret->fontStyle->char_width/ret->fontStyle->w, texture_height = (float)ret->fontStyle->char_height/ret->fontStyle->h;
-	float font_size_x = (size/(WIDTH/10.f)) * (float)(ret->fontStyle->char_height/ret->fontStyle->char_width), font_size_y = size/(HEIGHT/10.f);
+	size /= 100.f;
+	float font_size_x = size * (float)(ret->fontStyle->char_height/ret->fontStyle->char_width), font_size_y = size;
 
 	GLuint indices[] = {
 		0, 3, 1,

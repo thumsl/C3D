@@ -10,6 +10,10 @@
 #define SPEED 0.0035
 #define SENSITIVITY 0.0025
 
+#define WIDTH 1280
+#define HEIGHT 720
+#define FOV 90.0f * 0.0174533f
+
 int main(int argc, char* argv[]) {
 	SDL_Window* window = window_create(WIDTH, HEIGHT, "Testing");
 
@@ -65,10 +69,12 @@ int main(int argc, char* argv[]) {
 	mesh_loadFromFileToList("res/obj/spot.obj", "res/textures/spot.png", meshList);
 
 	font* font = font_load(12, 16, "res/fonts/pixfont.jpg");
-	text* fps_counter_label = text_create("FPS:		", font, 1, 0, 0);
+	text* fps_counter_label = text_create("FPS:		", font, 4, 0, 0);
+	text* text_msg = text_create("RANDOM TEXT MESSAGE", font, 3, 0.2, 0.95);
 
 	Movement* movement = (Movement*)malloc(sizeof(Movement));
 	movement->forward = movement->backward = movement->right = movement->left = false;
+	bool show_fps = true;
 	
 	SDL_PumpEvents();
 	SDL_WarpMouseInWindow(window, WIDTH/2, HEIGHT/2);
@@ -102,6 +108,9 @@ int main(int argc, char* argv[]) {
 						break;
 					case SDLK_a:
 						movement->left = true;
+						break;
+					case SDLK_f:
+						show_fps = !(show_fps);
 						break;
 				}
 			else if (e.type == SDL_KEYUP)
@@ -155,7 +164,9 @@ int main(int argc, char* argv[]) {
 		camera_move(C, movement, SPEED * frameTime);
 		camera_update(C);
 
-		text_draw(fps_counter_label, textShader, ortho);
+		if (show_fps)
+			text_draw(fps_counter_label, textShader, ortho);
+		text_draw(text_msg, textShader, ortho);
 
 		//mesh_draw(floor, S, C, projection);
 		mesh_drawList(mainLevel->meshList, S, C, projection);

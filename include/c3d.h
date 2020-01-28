@@ -25,13 +25,6 @@
 
 #define C3D_PI 3.14159265359f
 
-// TODO: all the constants below should be user-defined
-#define WIDTH 1280
-#define HEIGHT 720
-#define FOV 90.0f * 0.0174533f
-#define PLAYER_HEIGHT 2
-#define PLAYER_WIDTH 1
-
 void c3d_quit();
 bool initOpenGL();
 
