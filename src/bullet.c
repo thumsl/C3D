@@ -48,3 +48,13 @@ int bullet_updatePosition(bullet* B, unsigned int frameTime) {
 	else
 		return 0;
 }
+
+bool bullet_maxDistance(bullet* B) {
+	if (B->distanceTraveled > B->specs->maximumTravelDistance)
+		return true;
+	return false;
+}
+
+void bullet_destroy(bullet* B) {
+	free(B->model);
+}

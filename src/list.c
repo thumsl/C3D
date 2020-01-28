@@ -19,7 +19,7 @@ void list_insert(linkedList* list, void *data) {
 	else {
         node* new = (node*)malloc(sizeof(node));
 
-        new->data =data;
+        new->data = data;
         new->next = NULL;
         new->prev = list->tail;
         list->tail->next = new;
@@ -37,7 +37,7 @@ node* list_delete_node(linkedList* list, node* N) {
 		return list->head;
 	}
 	else {
-		if (N== list->tail) {
+		if (N == list->tail) {
 			list->tail = N->prev;
 			free(N);
 			return NULL;

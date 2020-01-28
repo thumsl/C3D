@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "../include/c3d.h"
 #include "../include/mesh.h"
@@ -161,15 +162,17 @@ static void mesh_setMaterialData(struct aiMaterial* mat, mesh* model, const char
 		return;
 }
 
-void mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList) {
+bool mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList) {
 	const struct aiScene* scene = aiImportFile(filename, aiProcess_Triangulate);
+	
 	if (!scene) {
-		fprintf(stderr, "%s\n", aiGetErrorString());
-		return;
+		fprintf(stderr, "File \"%s\" does not exist or this program does \
+not have permission to open it.\n", filename);
+		c3d_quit();
+		return false;
 	}
 
-	int i;
-	for (i = 0; i < scene->mNumMeshes; i++) {
+	for (int i = 0; i < scene->mNumMeshes; i++) {
 		mesh* model = (mesh*)malloc(sizeof(mesh));
 		mesh_init(model);
 		mesh_setData(scene->mMeshes[i], model);
@@ -177,17 +180,20 @@ void mesh_loadFromFileToList(const char* filename, const char* texturePath, link
 		mesh_genHitboxMeshData(model);
 		list_insert(meshList, model);
 	}
+
+	return true;
 }
 
 mesh* mesh_loadFromFile(const char* filename, const char* texturePath) {
 	const struct aiScene* scene = aiImportFile(filename, aiProcess_Triangulate);
 	if (!scene) {
-		fprintf(stderr, "%s\n", aiGetErrorString());
+		fprintf(stderr, "File \"%s\" does not exist or this program does \
+not have permission to open it.\n", filename);
+		c3d_quit();
 		return NULL;
 	}
 
-	int i;
-	for (i = 0; i < scene->mNumMeshes; i++) {
+	for (int i = 0; i < scene->mNumMeshes; i++) {
 		mesh* model = (mesh*)malloc(sizeof(mesh));
 		mesh_init(model);
 		mesh_setData(scene->mMeshes[i], model);

@@ -5,6 +5,7 @@
 #include "include/light.h"
 #include "include/level.h"
 #include "include/light.h"
+#include "include/bullet.h"
 #include <math.h>
 
 #define SPEED 0.0035
@@ -68,6 +69,9 @@ int main(int argc, char* argv[]) {
 	linkedList* meshList = list_create();
 	mesh_loadFromFileToList("res/obj/spot.obj", "res/textures/spot.png", meshList);
 
+	linkedList* bulletList = list_create();
+	bulletType* bulletSpecs = bullet_createType(0.01, 100, 20, "res/obj/bullet.obj", "res/textures/metal.jpg");
+
 	font* font = font_load(12, 16, "res/fonts/pixfont.jpg");
 	text* fps_counter_label = text_create("FPS:		", font, 4, 0, 0);
 	text* text_msg = text_create("RANDOM TEXT MESSAGE", font, 3, 0.2, 0.95);
@@ -87,6 +91,8 @@ int main(int argc, char* argv[]) {
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)
 				running = false;
+			if (e.type == SDL_MOUSEBUTTONDOWN)
+				list_insert(bulletList, bullet_create(C->eye, C->direction, bulletSpecs));
 			if (e.type == SDL_KEYDOWN)
 				switch(e.key.keysym.sym) {
 					case SDLK_ESCAPE:
@@ -171,6 +177,20 @@ int main(int argc, char* argv[]) {
 		//mesh_draw(floor, S, C, projection);
 		mesh_drawList(mainLevel->meshList, S, C, projection);
 	 	mesh_drawList(meshList, S, C, projection);
+
+		// Draw bullets
+		node* current_node = bulletList->head;
+		while (current_node) {
+			bullet* b = (bullet*)current_node->data;
+			if (bullet_maxDistance(b)) {
+				bullet_destroy(b);
+				current_node = list_delete_node(bulletList, current_node);
+				continue;
+			}
+			mesh_draw(b->model, S, C, projection);
+			bullet_updatePosition(b, frameTime);
+			current_node = current_node->next;
+		}
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);

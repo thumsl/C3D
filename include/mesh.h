@@ -50,7 +50,7 @@ void mesh_loadToVAO(mesh* model, GLfloat* vertices, GLuint *indices);
 void mesh_textureFromFile(mesh *model, const char *texturePath);
 static void mesh_setData(struct aiMesh* loadedMesh, mesh* model);
 static void mesh_setMaterialData(struct aiMaterial* material, mesh* model, const char* texturePath);
-void mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList);
+bool mesh_loadFromFileToList(const char* filename, const char* texturePath, linkedList* meshList);
 mesh* mesh_loadFromFile(const char* filename, const char* texturePath);
 mesh* mesh_genFlatFloor(int size, const char *texturePath);
 static void mesh_genHitboxMeshData(mesh* model);

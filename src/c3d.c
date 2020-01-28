@@ -19,4 +19,5 @@ bool initOpenGL() {
 
 void c3d_quit() {
 	SDL_Quit();
+	exit(EXIT_FAILURE);
 }
