@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 player* player_init(vec3 position, float width, float height) {
-	player *P = (player*)malloc(sizeof(player));
-	P->hitbox = (boundingBox*)malloc(sizeof(boundingBox));
+	player *P = malloc(sizeof(player));
+	P->hitbox = malloc(sizeof(boundingBox));
 	player_setPosition(P, position);
 
 	P->movement.forward 	= false;

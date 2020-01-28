@@ -4,9 +4,9 @@
 #include <math.h>
 
 terrain* terrain_genDiamondSquare(int size, float range, float factor, const char* texturePath) {
-    terrain* ret = (terrain*)malloc(sizeof(terrain));
+    terrain* ret = malloc(sizeof(terrain));
     ret->model = NULL;
-    ret->heightMap = (float**)malloc(sizeof(float) * size * size);
+    ret->heightMap = malloc(sizeof(float) * size * size);
     ret->size = size;
 
 	*((float*)ret->heightMap + 0 * size + 0) = 0;
@@ -36,14 +36,14 @@ terrain* terrain_genDiamondSquare(int size, float range, float factor, const cha
 		}
 	}
 
-	ret->model = (mesh*)malloc(sizeof(mesh));
+	ret->model = malloc(sizeof(mesh));
 		
 	mesh_init(ret->model);
 	ret->model->indexCount = 6 * (ret->size - 1) * (ret->size - 1);
 	ret->model->vertexCount = ret->size * ret->size;
 
-	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * ret->model->vertexCount * 8);
-	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * ret->model->indexCount);
+	GLfloat* vertices = malloc(sizeof(float) * ret->model->vertexCount * 8);
+	GLuint *indices = malloc(sizeof(GLuint) * ret->model->indexCount);
 
 	for (i = 0, k = 0; i < ret->size; i++)
 		for (j = 0; j < ret->size; j++, k+=8) {

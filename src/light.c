@@ -4,7 +4,7 @@
 
 // TODO: move this to a new file called phongShader
 ambientLight* initAmbientLight(vec3 color, float intensity) {
-	ambientLight *ambient = (ambientLight*)malloc(sizeof(ambientLight));
+	ambientLight *ambient = malloc(sizeof(ambientLight));
 	if (ambient == NULL)
 		return NULL;
 
@@ -20,7 +20,7 @@ void setAmbientLight(ambientLight *ambient, shader *S) {
 }
 
 pointLight* initPointLight(vec3 color, vec3 pos, float att, float intensity) {
-	pointLight *point = (pointLight*)malloc(sizeof(pointLight));
+	pointLight *point = malloc(sizeof(pointLight));
 	if (point == NULL)
 		return NULL;
 
@@ -31,7 +31,6 @@ pointLight* initPointLight(vec3 color, vec3 pos, float att, float intensity) {
 
 	return point;
 }
-
 
 void setPointLight(pointLight *point, shader *S) {
 	glUniform3fv(S->uniforms[POINT_LIGHT_POSITION], 1, (GLfloat*)point->position);

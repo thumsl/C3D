@@ -72,11 +72,11 @@ static void mesh_setData(struct aiMesh* loadedMesh, mesh* model) {
 	model->indexCount = loadedMesh->mNumFaces * 3;
 	model->vertexCount = loadedMesh->mNumVertices;
 
-	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * loadedMesh->mNumVertices * 8);
-	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * model->indexCount);
+	GLfloat *vertices = malloc(sizeof(GLfloat) * loadedMesh->mNumVertices * 8);
+	GLuint *indices = malloc(sizeof(GLuint) * model->indexCount);
 
 	
-	model->hitbox = (boundingBox*)malloc(sizeof(boundingBox));
+	model->hitbox = malloc(sizeof(boundingBox));
 
 	model->hitbox->min[0] =  INFINITY; model->hitbox->min[1] =  INFINITY; model->hitbox->min[2] =  INFINITY;
     model->hitbox->max[0] = -INFINITY; model->hitbox->max[1] = -INFINITY; model->hitbox->max[2] = -INFINITY;
@@ -173,7 +173,7 @@ not have permission to open it.\n", filename);
 	}
 
 	for (int i = 0; i < scene->mNumMeshes; i++) {
-		mesh* model = (mesh*)malloc(sizeof(mesh));
+		mesh* model = malloc(sizeof(mesh));
 		mesh_init(model);
 		mesh_setData(scene->mMeshes[i], model);
 		mesh_setMaterialData(scene->mMaterials[scene->mMeshes[i]->mMaterialIndex], model, texturePath);
@@ -194,7 +194,7 @@ not have permission to open it.\n", filename);
 	}
 
 	for (int i = 0; i < scene->mNumMeshes; i++) {
-		mesh* model = (mesh*)malloc(sizeof(mesh));
+		mesh* model = malloc(sizeof(mesh));
 		mesh_init(model);
 		mesh_setData(scene->mMeshes[i], model);
 		mesh_setMaterialData(scene->mMaterials[0], model, texturePath);
@@ -208,14 +208,14 @@ mesh* mesh_genFlatFloor(int size, const char *texturePath) {
 		return NULL;
 
 	int i, j, k;
-	mesh* model = (mesh*)malloc(sizeof(mesh));
+	mesh* model = malloc(sizeof(mesh));
 		
 	mesh_init(model);
 	model->indexCount = 6 * (size - 1) * (size - 1);
 	model->vertexCount = size * size;
 
-	GLfloat *vertices = (GLfloat*)malloc(sizeof(GLfloat) * model->vertexCount * 8);
-	GLuint *indices = (GLuint*)malloc(sizeof(GLuint) * model->indexCount);
+	GLfloat *vertices = malloc(sizeof(GLfloat) * model->vertexCount * 8);
+	GLuint *indices = malloc(sizeof(GLuint) * model->indexCount);
 
 	for (i = 0, k = 0; i < size; i++)
 		for (j = 0; j < size; j++, k+=8) {

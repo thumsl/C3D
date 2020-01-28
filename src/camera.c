@@ -4,7 +4,7 @@
 
 camera* camera_init(vec3 pos, float horizontalAngle, float verticalAngle) {
 	//todo: destroy camera
-	camera* C = (camera*)malloc(sizeof(camera));
+	camera* C = malloc(sizeof(camera));
 
 	camera_angle(C, horizontalAngle, verticalAngle);
 	vec3_copy(C->eye, pos);

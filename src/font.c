@@ -9,12 +9,12 @@ font* font_load(unsigned int width, unsigned int height, const char *path) {
 	if (tex == NULL)
 		return NULL;
 
-	font *ret = (font*)malloc(sizeof(font));
+	font *ret = malloc(sizeof(font));
 	ret->char_width = width;
 	ret->char_height = height;
 	ret->w = tex->w;
 	ret->h = tex->h;
-	ret->path = (char*)malloc(strlen(path) * sizeof(char));
+	ret->path = malloc(strlen(path) * sizeof(char));
 	strcpy(ret->path, path);
 
 	glGenTextures(1, &(ret->textureID));

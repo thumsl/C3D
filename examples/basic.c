@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 	text* fps_counter_label = text_create("FPS:		", font, 4, 0, 0);
 	text* text_msg = text_create("RANDOM TEXT MESSAGE", font, 3, 0.2, 0.95);
 
-	Movement* movement = (Movement*)malloc(sizeof(Movement));
+	Movement* movement = malloc(sizeof(Movement));
 	movement->forward = movement->backward = movement->right = movement->left = false;
 	bool show_fps = true;
 	

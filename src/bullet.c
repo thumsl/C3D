@@ -7,7 +7,7 @@
 #include <math.h>
 
 bullet* bullet_create(vec3 position, vec3 direction, bulletType *specs) {
-	bullet* ret = (bullet*)malloc(sizeof(bullet));
+	bullet* ret = malloc(sizeof(bullet));
 	
 	ret->specs = specs;
 	ret->distanceTraveled = 0;
@@ -15,7 +15,7 @@ bullet* bullet_create(vec3 position, vec3 direction, bulletType *specs) {
 	vec3_copy(ret->position, position);
 	ret->frameDistance = ret->specs->speed * sqrt(ret->direction[0]*ret->direction[0] + ret->direction[1]*ret->direction[1] + ret->direction[2]*ret->direction[2]);
 
-	ret->model = (mesh*)malloc(sizeof(mesh));
+	ret->model = malloc(sizeof(mesh));
 	memcpy(ret->model, ret->specs->model, sizeof(mesh));
 
 	mesh_translate(ret->model, position[0], position[1], position[2]);
@@ -24,7 +24,7 @@ bullet* bullet_create(vec3 position, vec3 direction, bulletType *specs) {
 }
 
 bulletType* bullet_createType(float speed, float damage, float maxTravel, const char* obj, const char* texture) {
-	bulletType* ret = (bulletType*)malloc(sizeof(bulletType));
+	bulletType* ret = malloc(sizeof(bulletType));
 
 	ret->baseDamage = damage;
 	ret->speed = speed;

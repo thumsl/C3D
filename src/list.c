@@ -2,22 +2,22 @@
 #include "../include/list.h"
 
 linkedList* list_create() {
-	linkedList* list = (linkedList*)malloc(sizeof(linkedList));
+	linkedList* list = malloc(sizeof(linkedList));
 	list->head = NULL;
 	list->tail = NULL;
 }
 
 void list_insert(linkedList* list, void *data) {
 	if (list->head == NULL) {		// Change this?
-		list->head = (node*)malloc(sizeof(node));
-		list->tail = (node*)malloc(sizeof(node));
+		list->head = malloc(sizeof(node));
+		list->tail = malloc(sizeof(node));
 		list->head->data = data;
 		list->head->prev = NULL;
 		list->head->next = NULL;
 		list->tail = list->head;
 	}
 	else {
-        node* new = (node*)malloc(sizeof(node));
+        node* new = malloc(sizeof(node));
 
         new->data = data;
         new->next = NULL;

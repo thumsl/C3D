@@ -15,7 +15,7 @@ mesh* genVertices(int z, int x, int lenght, GLuint *indices, const char *texture
 		x-lenght-WALL_WIDTH,	WALL_HEIGHT,	-z + 1,		1,		1,		-1,	0,  1
 	};
 
-	mesh* model = (mesh*)malloc(sizeof(mesh));
+	mesh* model = malloc(sizeof(mesh));
 	mesh_init(model);
 	model->indexCount = 24;
 	model->vertexCount = 8;
@@ -35,7 +35,7 @@ level* level_loadMeshes(const char *path, const char *texture_path) {
 		return NULL;
 	}
 
-	level *ret = (level*)malloc(sizeof(level));
+	level *ret = malloc(sizeof(level));
 	ret->size = map->w;
 	ret->meshList = list_create();
 

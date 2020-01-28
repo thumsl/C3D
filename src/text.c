@@ -6,7 +6,7 @@
 #include "../include/text.h"
 
 text* text_create(const char *string, font *F, float size, float x, float y) {
-	text *ret = (text*)malloc(sizeof(text));
+	text *ret = malloc(sizeof(text));
 	ret->modelList = list_create();
 	ret->x = x;
 	ret->y = y;
@@ -23,7 +23,7 @@ text* text_create(const char *string, font *F, float size, float x, float y) {
 	};
 
 	for (i = 0; string[i] != 0; i++, x += font_size_x) {
-		mesh *model = (mesh*)malloc(sizeof(mesh));
+		mesh *model = malloc(sizeof(mesh));
 		mesh_init(model);
 
 		row = (string[i]-32) / (ret->fontStyle->w / ret->fontStyle->char_width);
