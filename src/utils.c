@@ -6,13 +6,13 @@
 #include <GL/glew.h>
 
 void vec4_copy(vec4 r, vec4 a) {
-    int i;
-    for (i = 0; i < 4; r[i] = a[i++]);
+    for (int i = 0; i < 4; i++)
+		r[i] = a[i];
 }
 
 void vec3_copy(vec3 r, vec3 a) {
-    int i;
-    for (i = 0; i < 3; r[i] = a[i++]);
+    for (int i = 0; i < 3; i++)
+		r[i] = a[i];
 }
 
 int readfile(char** s, const char* filename) {
@@ -29,6 +29,10 @@ int readfile(char** s, const char* filename) {
     fread(*s, 1, st.st_size, f);
     
     return 1;
+}
+
+void vec3_print(vec3 v) {
+	printf("%.2f, %.2f, %.2f\n", v[0], v[1], v[2]);
 }
 
 void mat4x4_debug_print(mat4x4 a) {
