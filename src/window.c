@@ -20,6 +20,7 @@ SDL_Window* window_create(int width, int height, const char* title) {
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
 
 	SDL_ShowCursor(SDL_DISABLE);
+	SDL_SetWindowResizable(window, SDL_TRUE);
 	SDL_SetWindowGrab(window, SDL_TRUE);
 	SDL_WarpMouseInWindow(window, width/2, height/2);
 
