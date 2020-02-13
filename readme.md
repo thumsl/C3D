@@ -4,23 +4,19 @@ C3D is a OpenGL 3D Game Engine, written in C, as a learning exercise.
 [YouTube videos showcasing features](https://www.youtube.com/watch?v=a591XlVhg2s&t=0s&index=2&list=PLjRugBWdnpzGRwpwNgbzrJWdNYixQwfZE)
 
 ---
-* C
-* SDL2
-* SDL2_image
-* OpenGL
-* [linmath.h](https://github.com/datenwolf/linmath.h) for linear math.
-* Assimp
+* [linmath.h](https://github.com/datenwolf/linmath.h) is used for linear math
 
 ### Features
 ***
-* Uses Assimp for model loading
+* helper functions for setting up OpenGL and SDL2 windows
+* can load, compile and attach GLSL shaders
+* rudimentary font and text display system
+* Assimp for model loading
 * bad AABB collision detection
-* Can display AABB wireframe
-* Point lights, ambient light
-* Can load, compile and attach GLSL shaders
-* Helper functions for setting up OpenGL and SDL2 windows
+* can display AABB wireframe
+* point lights, ambient light
 * FPS-style camera
-* Bullets
+* bullets
 
 ### FAQ
 ***
@@ -42,17 +38,16 @@ A. Why would you do that?
 
 `./game.out`
 
-You will need OpenGL 3.3+, sdl2 and sdl2_image. There might be examples in the examples directory.
+You will need OpenGL 3.3+ capable drivers and hardware, SDL2, SDL2_image, Assimp and GLEW. Check the examples directory for samples.
 ***
 
 ### TODO:
 - [x] not abandon the project after the first week
-- [ ] shut memory leaks
-- [ ] weapon.h
-- [ ] more lighting stuff
 - [x] decent OBJLoader (Assimp!)
 - [ ] UI
-- [x] terrain generator (not finished)
-- [ ] A.I.
 - [ ] shadows
+- [ ] weapon.h
+- [ ] terrain generator
+- [ ] shut memory leaks
+- [ ] more lighting stuff
 - [ ] finish a game with it
