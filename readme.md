@@ -28,7 +28,7 @@ Q. How do I use it?
 
 A. Why would you do that?
 
-`git clone https://github.com/lcthums/C3D`
+clone this repository
 
 `cd C3D`
 
