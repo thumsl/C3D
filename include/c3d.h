@@ -24,6 +24,8 @@ typedef struct {
 	mat4x4 projection;
 	mat4x4 ortho;
 	bool should_quit;
+	bool cursor_grabbed;
+	float mouse_sensitivity;
 } C3D_Game;
 
 typedef struct {
@@ -38,5 +40,6 @@ bool initOpenGL();
 void c3d_quit();
 void c3d_process_input(C3D_Game *game);
 void c3d_set_key_callback(int key, C3D_Key_State state, C3D_key_callback callback);
+void c3d_toggle_grab_cursor(C3D_Game *game);
 
 #endif

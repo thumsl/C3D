@@ -6,29 +6,37 @@
 #include "include/text.h"
 
 #define SPEED 0.05
-#define SENSITIVITY 0.002
 
 #define FOV 120.0f * 0.0174533f
 
 #define UPDATE_FPS_THRESHOLD 200
 
+static C3D_Game *mygame;
+
 void close_game(void *data)
 {
-	printf("Closing game...\n");
-	C3D_Game *game = (C3D_Game *)data;
-	game->should_quit = true;
+	//printf("Closing game...\n");
+	//C3D_Game *game = (C3D_Game *)data;
+	mygame->should_quit = true;
+}
+
+void toggle_grab_cursor(void *data)
+{
+	printf("Toggle grab cursor\n");
+	c3d_toggle_grab_cursor(mygame);
 }
 
 void configure_inputs()
 {
 	c3d_set_key_callback(SDL_SCANCODE_Q, C3D_KEY_PRESSED,
 			     close_game); // Q to quit
+	c3d_set_key_callback(SDL_SCANCODE_ESCAPE, C3D_KEY_PRESSED, toggle_grab_cursor);
 }
 
 int main(int argc, char *argv[])
 {
 	// Widht and Height == -1 means that the game will use the current monitor's resolution
-	C3D_Game *mygame = c3d_init("Testing", -1, -1, C3D_OPTION_FULLSCREEN);
+	mygame = c3d_init("Testing", -1, -1, C3D_OPTION_FULLSCREEN);
 	configure_inputs();
 
 	/* Attach and compile shaders */
@@ -41,12 +49,11 @@ int main(int argc, char *argv[])
 	}
 
 	bool mouseGrab = true, mouseMoved = false;
-	float verticalAngle = -0.14f, horizontalAngle = C3D_PI;
 	int mouse_x = mygame->window->width / 2, mouse_y = mygame->window->width / 2, pastTime = 0, currentTime = 0, frameTime = 0, frames_passed = 0,
 	    initial_frame = 0;
 
 	vec3 init_cam_position = { 3, 0.5f, -3.0f };
-	mygame->camera = camera_init(init_cam_position, horizontalAngle, verticalAngle);
+	mygame->camera = camera_init(init_cam_position, -0.14f, C3D_PI);
 
 	mat4x4_perspective(mygame->projection, FOV, (float)mygame->window->width / (float)mygame->window->height, 0.001f, 1000.f);
 
@@ -154,26 +161,6 @@ int main(int argc, char *argv[])
 		// 		mouseMoved = true;
 		// }
 
-		/* FPS camera control */
-		if (mouseMoved && mouseGrab) {
-			SDL_GetMouseState(&mouse_x, &mouse_y);
-
-			float deltax = mouse_x - mygame->window->width / 2;
-			float deltay = mouse_y - mygame->window->height / 2;
-
-			if ((deltax != 0 || deltay != 0) && mouseGrab) {
-				horizontalAngle += (float)(mygame->window->width / 2 - mouse_x) * SENSITIVITY;
-				verticalAngle += (float)(mygame->window->height / 2 - mouse_y) * SENSITIVITY;
-
-				if (verticalAngle > C3D_PI / 2.0f)
-					verticalAngle = C3D_PI / 2.0f;
-				else if (verticalAngle < -C3D_PI / 2.0f)
-					verticalAngle = -C3D_PI / 2.0f;
-
-				SDL_WarpMouseInWindow(mygame->window->window, mygame->window->width / 2, mygame->window->height / 2);
-			}
-		}
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Update point light's position
@@ -182,7 +169,6 @@ int main(int argc, char *argv[])
 		point->position[2] = mygame->camera->eye[2];
 		setPointLight(point, S);
 
-		camera_angle(mygame->camera, horizontalAngle, verticalAngle);
 		camera_move(mygame->camera, mygame->movement, SPEED * frameTime);
 		camera_update(mygame->camera);
 

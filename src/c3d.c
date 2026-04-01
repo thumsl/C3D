@@ -61,6 +61,8 @@ C3D_Game *c3d_init(const char *title, int width, int height, int options)
 	}
 
 	game->should_quit = false;
+	game->cursor_grabbed = true;
+	game->mouse_sensitivity = 0.03f;
 	c3d_key_events.userdata = game;
 	return game;
 }
@@ -103,6 +105,32 @@ void c3d_dispatch_key_event(int key, C3D_Key_State state)
 	}
 }
 
+void _update_mouse_position(C3D_Game *game, SDL_MouseMotionEvent *motion)
+{
+	if (game->cursor_grabbed) {
+		int mouse_x, mouse_y;
+		SDL_GetMouseState(&mouse_x, &mouse_y);
+		printf("Mouse position: x=%d, y=%d\n", mouse_x, mouse_y);
+
+		float deltax = mouse_x - game->window->width / 2;
+		float deltay = mouse_y - game->window->height / 2;
+		printf("Mouse moved: deltax=%f, deltay=%f\n", deltax, deltay);
+
+		if (deltax != 0 || deltay != 0) {
+			game->camera->yaw += (float)(game->window->width / 2 - mouse_x) * game->mouse_sensitivity;
+			game->camera->pitch += (float)(game->window->height / 2 - mouse_y) * game->mouse_sensitivity;
+
+			if (game->camera->pitch > C3D_PI / 2.0f)
+				game->camera->pitch = C3D_PI / 2.0f;
+			else if (game->camera->pitch < -C3D_PI / 2.0f)
+				game->camera->pitch = -C3D_PI / 2.0f;
+
+			SDL_WarpMouseInWindow(game->window->window, game->window->width / 2, game->window->height / 2);
+			camera_update_angle(game->camera);
+		}
+	}
+}
+
 void c3d_process_input(C3D_Game *game)
 {
 	SDL_Event event;
@@ -123,10 +151,19 @@ void c3d_process_input(C3D_Game *game)
 			if (event.key.repeat)
 				c3d_key_events.is_pressed[event.key.keysym.scancode] = true;
 			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_PRESSED);
-
 		case SDL_KEYUP:
 			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_RELEASED);
 			break;
+		case SDL_MOUSEMOTION:
+			_update_mouse_position(game, &event.motion);
 		}
 	}
+}
+
+void c3d_toggle_grab_cursor(C3D_Game *game)
+{
+	game->cursor_grabbed = !game->cursor_grabbed;
+	SDL_SetRelativeMouseMode(game->cursor_grabbed ? SDL_TRUE : SDL_FALSE);
+	window_grab_cursor(game->window, game->cursor_grabbed);
+	SDL_WarpMouseInWindow(game->window->window, game->window->width / 2, game->window->height / 2);
 }

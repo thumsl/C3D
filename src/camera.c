@@ -2,31 +2,33 @@
 #include "../include/c3d.h"
 #include <math.h>
 
-camera *camera_init(vec3 pos, float horizontalAngle, float verticalAngle)
+camera *camera_init(vec3 pos, float yaw, float pitch)
 {
 	//todo: destroy camera
 	camera *C = malloc(sizeof(camera));
+	C->yaw = yaw;
+	C->pitch = pitch;
 
-	camera_angle(C, horizontalAngle, verticalAngle);
+	camera_update_angle(C);
 	vec3_copy(C->eye, pos);
 
 	return C;
 }
 
-void camera_angle(camera *C, float horizontalAngle, float verticalAngle)
+void camera_update_angle(camera *C)
 {
-	C->direction[0] = cosf(verticalAngle) * sinf(horizontalAngle);
-	C->direction[1] = sinf(verticalAngle);
-	C->direction[2] = cosf(verticalAngle) * cosf(horizontalAngle);
+	C->direction[0] = cosf(C->pitch) * sinf(C->yaw);
+	C->direction[1] = sinf(C->pitch);
+	C->direction[2] = cosf(C->pitch) * cosf(C->yaw);
 
-	C->right[0] = sinf(horizontalAngle - C3D_PI / 2.0f);
+	C->right[0] = sinf(C->yaw - C3D_PI / 2.0f);
 	C->right[1] = 0;
-	C->right[2] = cosf(horizontalAngle - C3D_PI / 2.0f);
+	C->right[2] = cosf(C->yaw - C3D_PI / 2.0f);
 
 	vec3_mul_cross(C->up, C->right, C->direction);
 }
 
-void camera_move(camera *C, Movement *M, double factor)
+void camera_move(camera *C, C3D_Movement *M, double factor)
 {
 	if (M->forward || M->backward || M->right || M->left) {
 		vec3 scaled_direction, scaled_right;
