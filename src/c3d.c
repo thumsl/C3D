@@ -1,4 +1,7 @@
 #include "../include/c3d.h"
+#include "SDL2/SDL.h"
+
+static C3D_Key_Event_Callbacks c3d_key_events = { 0 };
 
 bool initOpenGL()
 {
@@ -22,4 +25,109 @@ void c3d_quit()
 {
 	SDL_Quit();
 	exit(EXIT_FAILURE);
+}
+
+C3D_Game *c3d_init(const char *title, int width, int height, int options)
+{
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		fprintf(stderr, "Failed to initialize SDL: %s\n", SDL_GetError());
+		return NULL;
+	}
+
+	C3D_Game *game = malloc(sizeof(C3D_Game));
+	if (!game) {
+		fprintf(stderr, "Failed to allocate memory for game\n");
+		c3d_quit();
+	}
+
+	if (width <= 0 || height <= 0) {
+		game->window = window_create_fullsize(title);
+	} else {
+		game->window = window_create(width, height, title);
+	}
+
+	if (options & C3D_OPTION_FULLSCREEN) {
+		window_fullscreen(game->window, true);
+	}
+
+	if (!game->window) {
+		free(game);
+		c3d_quit();
+	}
+
+	if (!initOpenGL()) {
+		//c3d_destroy_window(game->window); TODO
+		free(game);
+		c3d_quit();
+	}
+
+	game->should_quit = false;
+	c3d_key_events.userdata = game;
+	return game;
+}
+
+void c3d_set_key_callback(int key, C3D_Key_State state, C3D_key_callback callback)
+{
+	if (key < 0 || key >= C3D_MAX_KEYBOARD_KEYS) {
+		fprintf(stderr, "Key code %d is out of bounds\n", key);
+		return;
+	}
+
+	if (state == C3D_KEY_PRESSED) {
+		c3d_key_events.on_press[key] = callback;
+	} else if (state == C3D_KEY_RELEASED) {
+		c3d_key_events.on_release[key] = callback;
+	} else {
+		fprintf(stderr, "Invalid key state: %d\n", state);
+	}
+}
+
+void c3d_dispatch_key_event(int key, C3D_Key_State state)
+{
+	if (key < 0 || key >= C3D_MAX_KEYBOARD_KEYS) {
+		fprintf(stderr, "Key code %d is out of bounds\n", key);
+		return;
+	}
+
+	if (state == C3D_KEY_PRESSED) {
+		if (c3d_key_events.on_press[key] == NULL) {
+			return;
+		}
+		c3d_key_events.on_press[key](c3d_key_events.userdata);
+	} else if (state == C3D_KEY_RELEASED) {
+		if (c3d_key_events.on_release[key] == NULL) {
+			return;
+		}
+		c3d_key_events.on_release[key](c3d_key_events.userdata);
+	} else {
+		fprintf(stderr, "Invalid key state: %d\n", state);
+	}
+}
+
+void c3d_process_input(C3D_Game *game)
+{
+	SDL_Event event;
+
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_QUIT:
+			game->should_quit = true;
+			break;
+		case SDL_WINDOWEVENT:
+			if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+				game->window->width = event.window.data1;
+				game->window->height = event.window.data2;
+				glViewport(0, 0, game->window->width, game->window->height);
+			}
+			break;
+		case SDL_KEYDOWN:
+			if (event.key.repeat)
+				c3d_key_events.is_pressed[event.key.keysym.scancode] = true;
+			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_PRESSED);
+
+		case SDL_KEYUP:
+			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_RELEASED);
+			break;
+		}
+	}
 }
