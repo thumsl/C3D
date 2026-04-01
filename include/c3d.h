@@ -26,6 +26,8 @@ typedef struct {
 	bool should_quit;
 	bool cursor_grabbed;
 	float mouse_sensitivity;
+	bool mouse1_pressed;
+	bool mouse2_pressed;
 } C3D_Game;
 
 typedef struct {

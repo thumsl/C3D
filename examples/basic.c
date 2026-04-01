@@ -12,11 +12,10 @@
 #define UPDATE_FPS_THRESHOLD 200
 
 static C3D_Game *mygame;
+static bool show_fps = true;
 
 void close_game(void *data)
 {
-	//printf("Closing game...\n");
-	//C3D_Game *game = (C3D_Game *)data;
 	mygame->should_quit = true;
 }
 
@@ -26,16 +25,22 @@ void toggle_grab_cursor(void *data)
 	c3d_toggle_grab_cursor(mygame);
 }
 
+void toggle_fps_display(void *data)
+{
+	printf("Toggle FPS display\n");
+	show_fps = !show_fps;
+}
+
 void configure_inputs()
 {
-	c3d_set_key_callback(SDL_SCANCODE_Q, C3D_KEY_PRESSED,
-			     close_game); // Q to quit
-	c3d_set_key_callback(SDL_SCANCODE_ESCAPE, C3D_KEY_PRESSED, toggle_grab_cursor);
+	c3d_set_key_callback(SDL_SCANCODE_Q, C3D_KEY_PRESSED, close_game); // Q to quit
+	c3d_set_key_callback(SDL_SCANCODE_ESCAPE, C3D_KEY_PRESSED, toggle_grab_cursor); // Escape to toggle mouse grab
+	c3d_set_key_callback(SDL_SCANCODE_F, C3D_KEY_PRESSED, toggle_fps_display); // F to toggle FPS display
 }
 
 int main(int argc, char *argv[])
 {
-	// Widht and Height == -1 means that the game will use the current monitor's resolution
+	// Width and Height == -1 means that the game will use the current monitor's resolution
 	mygame = c3d_init("Testing", -1, -1, C3D_OPTION_FULLSCREEN);
 	configure_inputs();
 
@@ -85,7 +90,6 @@ int main(int argc, char *argv[])
 
 	mygame->movement = malloc(sizeof(C3D_Movement));
 	mygame->movement->forward = mygame->movement->backward = mygame->movement->right = mygame->movement->left = false;
-	bool show_fps = false;
 
 	SDL_WarpMouseInWindow(mygame->window->window, mygame->window->width / 2, mygame->window->height / 2);
 
@@ -108,58 +112,9 @@ int main(int argc, char *argv[])
 
 		c3d_process_input(mygame);
 
-		// while (SDL_PollEvent(&e)) {
-		// 	if (e.type == SDL_MOUSEBUTTONDOWN)
-		// 		list_insert(bulletList,
-		// 			    bullet_create(mygame->camera->eye, C->direction,
-		// 					  bulletSpecs));
-		// 	if (e.type == SDL_KEYDOWN)
-		// 		switch (e.key.keysym.sym) {
-		// 		case SDLK_ESCAPE:
-		// 			mouseGrab = !mouseGrab;
-		// 			mygame->window_grab_cursor(game->window,
-		// 						   mouseGrab);
-		// 			SDL_WarpMouseInWindow(
-		// 				mygame->window->game->window,
-		// 				mouse_x, mouse_y);
-		// 			break;
-		// 		case SDLK_q:
-		// 			running = false;
-		// 			break;
-		// 		case SDLK_w:
-		// 			movement->forward = true;
-		// 			break;
-		// 		case SDLK_s:
-		// 			movement->backward = true;
-		// 			break;
-		// 		case SDLK_d:
-		// 			movement->right = true;
-		// 			break;
-		// 		case SDLK_a:
-		// 			movement->left = true;
-		// 			break;
-		// 		case SDLK_f:
-		// 			show_fps = !(show_fps);
-		// 			break;
-		// 		}
-		// 	else if (e.type == SDL_KEYUP)
-		// 		switch (e.key.keysym.sym) {
-		// 		case SDLK_w:
-		// 			movement->forward = false;
-		// 			break;
-		// 		case SDLK_s:
-		// 			movement->backward = false;
-		// 			break;
-		// 		case SDLK_d:
-		// 			movement->right = false;
-		// 			break;
-		// 		case SDLK_a:
-		// 			movement->left = false;
-		// 			break;
-		// 		}
-		// 	else if (!mouseMoved && e.type == SDL_MOUSEMOTION)
-		// 		mouseMoved = true;
-		// }
+		if (mygame->mouse1_pressed) {
+			list_insert(bulletList, bullet_create(mygame->camera->eye, mygame->camera->direction, bulletSpecs));
+		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

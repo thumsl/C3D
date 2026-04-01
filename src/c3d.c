@@ -62,7 +62,9 @@ C3D_Game *c3d_init(const char *title, int width, int height, int options)
 
 	game->should_quit = false;
 	game->cursor_grabbed = true;
-	game->mouse_sensitivity = 0.03f;
+	game->mouse_sensitivity = 0.01f;
+	game->mouse1_pressed = false;
+	game->mouse2_pressed = false;
 	c3d_key_events.userdata = game;
 	return game;
 }
@@ -110,11 +112,9 @@ void _update_mouse_position(C3D_Game *game, SDL_MouseMotionEvent *motion)
 	if (game->cursor_grabbed) {
 		int mouse_x, mouse_y;
 		SDL_GetMouseState(&mouse_x, &mouse_y);
-		printf("Mouse position: x=%d, y=%d\n", mouse_x, mouse_y);
 
 		float deltax = mouse_x - game->window->width / 2;
 		float deltay = mouse_y - game->window->height / 2;
-		printf("Mouse moved: deltax=%f, deltay=%f\n", deltax, deltay);
 
 		if (deltax != 0 || deltay != 0) {
 			game->camera->yaw += (float)(game->window->width / 2 - mouse_x) * game->mouse_sensitivity;
@@ -151,11 +151,27 @@ void c3d_process_input(C3D_Game *game)
 			if (event.key.repeat)
 				c3d_key_events.is_pressed[event.key.keysym.scancode] = true;
 			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_PRESSED);
+
 		case SDL_KEYUP:
 			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_RELEASED);
 			break;
 		case SDL_MOUSEMOTION:
 			_update_mouse_position(game, &event.motion);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				game->mouse1_pressed = true;
+			} else if (event.button.button == SDL_BUTTON_RIGHT) {
+				game->mouse2_pressed = true;
+			}
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				game->mouse1_pressed = false;
+			} else if (event.button.button == SDL_BUTTON_RIGHT) {
+				game->mouse2_pressed = false;
+			}
+			break;
 		}
 	}
 }
