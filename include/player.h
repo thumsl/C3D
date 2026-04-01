@@ -18,13 +18,13 @@ typedef struct Movement {
 typedef struct player {
 	vec3 position;
 	Movement movement;
-	boundingBox* hitbox;
+	boundingBox *hitbox;
 	float height;
 	float width;
 } player;
 
-player* player_init(vec3 position, float w, float h);
-void player_setPosition(player* P, vec3 position);
+player *player_init(vec3 position, float w, float h);
+void player_setPosition(player *P, vec3 position);
 
 // TODO: destroy Player
 #endif

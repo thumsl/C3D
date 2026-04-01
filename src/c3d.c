@@ -1,13 +1,14 @@
 #include "../include/c3d.h"
 
-bool initOpenGL() {
+bool initOpenGL()
+{
 	glewExperimental = GL_TRUE;
 	GLenum status = glewInit();
-	if(status != GLEW_OK) {
-		fprintf(stderr, "Error intializing GLEW: %s\n", glewGetErrorString(status));
+	if (status != GLEW_OK) {
+		fprintf(stderr, "Error intializing GLEW: %s\n",
+			glewGetErrorString(status));
 		return 0;
-	}
-	else {
+	} else {
 		glEnable(GL_DEPTH_TEST);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
@@ -17,7 +18,8 @@ bool initOpenGL() {
 	}
 }
 
-void c3d_quit() {
+void c3d_quit()
+{
 	SDL_Quit();
 	exit(EXIT_FAILURE);
 }

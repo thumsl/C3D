@@ -2,9 +2,10 @@
 #include "../include/c3d.h"
 #include <math.h>
 
-camera* camera_init(vec3 pos, float horizontalAngle, float verticalAngle) {
+camera *camera_init(vec3 pos, float horizontalAngle, float verticalAngle)
+{
 	//todo: destroy camera
-	camera* C = malloc(sizeof(camera));
+	camera *C = malloc(sizeof(camera));
 
 	camera_angle(C, horizontalAngle, verticalAngle);
 	vec3_copy(C->eye, pos);
@@ -12,19 +13,21 @@ camera* camera_init(vec3 pos, float horizontalAngle, float verticalAngle) {
 	return C;
 }
 
-void camera_angle(camera* C, float horizontalAngle, float verticalAngle) {
+void camera_angle(camera *C, float horizontalAngle, float verticalAngle)
+{
 	C->direction[0] = cosf(verticalAngle) * sinf(horizontalAngle);
 	C->direction[1] = sinf(verticalAngle);
 	C->direction[2] = cosf(verticalAngle) * cosf(horizontalAngle);
 
-	C->right[0] = sinf(horizontalAngle - C3D_PI/2.0f);
+	C->right[0] = sinf(horizontalAngle - C3D_PI / 2.0f);
 	C->right[1] = 0;
-	C->right[2] = cosf(horizontalAngle - C3D_PI/2.0f);
+	C->right[2] = cosf(horizontalAngle - C3D_PI / 2.0f);
 
 	vec3_mul_cross(C->up, C->right, C->direction);
 }
 
-void camera_move(camera *C, Movement* M, double factor) {
+void camera_move(camera *C, Movement *M, double factor)
+{
 	if (M->forward || M->backward || M->right || M->left) {
 		vec3 scaled_direction, scaled_right;
 
@@ -42,14 +45,16 @@ void camera_move(camera *C, Movement* M, double factor) {
 	}
 }
 
-void camera_copy(camera *a, camera *b) {
+void camera_copy(camera *a, camera *b)
+{
 	vec3_copy(a->eye, b->eye);
 	vec3_copy(a->direction, b->direction);
 	vec3_copy(a->right, b->right);
 	vec3_copy(a->up, b->up);
 }
 
-void camera_update(camera *C) {
+void camera_update(camera *C)
+{
 	// printf("Eye:\t\t %f %f %f\n", C->eye[0], C->eye[1], C->eye[2]);
 	// printf("Direction:\t\t %f %f %f\n", C->direction[0], C->direction[1], C->direction[2]);
 	// printf("Right:\t\t %f %f %f\n\n", C->right[0], C->right[1], C->right[2]);

@@ -10,6 +10,6 @@ typedef struct font {
 	char *path;
 } font;
 
-font* font_load(unsigned int width, unsigned int height, const char *path);
+font *font_load(unsigned int width, unsigned int height, const char *path);
 
 #endif // FONT_H

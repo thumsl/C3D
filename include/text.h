@@ -19,7 +19,7 @@
 
 typedef struct text_s {
 	/*! Font to be used. */
-	font *fontStyle; 
+	font *fontStyle;
 	/*! The lenght of the text message. */
 	unsigned int length;
 	/*! Font size in pixels. */
@@ -27,7 +27,7 @@ typedef struct text_s {
 	/*! X coordinate of the point where the text is to be rendered (lower left corner). */
 	float x;
 	/*! Y coordinate of the point where the text is to be rendered (upper left corner). */
-	float y; 
+	float y;
 	/*! List of meshes to be rendered. */
 	linkedList *modelList;
 } text;
@@ -40,7 +40,7 @@ typedef struct text_s {
 	@param y The Y coordinate of the point where the text is to be rendered (upper left corner) of the element.
 	@return Pointer to the new \a text \a element or NULL if failed.
 */
-text* text_create(const char *string, font *F, float size, float x, float y);
+text *text_create(const char *string, font *F, float size, float x, float y);
 
 void text_update(text *T, const char *string);
 void text_draw(text *T, shader *S, mat4x4 projection);

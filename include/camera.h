@@ -14,10 +14,10 @@ typedef struct camera {
 	mat4x4 view;
 } camera;
 
-camera* camera_init(vec3 pos, float horizontalAngle, float verticalAngle);
-void camera_angle(camera* C, float horizontalAngle, float verticalAngle);
-void camera_move(camera *C, Movement* M, double factor);
+camera *camera_init(vec3 pos, float horizontalAngle, float verticalAngle);
+void camera_angle(camera *C, float horizontalAngle, float verticalAngle);
+void camera_move(camera *C, Movement *M, double factor);
 void camera_copy(camera *a, camera *b);
 void camera_update(camera *C);
 
-#endif // CAMERA_H	
+#endif // CAMERA_H
