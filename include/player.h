@@ -13,18 +13,18 @@ typedef struct Movement {
 	bool left;
 	bool right;
 	bool run;
-} Movement;
+} C3D_Movement;
 
-typedef struct player {
+typedef struct {
 	vec3 position;
-	Movement movement;
+	C3D_Movement movement;
 	boundingBox *hitbox;
 	float height;
 	float width;
-} player;
+} C3D_Player;
 
-player *player_init(vec3 position, float w, float h);
-void player_setPosition(player *P, vec3 position);
+C3D_Player *player_init(vec3 position, float w, float h);
+void player_setPosition(C3D_Player *P, vec3 position);
 
 // TODO: destroy Player
 #endif

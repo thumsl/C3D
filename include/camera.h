@@ -3,21 +3,18 @@
 #include "linmath.h"
 #include "player.h"
 
-typedef struct Movement Movement;
-typedef struct player player;
-
 typedef struct camera {
 	vec3 eye;
 	vec3 direction;
 	vec3 right;
 	vec3 up;
 	mat4x4 view;
-} camera;
+} C3D_Camera;
 
-camera *camera_init(vec3 pos, float horizontalAngle, float verticalAngle);
-void camera_angle(camera *C, float horizontalAngle, float verticalAngle);
-void camera_move(camera *C, Movement *M, double factor);
-void camera_copy(camera *a, camera *b);
-void camera_update(camera *C);
+C3D_Camera *camera_init(vec3 pos, float horizontalAngle, float verticalAngle);
+void camera_angle(C3D_Camera *C, float horizontalAngle, float verticalAngle);
+void camera_move(C3D_Camera *C, C3D_Movement *M, double factor);
+void camera_copy(C3D_Camera *a, C3D_Camera *b);
+void camera_update(C3D_Camera *C);
 
 #endif // CAMERA_H
