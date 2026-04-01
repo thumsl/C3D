@@ -19,12 +19,9 @@ SDL_Window *window_init(int width, int height, const char *title)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-			    SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-				  SDL_WINDOWPOS_UNDEFINED, width, height,
-				  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_SetWindowResizable(window, SDL_TRUE);
@@ -32,8 +29,7 @@ SDL_Window *window_init(int width, int height, const char *title)
 	SDL_WarpMouseInWindow(window, width / 2, height / 2);
 
 	if (window == NULL) {
-		fprintf(stderr, "Could not create window: %s\n",
-			SDL_GetError());
+		fprintf(stderr, "Could not create window: %s\n", SDL_GetError());
 		SDL_Quit();
 		return NULL;
 	}

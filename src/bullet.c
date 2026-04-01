@@ -15,9 +15,7 @@ bullet *bullet_create(vec3 position, vec3 direction, bulletType *specs)
 	vec3_copy(ret->direction, direction);
 	vec3_copy(ret->position, position);
 	ret->frameDistance =
-		ret->specs->speed * sqrt(ret->direction[0] * ret->direction[0] +
-					 ret->direction[1] * ret->direction[1] +
-					 ret->direction[2] * ret->direction[2]);
+		ret->specs->speed * sqrt(ret->direction[0] * ret->direction[0] + ret->direction[1] * ret->direction[1] + ret->direction[2] * ret->direction[2]);
 
 	ret->model = malloc(sizeof(mesh));
 	memcpy(ret->model, ret->specs->model, sizeof(mesh));
@@ -27,8 +25,7 @@ bullet *bullet_create(vec3 position, vec3 direction, bulletType *specs)
 	return ret;
 }
 
-bulletType *bullet_createType(float speed, float damage, float maxTravel,
-			      const char *obj, const char *texture)
+bulletType *bullet_createType(float speed, float damage, float maxTravel, const char *obj, const char *texture)
 {
 	bulletType *ret = malloc(sizeof(bulletType));
 
@@ -48,8 +45,7 @@ int bullet_updatePosition(bullet *B, unsigned int frameTime)
 	B->position[0] += velocity[0];
 	B->position[1] += velocity[1];
 	B->position[2] += velocity[2];
-	mesh_translate_from_origin(B->model, B->position[0], B->position[1],
-				   B->position[2]);
+	mesh_translate_from_origin(B->model, B->position[0], B->position[1], B->position[2]);
 
 	if (B->distanceTraveled < B->specs->maximumTravelDistance)
 		return 1;

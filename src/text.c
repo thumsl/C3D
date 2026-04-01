@@ -14,14 +14,9 @@ text *text_create(const char *string, font *F, float size, float x, float y)
 	ret->fontStyle = F;
 
 	int i, row, col;
-	float texture_width =
-		      (float)ret->fontStyle->char_width / ret->fontStyle->w,
-	      texture_height =
-		      (float)ret->fontStyle->char_height / ret->fontStyle->h;
+	float texture_width = (float)ret->fontStyle->char_width / ret->fontStyle->w, texture_height = (float)ret->fontStyle->char_height / ret->fontStyle->h;
 	size /= 100.f;
-	float font_size_x = size * (float)(ret->fontStyle->char_height /
-					   ret->fontStyle->char_width),
-	      font_size_y = size;
+	float font_size_x = size * (float)(ret->fontStyle->char_height / ret->fontStyle->char_width), font_size_y = size;
 
 	GLuint indices[] = { 0, 3, 1, 3, 2, 1 };
 
@@ -29,10 +24,8 @@ text *text_create(const char *string, font *F, float size, float x, float y)
 		mesh *model = malloc(sizeof(mesh));
 		mesh_init(model);
 
-		row = (string[i] - 32) /
-		      (ret->fontStyle->w / ret->fontStyle->char_width);
-		col = (string[i] - 32) %
-		      (ret->fontStyle->w / ret->fontStyle->char_width);
+		row = (string[i] - 32) / (ret->fontStyle->w / ret->fontStyle->char_width);
+		col = (string[i] - 32) % (ret->fontStyle->w / ret->fontStyle->char_width);
 
 		model->textureOffsetX = texture_width * col;
 		model->textureOffsetY = texture_height * row;
@@ -89,11 +82,8 @@ void text_draw(text *T, shader *S, mat4x4 projection)
 	node *aux = T->modelList->head;
 
 	while (aux != NULL) {
-		glUniform2f(S->uniforms[TEXT_SHADER_OFFSET],
-			    ((mesh *)aux->data)->textureOffsetX,
-			    ((mesh *)aux->data)->textureOffsetY);
-		glUniformMatrix4fv(S->uniforms[TEXT_SHADER_PROJECTION], 1, 0,
-				   (GLfloat *)projection);
+		glUniform2f(S->uniforms[TEXT_SHADER_OFFSET], ((mesh *)aux->data)->textureOffsetX, ((mesh *)aux->data)->textureOffsetY);
+		glUniformMatrix4fv(S->uniforms[TEXT_SHADER_PROJECTION], 1, 0, (GLfloat *)projection);
 
 		mesh_draw((mesh *)aux->data, S, NULL, NULL);
 
@@ -106,15 +96,11 @@ void text_update(text *T, const char *string)
 	int i, row, col;
 	node *aux = T->modelList->head;
 
-	float texture_width = (float)T->fontStyle->char_width / T->fontStyle->w,
-	      texture_height =
-		      (float)T->fontStyle->char_height / T->fontStyle->h;
+	float texture_width = (float)T->fontStyle->char_width / T->fontStyle->w, texture_height = (float)T->fontStyle->char_height / T->fontStyle->h;
 
 	for (i = 0; i < T->length; i++) {
-		row = (string[i] - 32) /
-		      (T->fontStyle->w / T->fontStyle->char_width);
-		col = (string[i] - 32) %
-		      (T->fontStyle->w / T->fontStyle->char_width);
+		row = (string[i] - 32) / (T->fontStyle->w / T->fontStyle->char_width);
+		col = (string[i] - 32) % (T->fontStyle->w / T->fontStyle->char_width);
 
 		((mesh *)aux->data)->textureOffsetX = texture_width * col;
 		((mesh *)aux->data)->textureOffsetY = texture_height * row;

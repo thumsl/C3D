@@ -22,8 +22,7 @@ font *font_load(unsigned int width, unsigned int height, const char *path)
 	glBindTexture(GL_TEXTURE_2D, ret->textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->w, tex->h, 0, GL_RGB,
-		     GL_UNSIGNED_BYTE, tex->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->w, tex->h, 0, GL_RGB, GL_UNSIGNED_BYTE, tex->pixels);
 
 	SDL_FreeSurface(tex);
 

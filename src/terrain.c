@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-terrain *terrain_genDiamondSquare(int size, float range, float factor,
-				  const char *texturePath)
+terrain *terrain_genDiamondSquare(int size, float range, float factor, const char *texturePath)
 {
 	terrain *ret = malloc(sizeof(terrain));
 	ret->model = NULL;
@@ -23,52 +22,24 @@ terrain *terrain_genDiamondSquare(int size, float range, float factor,
 	for (i = size - 1; i >= 2; i /= 2, range *= pow(2, -factor)) {
 		for (j = 0; j < size - 1; j += i) {
 			for (k = 0; k < size - 1; k += i) {
-				float a = access_2df_array(ret->heightMap, size,
-							   j, k);
-				float b = access_2df_array(ret->heightMap, size,
-							   j, k + i);
-				float c = access_2df_array(ret->heightMap, size,
-							   j + i, k);
-				float d = access_2df_array(ret->heightMap, size,
-							   j + i, k + i);
+				float a = access_2df_array(ret->heightMap, size, j, k);
+				float b = access_2df_array(ret->heightMap, size, j, k + i);
+				float c = access_2df_array(ret->heightMap, size, j + i, k);
+				float d = access_2df_array(ret->heightMap, size, j + i, k + i);
 
-				float e =
-					access_2df_array(ret->heightMap, size,
-							 j + i / 2, k + i / 2) =
-						(a + b + c + d) / 4.0f +
-						randomValue(range);
+				float e = access_2df_array(ret->heightMap, size, j + i / 2, k + i / 2) = (a + b + c + d) / 4.0f + randomValue(range);
 
-				access_2df_array(ret->heightMap, size, j,
-						 k + i / 2) =
-					(access_2df_array(ret->heightMap, size,
-							  j, k) +
-					 access_2df_array(ret->heightMap, size,
-							  j, k + i) +
-					 e) / 3.0f +
+				access_2df_array(ret->heightMap, size, j, k + i / 2) =
+					(access_2df_array(ret->heightMap, size, j, k) + access_2df_array(ret->heightMap, size, j, k + i) + e) / 3.0f +
 					randomValue(range);
-				access_2df_array(ret->heightMap, size,
-						 j + i / 2, k) =
-					(access_2df_array(ret->heightMap, size,
-							  j, k) +
-					 access_2df_array(ret->heightMap, size,
-							  j + i, k) +
-					 e) / 3.0f +
+				access_2df_array(ret->heightMap, size, j + i / 2, k) =
+					(access_2df_array(ret->heightMap, size, j, k) + access_2df_array(ret->heightMap, size, j + i, k) + e) / 3.0f +
 					randomValue(range);
-				access_2df_array(ret->heightMap, size, j + i,
-						 k + i / 2) =
-					(access_2df_array(ret->heightMap, size,
-							  j + i, k) +
-					 access_2df_array(ret->heightMap, size,
-							  j + i, k + i) +
-					 e) / 3.0f +
+				access_2df_array(ret->heightMap, size, j + i, k + i / 2) =
+					(access_2df_array(ret->heightMap, size, j + i, k) + access_2df_array(ret->heightMap, size, j + i, k + i) + e) / 3.0f +
 					randomValue(range);
-				access_2df_array(ret->heightMap, size,
-						 j + i / 2, k + i) =
-					(access_2df_array(ret->heightMap, size,
-							  j, k + i) +
-					 access_2df_array(ret->heightMap, size,
-							  j + i, k + i) +
-					 e) / 3.0f +
+				access_2df_array(ret->heightMap, size, j + i / 2, k + i) =
+					(access_2df_array(ret->heightMap, size, j, k + i) + access_2df_array(ret->heightMap, size, j + i, k + i) + e) / 3.0f +
 					randomValue(range);
 			}
 		}
@@ -86,8 +57,7 @@ terrain *terrain_genDiamondSquare(int size, float range, float factor,
 	for (i = 0, k = 0; i < ret->size; i++)
 		for (j = 0; j < ret->size; j++, k += 8) {
 			vertices[k] = (-ret->size / 2 + i);
-			vertices[k + 1] = access_2df_array(ret->heightMap,
-							   ret->size, i, j);
+			vertices[k + 1] = access_2df_array(ret->heightMap, ret->size, i, j);
 			vertices[k + 2] = (ret->size / 2 - j);
 			vertices[k + 3] = (float)((int)j % 2);
 			vertices[k + 4] = (float)((int)i % 2);

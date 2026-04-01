@@ -3,8 +3,7 @@
 #include "../include/mesh.h"
 #include <SDL2/SDL_image.h>
 
-mesh *genVertices(int z, int x, int lenght, GLuint *indices,
-		  const char *texture_path)
+mesh *genVertices(int z, int x, int lenght, GLuint *indices, const char *texture_path)
 {
 	GLfloat vertices[] = { x,
 			       0,
@@ -96,33 +95,22 @@ level *level_loadMeshes(const char *path, const char *texture_path)
 	ret->size = map->w;
 	ret->meshList = list_create();
 
-	GLuint indices[] = { 0, 1, 4, 1, 5, 4, 7, 2, 3, 7, 6, 2,
-			     4, 3, 0, 4, 7, 3, 1, 2, 5, 2, 6, 5 };
+	GLuint indices[] = { 0, 1, 4, 1, 5, 4, 7, 2, 3, 7, 6, 2, 4, 3, 0, 4, 7, 3, 1, 2, 5, 2, 6, 5 };
 
 	unsigned int i, row, delta;
-	for (i = 0, row = 1, delta = 1; i < 3 * map->w * map->h;
-	     i += 3, row++) {
-		int x = ((char *)map->pixels)[i] |
-			((char *)map->pixels)[i + 1] << 8 |
-			((char *)map->pixels)[i + 2] << 16;
+	for (i = 0, row = 1, delta = 1; i < 3 * map->w * map->h; i += 3, row++) {
+		int x = ((char *)map->pixels)[i] | ((char *)map->pixels)[i + 1] << 8 | ((char *)map->pixels)[i + 2] << 16;
 
 		if (x == WALL && (row + 1) < ret->size) {
-			int next = ((char *)map->pixels)[i + 3] |
-				   ((char *)map->pixels)[i + 4] << 8 |
-				   ((char *)map->pixels)[i + 5] << 16;
+			int next = ((char *)map->pixels)[i + 3] | ((char *)map->pixels)[i + 4] << 8 | ((char *)map->pixels)[i + 5] << 16;
 			if (next == WALL)
 				delta++;
 			else {
-				list_insert(ret->meshList,
-					    genVertices(i / (ret->size * 3),
-							row - 1, delta, indices,
-							texture_path));
+				list_insert(ret->meshList, genVertices(i / (ret->size * 3), row - 1, delta, indices, texture_path));
 				delta = 1;
 			}
 		} else if (x == WALL) {
-			list_insert(ret->meshList,
-				    genVertices(i / (ret->size * 3), row - 1,
-						delta, indices, texture_path));
+			list_insert(ret->meshList, genVertices(i / (ret->size * 3), row - 1, delta, indices, texture_path));
 			delta = 1;
 		}
 

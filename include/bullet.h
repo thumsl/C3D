@@ -22,8 +22,7 @@ typedef struct bullet {
 bool bullet_maxDistance(bullet *B);
 int bullet_updatePosition(bullet *B, unsigned int frameTime);
 bullet *bullet_create(vec3 position, vec3 direction, bulletType *specs);
-bulletType *bullet_createType(float speed, float damage, float maxTravel,
-			      const char *obj, const char *texture);
+bulletType *bullet_createType(float speed, float damage, float maxTravel, const char *obj, const char *texture);
 void bullet_destroy(bullet *B);
 
 #endif // BULLET_H

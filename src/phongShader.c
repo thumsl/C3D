@@ -25,8 +25,7 @@ void phongShader_getUniformLocations(shader *S)
 	int i;
 
 	for (i = 0; i < PHONG_SHADER_UNIFORM_COUNT; i++)
-		S->uniforms[i] =
-			glGetUniformLocation(S->program, uniformNames[i]);
+		S->uniforms[i] = glGetUniformLocation(S->program, uniformNames[i]);
 }
 
 void phongShader_setSkyColor(shader *S, vec3 color)
@@ -40,21 +39,17 @@ void phongShader_setFogParams(shader *S, float density, float gradient)
 	glUniform1f(S->uniforms[FOG_GRADIENT], gradient);
 }
 
-void phongShader_updateUniforms(mesh *model, shader *S, camera *C,
-				mat4x4 projection)
+void phongShader_updateUniforms(mesh *model, shader *S, camera *C, mat4x4 projection)
 {
 	mat4x4 modelView;
 	mat4x4_mul(modelView, C->view, model->matrices.transform);
 
 	glUniformMatrix4fv(S->uniforms[MODEL_VIEW], 1, 0, (GLfloat *)modelView);
-	glUniformMatrix4fv(S->uniforms[PROJECTION], 1, 0,
-			   (GLfloat *)projection);
-	glUniformMatrix4fv(S->uniforms[TRANSFORM], 1, 0,
-			   (GLfloat *)model->matrices.transform);
+	glUniformMatrix4fv(S->uniforms[PROJECTION], 1, 0, (GLfloat *)projection);
+	glUniformMatrix4fv(S->uniforms[TRANSFORM], 1, 0, (GLfloat *)model->matrices.transform);
 	glUniform3fv(S->uniforms[EYE_POSITION], 1, (GLfloat *)C->eye);
 	glUniform1f(S->uniforms[SPECULAR_POWER], model->mat.specularPower);
-	glUniform1f(S->uniforms[SPECULAR_INTENSITY],
-		    model->mat.specularIntensity);
+	glUniform1f(S->uniforms[SPECULAR_INTENSITY], model->mat.specularIntensity);
 }
 
 void phongShader_init(shader *S)

@@ -49,10 +49,8 @@ void mesh_init(mesh *model);
 void mesh_loadToVAO(mesh *model, GLfloat *vertices, GLuint *indices);
 void mesh_textureFromFile(mesh *model, const char *texturePath);
 static void mesh_setData(struct aiMesh *loadedMesh, mesh *model);
-static void mesh_setMaterialData(struct aiMaterial *material, mesh *model,
-				 const char *texturePath);
-bool mesh_loadFromFileToList(const char *filename, const char *texturePath,
-			     linkedList *meshList);
+static void mesh_setMaterialData(struct aiMaterial *material, mesh *model, const char *texturePath);
+bool mesh_loadFromFileToList(const char *filename, const char *texturePath, linkedList *meshList);
 mesh *mesh_loadFromFile(const char *filename, const char *texturePath);
 mesh *mesh_genFlatFloor(int size, const char *texturePath);
 static void mesh_genHitboxMeshData(mesh *model);
@@ -63,8 +61,7 @@ void mesh_translate_from_origin(mesh *model, float x, float y, float z);
 void mesh_rotate_x(mesh *model, float angle);
 void mesh_rotate_y(mesh *model, float angle);
 void mesh_rotate_z(mesh *model, float angle);
-void mesh_rotate_from_ident(mesh *model, float x_angle, float y_angle,
-			    float z_angle);
+void mesh_rotate_from_ident(mesh *model, float x_angle, float y_angle, float z_angle);
 void mesh_scale(mesh *model, float x, float y, float z);
 void mesh_updateModelMatrix(mesh *model);
 

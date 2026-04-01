@@ -30,30 +30,24 @@ void mesh_loadToVAO(mesh *model, GLfloat *vertices, GLuint *indices)
 	glBindVertexArray(model->VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
-	glBufferData(GL_ARRAY_BUFFER, 8 * model->vertexCount * sizeof(GLfloat),
-		     vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 8 * model->vertexCount * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 
 	// POSITION COORDINATES
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
-			      NULL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
 	glEnableVertexAttribArray(0);
 
 	// TEXTURE COORDINATES
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
-			      (void *)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	// NORMALS
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
-			      (void *)(5 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void *)(5 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
 	// INDICES
 	glGenBuffers(1, &(model->IBO));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		     model->indexCount * sizeof(GLuint), indices,
-		     GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -73,8 +67,7 @@ void mesh_textureFromFile(mesh *model, const char *texturePath)
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB,
-		     GL_UNSIGNED_BYTE, image->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
 	SDL_FreeSurface(image);
 }
@@ -84,8 +77,7 @@ static void mesh_setData(struct aiMesh *loadedMesh, mesh *model)
 	model->indexCount = loadedMesh->mNumFaces * 3;
 	model->vertexCount = loadedMesh->mNumVertices;
 
-	GLfloat *vertices =
-		malloc(sizeof(GLfloat) * loadedMesh->mNumVertices * 8);
+	GLfloat *vertices = malloc(sizeof(GLfloat) * loadedMesh->mNumVertices * 8);
 	GLuint *indices = malloc(sizeof(GLuint) * model->indexCount);
 
 	model->hitbox = malloc(sizeof(boundingBox));
@@ -144,29 +136,23 @@ static void mesh_setData(struct aiMesh *loadedMesh, mesh *model)
 	free(indices);
 }
 
-static void mesh_setMaterialData(struct aiMaterial *mat, mesh *model,
-				 const char *texturePath)
+static void mesh_setMaterialData(struct aiMaterial *mat, mesh *model, const char *texturePath)
 {
 	int max = 1;
 	float x;
-	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &x, &max) ==
-	    AI_SUCCESS)
+	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &x, &max) == AI_SUCCESS)
 		model->mat.specularPower = x;
-	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &x,
-				    &max) == AI_SUCCESS)
+	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &x, &max) == AI_SUCCESS)
 		model->mat.specularIntensity = x;
 
-	printf("POWER: %.2f, INTENSITY %.2f\n", model->mat.specularPower,
-	       model->mat.specularIntensity);
+	printf("POWER: %.2f, INTENSITY %.2f\n", model->mat.specularPower, model->mat.specularIntensity);
 
 	struct aiString path;
 
 	SDL_Surface *image;
 	if (texturePath != NULL)
 		mesh_textureFromFile(model, texturePath);
-	else if (aiGetMaterialString(
-			 mat, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0),
-			 &path) == AI_SUCCESS) {
+	else if (aiGetMaterialString(mat, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), &path) == AI_SUCCESS) {
 		char filename[9 + path.length];
 		char r[] = "res/obj/";
 
@@ -184,15 +170,12 @@ static void mesh_setMaterialData(struct aiMaterial *mat, mesh *model,
 		return;
 }
 
-bool mesh_loadFromFileToList(const char *filename, const char *texturePath,
-			     linkedList *meshList)
+bool mesh_loadFromFileToList(const char *filename, const char *texturePath, linkedList *meshList)
 {
-	const struct aiScene *scene =
-		aiImportFile(filename, aiProcess_Triangulate);
+	const struct aiScene *scene = aiImportFile(filename, aiProcess_Triangulate);
 
 	if (!scene) {
-		fprintf(stderr,
-			"File \"%s\" does not exist or this program does \
+		fprintf(stderr, "File \"%s\" does not exist or this program does \
 not have permission to open it.\n",
 			filename);
 		c3d_quit();
@@ -203,9 +186,7 @@ not have permission to open it.\n",
 		mesh *model = malloc(sizeof(mesh));
 		mesh_init(model);
 		mesh_setData(scene->mMeshes[i], model);
-		mesh_setMaterialData(
-			scene->mMaterials[scene->mMeshes[i]->mMaterialIndex],
-			model, texturePath);
+		mesh_setMaterialData(scene->mMaterials[scene->mMeshes[i]->mMaterialIndex], model, texturePath);
 		mesh_genHitboxMeshData(model);
 		list_insert(meshList, model);
 	}
@@ -215,11 +196,9 @@ not have permission to open it.\n",
 
 mesh *mesh_loadFromFile(const char *filename, const char *texturePath)
 {
-	const struct aiScene *scene =
-		aiImportFile(filename, aiProcess_Triangulate);
+	const struct aiScene *scene = aiImportFile(filename, aiProcess_Triangulate);
 	if (!scene) {
-		fprintf(stderr,
-			"File \"%s\" does not exist or this program does \
+		fprintf(stderr, "File \"%s\" does not exist or this program does \
 not have permission to open it.\n",
 			filename);
 		c3d_quit();
@@ -290,21 +269,13 @@ mesh *mesh_genFlatFloor(int size, const char *texturePath)
 
 static void mesh_genHitboxMeshData(mesh *model)
 {
-	float position[] = { model->hitbox->min[0], model->hitbox->min[1],
-			     model->hitbox->min[2], model->hitbox->max[0],
-			     model->hitbox->min[1], model->hitbox->min[2],
-			     model->hitbox->max[0], model->hitbox->min[1],
-			     model->hitbox->max[2], model->hitbox->min[0],
-			     model->hitbox->min[1], model->hitbox->max[2],
-			     model->hitbox->min[0], model->hitbox->max[1],
-			     model->hitbox->max[2], model->hitbox->min[0],
-			     model->hitbox->max[1], model->hitbox->min[2],
-			     model->hitbox->max[0], model->hitbox->max[1],
-			     model->hitbox->min[2], model->hitbox->max[0],
-			     model->hitbox->max[1], model->hitbox->max[2] };
+	float position[] = { model->hitbox->min[0], model->hitbox->min[1], model->hitbox->min[2], model->hitbox->max[0], model->hitbox->min[1],
+			     model->hitbox->min[2], model->hitbox->max[0], model->hitbox->min[1], model->hitbox->max[2], model->hitbox->min[0],
+			     model->hitbox->min[1], model->hitbox->max[2], model->hitbox->min[0], model->hitbox->max[1], model->hitbox->max[2],
+			     model->hitbox->min[0], model->hitbox->max[1], model->hitbox->min[2], model->hitbox->max[0], model->hitbox->max[1],
+			     model->hitbox->min[2], model->hitbox->max[0], model->hitbox->max[1], model->hitbox->max[2] };
 
-	GLuint indices[] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0,
-			     5, 6, 6, 7, 7, 2, 6, 1, 4, 7, 3, 0 };
+	GLuint indices[] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 5, 6, 6, 7, 7, 2, 6, 1, 4, 7, 3, 0 };
 
 	glGenVertexArrays(1, &(model->hitboxVAO));
 	glGenBuffers(1, &(model->hitboxVBO));
@@ -313,12 +284,10 @@ static void mesh_genHitboxMeshData(mesh *model)
 	glBindVertexArray(model->hitboxVAO);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->hitboxEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-		     GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, (model->hitboxVBO));
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position,
-		     GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -340,8 +309,7 @@ void mesh_draw(mesh *model, shader *S, camera *C, mat4x4 projection)
 
 	glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
-	glDrawElements(GL_TRIANGLES, model->indexCount, GL_UNSIGNED_INT,
-		       (void *)0);
+	glDrawElements(GL_TRIANGLES, model->indexCount, GL_UNSIGNED_INT, (void *)0);
 	glBindVertexArray(0);
 }
 
@@ -387,44 +355,34 @@ void mesh_translate_from_origin(mesh *model, float x, float y, float z)
 // TODO: Use quaternions?
 void mesh_rotate_x(mesh *model, float angle)
 {
-	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1.0f,
-		      0.0f, 0.0f, angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1.0f, 0.0f, 0.0f, angle);
 }
 
 void mesh_rotate_y(mesh *model, float angle)
 {
-	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 1, 0,
-		      angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 1, 0, angle);
 }
 
 void mesh_rotate_z(mesh *model, float angle)
 {
-	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 0, 1,
-		      angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 0, 1, angle);
 }
 
-void mesh_rotate_from_ident(mesh *model, float x_angle, float y_angle,
-			    float z_angle)
+void mesh_rotate_from_ident(mesh *model, float x_angle, float y_angle, float z_angle)
 {
 	mat4x4_identity(model->matrices.rotate);
-	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1, 0, 0,
-		      x_angle);
-	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 1, 0,
-		      y_angle);
-	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 0, 1,
-		      z_angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 1, 0, 0, x_angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 1, 0, y_angle);
+	mat4x4_rotate(model->matrices.rotate, model->matrices.rotate, 0, 0, 1, z_angle);
 }
 
 void mesh_scale(mesh *model, float x, float y, float z)
 {
-	mat4x4_scale_aniso(model->matrices.scale, model->matrices.scale, x, y,
-			   z);
+	mat4x4_scale_aniso(model->matrices.scale, model->matrices.scale, x, y, z);
 }
 
 void mesh_updateModelMatrix(mesh *model)
 {
-	mat4x4_mul(model->matrices.transform, model->matrices.rotate,
-		   model->matrices.scale);
-	mat4x4_mul(model->matrices.transform, model->matrices.translate,
-		   model->matrices.transform);
+	mat4x4_mul(model->matrices.transform, model->matrices.rotate, model->matrices.scale);
+	mat4x4_mul(model->matrices.transform, model->matrices.translate, model->matrices.transform);
 }

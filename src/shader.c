@@ -9,8 +9,7 @@ static void shader_getUniformLocations(shader *S)
 {
 	int i;
 
-	S->uniforms = (GLuint *)malloc(sizeof(GLuint) *
-				       PHONG_SHADER_UNIFORM_COUNT * 2);
+	S->uniforms = (GLuint *)malloc(sizeof(GLuint) * PHONG_SHADER_UNIFORM_COUNT * 2);
 
 	switch (S->type) {
 	case PHONG:
@@ -38,13 +37,11 @@ shader *shader_loadFromFile(const char *vs, const char *fs, shaderType type)
 	}
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, (const char *const *)&vertexSource,
-		       NULL);
+	glShaderSource(vertexShader, 1, (const char *const *)&vertexSource, NULL);
 	glCompileShader(vertexShader);
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, (const char *const *)&fragmentSource,
-		       NULL);
+	glShaderSource(fragmentShader, 1, (const char *const *)&fragmentSource, NULL);
 	glCompileShader(fragmentShader);
 
 	/** Check for compilation errors **/
