@@ -7,7 +7,7 @@
 
 typedef struct boundingBox boundingBox;
 
-typedef struct Movement {
+typedef struct movement {
 	bool forward;
 	bool backward;
 	bool left;

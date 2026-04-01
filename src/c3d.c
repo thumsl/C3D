@@ -152,8 +152,39 @@ void c3d_process_input(C3D_Game *game)
 				c3d_key_events.is_pressed[event.key.keysym.scancode] = true;
 			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_PRESSED);
 
+			switch (event.key.keysym.sym) {
+			case SDLK_w:
+				game->movement->forward = true;
+				break;
+			case SDLK_s:
+				game->movement->backward = true;
+				break;
+			case SDLK_d:
+				game->movement->right = true;
+				break;
+			case SDLK_a:
+				game->movement->left = true;
+				break;
+			}
+			break;
+
 		case SDL_KEYUP:
 			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_RELEASED);
+			switch (event.key.keysym.sym) {
+			case SDLK_w:
+				game->movement->forward = false;
+				break;
+			case SDLK_s:
+				game->movement->backward = false;
+				break;
+			case SDLK_d:
+				game->movement->right = false;
+				break;
+			case SDLK_a:
+				game->movement->left = false;
+				break;
+			}
+
 			break;
 		case SDL_MOUSEMOTION:
 			_update_mouse_position(game, &event.motion);

@@ -3,9 +3,9 @@
 #include "../include/utils.h"
 #include <stdlib.h>
 
-player *player_init(vec3 position, float width, float height)
+C3D_Player *player_init(vec3 position, float width, float height)
 {
-	player *P = malloc(sizeof(player));
+	C3D_Player *P = malloc(sizeof(C3D_Player));
 	P->hitbox = malloc(sizeof(boundingBox));
 	player_setPosition(P, position);
 
@@ -21,7 +21,7 @@ player *player_init(vec3 position, float width, float height)
 	return P;
 }
 
-void player_setPosition(player *P, vec3 position)
+void player_setPosition(C3D_Player *P, vec3 position)
 {
 	vec3_copy(P->position, position);
 
