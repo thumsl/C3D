@@ -1,26 +1,23 @@
+#include "include/bullet.h"
 #include "include/c3d.h"
-#include "include/window.h"
 #include "include/camera.h"
-#include "include/text.h"
-#include "include/light.h"
 #include "include/level.h"
 #include "include/light.h"
-#include "include/bullet.h"
-#include <math.h>
-#include <string.h>
+#include "include/text.h"
+#include "include/window.h"
 
-#define SPEED 0.0035
-#define SENSITIVITY 0.0025
+#define SPEED 0.05
+#define SENSITIVITY 0.002
 
-#define WIDTH 1920
-#define HEIGHT 1080
-#define FOV 90.0f * 0.0174533f
+#define FOV 120.0f * 0.0174533f
 
 #define UPDATE_FPS_THRESHOLD 200
 
 int main(int argc, char *argv[])
 {
-	SDL_Window *window = window_create(WIDTH, HEIGHT, "Testing");
+	SDL_Window *window = window_create_fullsize("Testing");
+	int screen_width, screen_height;
+	SDL_GetWindowSize(window, &screen_width, &screen_height);
 
 	if (window == NULL) {
 		c3d_quit();
@@ -45,18 +42,19 @@ int main(int argc, char *argv[])
 
 	SDL_Event e;
 	bool running = true, mouseGrab = true, mouseMoved = false;
-	float verticalAngle = -0.44f, horizontalAngle = C3D_PI;
-	int mouse_x = WIDTH / 2, mouse_y = WIDTH / 2, pastTime = 0,
-	    currentTime = 0, frameTime = 0, frames_passed = 0,
+	float verticalAngle = -0.14f, horizontalAngle = C3D_PI;
+	int mouse_x = screen_width / 2, mouse_y = screen_width / 2,
+	    pastTime = 0, currentTime = 0, frameTime = 0, frames_passed = 0,
 	    initial_frame = 0;
 
-	vec3 init_cam_position = { 2, 0.5f, -2.0f };
+	vec3 init_cam_position = { 3, 0.5f, -3.0f };
 	camera *C =
 		camera_init(init_cam_position, horizontalAngle, verticalAngle);
 
 	mat4x4 projection;
-	mat4x4_perspective(projection, FOV, (float)WIDTH / (float)HEIGHT,
-			   0.001f, 1000.f);
+	mat4x4_perspective(projection, FOV,
+			   (float)screen_width / (float)screen_height, 0.001f,
+			   1000.f);
 
 	mat4x4 ortho;
 	mat4x4_ortho(ortho, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f);
@@ -99,7 +97,7 @@ int main(int argc, char *argv[])
 	bool show_fps = false;
 
 	SDL_PumpEvents();
-	SDL_WarpMouseInWindow(window, WIDTH / 2, HEIGHT / 2);
+	SDL_WarpMouseInWindow(window, screen_width / 2, screen_height / 2);
 
 	while (running) {
 		frames_passed++;
@@ -178,23 +176,24 @@ int main(int argc, char *argv[])
 		if (mouseMoved && mouseGrab) {
 			SDL_GetMouseState(&mouse_x, &mouse_y);
 
-			float deltax = mouse_x - WIDTH / 2;
-			float deltay = mouse_y - HEIGHT / 2;
+			float deltax = mouse_x - screen_width / 2;
+			float deltay = mouse_y - screen_height / 2;
 
 			if ((deltax != 0 || deltay != 0) && mouseGrab) {
 				horizontalAngle +=
-					(float)(WIDTH / 2 - mouse_x) *
+					(float)(screen_width / 2 - mouse_x) *
 					SENSITIVITY;
-				verticalAngle += (float)(HEIGHT / 2 - mouse_y) *
-						 SENSITIVITY;
+				verticalAngle +=
+					(float)(screen_height / 2 - mouse_y) *
+					SENSITIVITY;
 
 				if (verticalAngle > C3D_PI / 2.0f)
 					verticalAngle = C3D_PI / 2.0f;
 				else if (verticalAngle < -C3D_PI / 2.0f)
 					verticalAngle = -C3D_PI / 2.0f;
 
-				SDL_WarpMouseInWindow(window, WIDTH / 2,
-						      HEIGHT / 2);
+				SDL_WarpMouseInWindow(window, screen_width / 2,
+						      screen_height / 2);
 			}
 		}
 
@@ -214,13 +213,15 @@ int main(int argc, char *argv[])
 			text_draw(fps_counter_label, textShader, ortho);
 		text_draw(text_msg, textShader, ortho);
 
-		//mesh_draw(floor, S, C, projection);
+		// mesh_draw(floor, S, C, projection);
 		mesh_drawList(mainLevel->meshList, S, C, projection);
 		mesh_drawList(meshList, S, C, projection);
 
 		// Draw bullets
 		node *current_node = bulletList->head;
+		int bullet_count = 0;
 		while (current_node) {
+			bullet_count++;
 			bullet *b = (bullet *)current_node->data;
 			if (bullet_maxDistance(b)) {
 				bullet_destroy(b);
@@ -232,6 +233,8 @@ int main(int argc, char *argv[])
 			bullet_updatePosition(b, frameTime);
 			current_node = current_node->next;
 		}
+
+		printf("Bullet count: %d\n", bullet_count);
 
 		SDL_GL_SwapWindow(window);
 		SDL_Delay(1);
