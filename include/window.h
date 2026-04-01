@@ -18,11 +18,4 @@ C3D_Window *window_create_fullsize(const char *title);
 void window_grab_cursor(C3D_Window *window, bool grab);
 void window_fullscreen(C3D_Window *window, bool flag);
 
-/**
- * @brief Process window events and return false if the window should be closed.
- * @param window The window to process events for.
- * @return true if the window should remain open, false if it should be closed.
- */
-bool window_process(C3D_Window *window);
-
 #endif

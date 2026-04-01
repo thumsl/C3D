@@ -45,19 +45,29 @@ SDL_Window *window_init(int width, int height, const char *title)
 	return window;
 }
 
-SDL_Window *window_create(int width, int height, const char *title)
+C3D_Window *_c3d_window_new(SDL_Window *sdl_window)
+{
+	C3D_Window *c3d_window = malloc(sizeof(C3D_Window));
+	c3d_window->window = sdl_window;
+	c3d_window->glContext = SDL_GL_CreateContext(sdl_window);
+	SDL_GetWindowSize(sdl_window, &c3d_window->width, &c3d_window->height);
+
+	return c3d_window;
+}
+
+C3D_Window *window_create(int width, int height, const char *title)
 {
 	sdl_init_window();
-	return window_init(width, height, title);
+	SDL_Window *sdl_window = window_init(width, height, title);
+
+	if (sdl_window == NULL) {
+		return NULL;
+	}
+
+	return _c3d_window_new(sdl_window);
 }
 
-void debug_display_mode(SDL_DisplayMode *display_mode)
-{
-	printf("Display mode: %dx%d, refresh rate: %d\n", display_mode->w,
-	       display_mode->h, display_mode->refresh_rate);
-}
-
-SDL_Window *window_create_fullsize(const char *title)
+C3D_Window *window_create_fullsize(const char *title)
 {
 	sdl_init_window();
 
@@ -71,21 +81,21 @@ SDL_Window *window_create_fullsize(const char *title)
 	return window_create(display_mode.w, display_mode.h, title);
 }
 
-void window_grabCursor(SDL_Window *window, bool grab)
+void window_grab_cursor(C3D_Window *window, bool grab)
 {
 	if (grab) {
 		SDL_ShowCursor(SDL_DISABLE);
-		SDL_SetWindowGrab(window, SDL_TRUE);
+		SDL_SetWindowGrab(window->window, SDL_TRUE);
 	} else {
 		SDL_ShowCursor(SDL_ENABLE);
-		SDL_SetWindowGrab(window, SDL_FALSE);
+		SDL_SetWindowGrab(window->window, SDL_FALSE);
 	}
 }
 
-void window_fullscreen(SDL_Window *window, bool flag)
+void window_fullscreen(C3D_Window *window, bool flag)
 {
 	if (flag)
-		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+		SDL_SetWindowFullscreen(window->window, SDL_WINDOW_FULLSCREEN);
 	else
-		SDL_SetWindowFullscreen(window, 0);
+		SDL_SetWindowFullscreen(window->window, 0);
 }
