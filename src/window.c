@@ -2,14 +2,17 @@
 #include "../include/c3d.h"
 #include <GL/glew.h>
 
-SDL_Window *window_create(int width, int height, const char *title)
+void sdl_init_window()
 {
-	SDL_Window *window;
-
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		fprintf(stderr, "%s\n", SDL_GetError());
-		return NULL;
+		exit(1);
 	}
+}
+
+SDL_Window *window_init(int width, int height, const char *title)
+{
+	SDL_Window *window;
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -40,6 +43,32 @@ SDL_Window *window_create(int width, int height, const char *title)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	return window;
+}
+
+SDL_Window *window_create(int width, int height, const char *title)
+{
+	sdl_init_window();
+	return window_init(width, height, title);
+}
+
+void debug_display_mode(SDL_DisplayMode *display_mode)
+{
+	printf("Display mode: %dx%d, refresh rate: %d\n", display_mode->w,
+	       display_mode->h, display_mode->refresh_rate);
+}
+
+SDL_Window *window_create_fullsize(const char *title)
+{
+	sdl_init_window();
+
+	SDL_DisplayMode display_mode;
+
+	if (SDL_GetDesktopDisplayMode(0, &display_mode) != 0) {
+		printf("SDL_GetDesktopDisplayMode Error: %s\n", SDL_GetError());
+		SDL_Quit();
+	}
+
+	return window_create(display_mode.w, display_mode.h, title);
 }
 
 void window_grabCursor(SDL_Window *window, bool grab)
