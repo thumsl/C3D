@@ -6,6 +6,7 @@
 
 #include "../include/c3d.h"
 #include "../include/mesh.h"
+#include "../include/phongShader.h"
 
 void mesh_init(mesh *model)
 {
