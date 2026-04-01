@@ -3,6 +3,6 @@ main.c
 game
 *.out
 res/
-.*
 tags
 ./*/tags
+.cache/
