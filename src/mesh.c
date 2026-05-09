@@ -245,7 +245,7 @@ bool mesh_loadFromFileToList(const char *filename, const char *texturePath, link
 not have permission to open it.\n",
 			filename);
 		c3d_quit();
-		return false;
+		exit(EXIT_FAILURE);
 	}
 
 	for (int i = 0; i < scene->mNumMeshes; i++) {
@@ -269,7 +269,7 @@ mesh *mesh_loadFromFile(const char *filename, const char *texturePath)
 not have permission to open it.\n",
 			filename);
 		c3d_quit();
-		return NULL;
+		exit(EXIT_FAILURE);
 	}
 
 	for (int i = 0; i < scene->mNumMeshes; i++) {

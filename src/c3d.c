@@ -35,7 +35,6 @@ bool initOpenGL(void)
 void c3d_quit()
 {
 	SDL_Quit();
-	exit(EXIT_FAILURE);
 }
 
 C3D_Game *c3d_init(const char *title, int width, int height, int options)
@@ -49,6 +48,7 @@ C3D_Game *c3d_init(const char *title, int width, int height, int options)
 	if (!game) {
 		fprintf(stderr, "Failed to allocate memory for game\n");
 		c3d_quit();
+		exit(EXIT_FAILURE);
 	}
 
 	if (width <= 0 || height <= 0) {
@@ -64,12 +64,14 @@ C3D_Game *c3d_init(const char *title, int width, int height, int options)
 	if (!game->window) {
 		free(game);
 		c3d_quit();
+		exit(EXIT_FAILURE);
 	}
 
 	if (!initOpenGL()) {
 		//c3d_destroy_window(game->window); TODO
 		free(game);
 		c3d_quit();
+		exit(EXIT_FAILURE);
 	}
 
 	game->should_quit = false;
@@ -157,12 +159,15 @@ void c3d_process_input(C3D_Game *game)
 				game->window->width = event.window.data1;
 				game->window->height = event.window.data2;
 				glViewport(0, 0, game->window->width, game->window->height);
+				mat4x4_perspective(game->projection,
+					75.0f * 0.0174533f,
+					(float)game->window->width / (float)game->window->height,
+					0.001f, 1000.f);
 			}
 			break;
 		case SDL_KEYDOWN:
-			if (event.key.repeat)
-				c3d_key_events.is_pressed[event.key.keysym.scancode] = true;
-			c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_PRESSED);
+			if (!event.key.repeat)
+				c3d_dispatch_key_event(event.key.keysym.scancode, C3D_KEY_PRESSED);
 
 			switch (event.key.keysym.sym) {
 			case SDLK_w:

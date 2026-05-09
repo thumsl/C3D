@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
 	if (S == NULL) {
 		c3d_quit();
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	bool mouseGrab = true, mouseMoved = false;
