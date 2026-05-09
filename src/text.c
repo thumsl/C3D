@@ -85,13 +85,18 @@ void text_draw(text *T, shader *S, mat4x4 projection)
 	shader_use(S);
 
 	/* Text quads sit at z=0; under the engine's ortho they map to NDC
-	 * z=-1 (depth 0, the closest possible value). With GL_DEPTH_TEST
-	 * enabled globally, leaving depth-write on means text drawn before
-	 * the 3D scene would occlude every later fragment. Disable depth
-	 * writes for the duration of the text pass and restore the prior
-	 * state afterwards. */
+	 * z=-1 (depth 0, the closest possible value). Two problems if we
+	 * leave the depth state alone:
+	 *   - depth-write on => text drawn before the 3D scene clobbers the
+	 *     depth buffer to 0, occluding every later fragment
+	 *   - depth-test on without a write => text draws but later 3D
+	 *     fragments still win the test (cleared depth is 1.0) and cover
+	 *     the text
+	 * Disable both for the text pass and restore prior state afterwards. */
 	GLboolean prev_depth_mask;
+	GLboolean prev_depth_test = glIsEnabled(GL_DEPTH_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK, &prev_depth_mask);
+	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 
 	node *aux = T->modelList->head;
@@ -106,6 +111,8 @@ void text_draw(text *T, shader *S, mat4x4 projection)
 	}
 
 	glDepthMask(prev_depth_mask);
+	if (prev_depth_test)
+		glEnable(GL_DEPTH_TEST);
 }
 
 void text_update(text *T, const char *string)
