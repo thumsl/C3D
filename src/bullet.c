@@ -20,6 +20,13 @@ bullet *bullet_create(vec3 position, vec3 direction, bulletType *specs)
 	ret->model = malloc(sizeof(mesh));
 	memcpy(ret->model, ret->specs->model, sizeof(mesh));
 
+	if (ret->specs->model->hitbox != NULL) {
+		ret->model->hitbox = malloc(sizeof(boundingBox));
+		memcpy(ret->model->hitbox, ret->specs->model->hitbox, sizeof(boundingBox));
+	} else {
+		ret->model->hitbox = NULL;
+	}
+
 	mesh_translate(ret->model, position[0], position[1], position[2]);
 
 	return ret;
@@ -62,5 +69,10 @@ bool bullet_maxDistance(bullet *B)
 
 void bullet_destroy(bullet *B)
 {
-	free(B->model);
+	if (B == NULL) return;
+	if (B->model != NULL) {
+		free(B->model->hitbox);
+		free(B->model);
+	}
+	free(B);
 }

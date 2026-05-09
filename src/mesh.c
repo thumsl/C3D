@@ -409,17 +409,22 @@ void mesh_translate(mesh *model, float x, float y, float z)
 
 void mesh_translate_from_origin(mesh *model, float x, float y, float z)
 {
-	mat4x4_identity(model->matrices.translate);
-	mat4x4_translate(model->matrices.translate, x, y,
-			 z); // TODO: hitbox needs to be reset first
 	if (model->hitbox != NULL) {
-		model->hitbox->min[0] += x; // this doesnt work
-		model->hitbox->min[1] += y;
-		model->hitbox->min[2] += z;
-		model->hitbox->max[0] += x;
-		model->hitbox->max[1] += y;
-		model->hitbox->max[2] += z;
+		float prev_x = model->matrices.translate[3][0];
+		float prev_y = model->matrices.translate[3][1];
+		float prev_z = model->matrices.translate[3][2];
+		float dx = x - prev_x;
+		float dy = y - prev_y;
+		float dz = z - prev_z;
+		model->hitbox->min[0] += dx;
+		model->hitbox->min[1] += dy;
+		model->hitbox->min[2] += dz;
+		model->hitbox->max[0] += dx;
+		model->hitbox->max[1] += dy;
+		model->hitbox->max[2] += dz;
 	}
+	mat4x4_identity(model->matrices.translate);
+	mat4x4_translate(model->matrices.translate, x, y, z);
 }
 
 // TODO: Use quaternions?
