@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-terrain *terrain_genDiamondSquare(int size, float range, float factor, const char *texturePath)
+terrain *terrain_genDiamondSquare(int size, float range, float factor, int smoothing_passes, const char *texturePath)
 {
 	terrain *ret = malloc(sizeof(terrain));
 	ret->model = NULL;
@@ -42,6 +42,37 @@ terrain *terrain_genDiamondSquare(int size, float range, float factor, const cha
 					(access_2df_array(ret->heightMap, size, j, k + i) + access_2df_array(ret->heightMap, size, j + i, k + i) + e) / 3.0f +
 					randomValue(range);
 			}
+		}
+	}
+
+	// Post-smoothing: 3x3 box filter, edges clamped to the boundary value.
+	// Uses a temp buffer per pass so reads within a pass are not contaminated
+	// by writes from earlier cells in the same pass.
+	if (smoothing_passes > 0) {
+		int pass, r, c, dr, dc;
+		for (pass = 0; pass < smoothing_passes; pass++) {
+			float *tmp = malloc(sizeof(float) * size * size);
+			for (r = 0; r < size; r++) {
+				for (c = 0; c < size; c++) {
+					float sum = 0.0f;
+					for (dr = -1; dr <= 1; dr++) {
+						for (dc = -1; dc <= 1; dc++) {
+							int rr = r + dr;
+							int cc = c + dc;
+							if (rr < 0) rr = 0;
+							if (cc < 0) cc = 0;
+							if (rr > size - 1) rr = size - 1;
+							if (cc > size - 1) cc = size - 1;
+							sum += access_2df_array(ret->heightMap, size, rr, cc);
+						}
+					}
+					tmp[r * size + c] = sum / 9.0f;
+				}
+			}
+			for (r = 0; r < size; r++)
+				for (c = 0; c < size; c++)
+					access_2df_array(ret->heightMap, size, r, c) = tmp[r * size + c];
+			free(tmp);
 		}
 	}
 
