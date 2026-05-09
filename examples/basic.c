@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	// Generate a diamond-square heightmap as the ground. Size must be 2^n + 1.
 	// The terrain is rendered separately below; the player queries it for
 	// ground height via player_setTerrain.
-	terrain *ground = terrain_genDiamondSquare(129, 12.0f, 2.0f, 2, "res/textures/grass.jpg");
+	terrain *ground = terrain_genDiamondSquare(129, 12.0f, 2.0f, 1, "res/textures/grass.jpg");
 	player_setTerrain(mygame->player, ground);
 
 	linkedList *meshList = list_create();
