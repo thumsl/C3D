@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
 
 	SDL_WarpMouseInWindow(mygame->window->window, mygame->window->width / 2, mygame->window->height / 2);
 
+	pastTime = SDL_GetTicks();
 	while (mygame->should_quit == false) {
 		frames_passed++;
 		pastTime = currentTime;
@@ -133,9 +134,11 @@ int main(int argc, char *argv[])
 
 		c3d_process_input(mygame);
 
-		if (mygame->mouse1_pressed) {
+		static bool prev_mouse1 = false;
+		if (mygame->mouse1_pressed && !prev_mouse1) {
 			list_insert(bulletList, bullet_create(mygame->camera->eye, mygame->camera->direction, bulletSpecs));
 		}
+		prev_mouse1 = mygame->mouse1_pressed;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
