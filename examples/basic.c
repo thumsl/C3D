@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 	// instead of player_update below) for a free-flying camera.
 	// Spawn high enough to clear any diamond-square peak; gravity drops
 	// the player onto the terrain on the first few frames.
-	vec3 init_player_position = { 3.0f, 20.0f, -3.0f };      // feet position
+	vec3 init_player_position = { 3.0f, 40.0f, -3.0f };      // feet position; gravity drops onto terrain
 	mygame->player = player_init(init_player_position, 0.6f, 1.8f); // width, height
 	mygame->camera = camera_init(init_player_position, -0.14f, C3D_PI);
 	player_attachCamera(mygame->player, mygame->camera);     // overrides camera eye to head height
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	// Generate a diamond-square heightmap as the ground. Size must be 2^n + 1.
 	// The terrain is rendered separately below; the player queries it for
 	// ground height via player_setTerrain.
-	terrain *ground = terrain_genDiamondSquare(65, 5.0f, 1.0f, "res/textures/grass.jpg");
+	terrain *ground = terrain_genDiamondSquare(129, 12.0f, 1.0f, "res/textures/grass.jpg");
 	player_setTerrain(mygame->player, ground);
 
 	linkedList *meshList = list_create();
