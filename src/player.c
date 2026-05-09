@@ -104,24 +104,19 @@ void player_update(C3D_Player *P, level *L, double dt)
 		// camera->right is already horizontal (right[1] = 0 in camera_update_angle).
 		vec3 right = { P->camera->right[0], P->camera->right[1], P->camera->right[2] };
 
-		float factor = PLAYER_WALK_SPEED * dt_s;
+		// Sum the input axes first, then normalize so diagonal motion
+		// (W+D etc.) doesn't outpace cardinal motion. Without this the
+		// combined step length would be sqrt(2) * walk_speed * dt.
+		vec3 move_dir = { 0.0f, 0.0f, 0.0f };
+		if (M->forward)  vec3_add(move_dir, move_dir, forward);
+		if (M->backward) vec3_sub(move_dir, move_dir, forward);
+		if (M->right)    vec3_add(move_dir, move_dir, right);
+		if (M->left)     vec3_sub(move_dir, move_dir, right);
 
-		vec3 step;
-		if (M->forward) {
-			vec3_scale(step, forward, factor);
-			vec3_add(P->position, P->position, step);
-		}
-		if (M->backward) {
-			vec3_scale(step, forward, factor);
-			vec3_sub(P->position, P->position, step);
-		}
-		if (M->right) {
-			vec3_scale(step, right, factor);
-			vec3_add(P->position, P->position, step);
-		}
-		if (M->left) {
-			vec3_scale(step, right, factor);
-			vec3_sub(P->position, P->position, step);
+		float move_len = vec3_len(move_dir);
+		if (move_len > 1e-6f) {
+			vec3_scale(move_dir, move_dir, (PLAYER_WALK_SPEED * dt_s) / move_len);
+			vec3_add(P->position, P->position, move_dir);
 		}
 	}
 
