@@ -6,6 +6,7 @@ linkedList *list_create()
 	linkedList *list = malloc(sizeof(linkedList));
 	list->head = NULL;
 	list->tail = NULL;
+	return list;
 }
 
 void list_insert(linkedList *list, void *data)
