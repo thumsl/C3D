@@ -99,10 +99,10 @@ level *level_loadMeshes(const char *path, const char *texture_path)
 
 	unsigned int i, row, delta;
 	for (i = 0, row = 1, delta = 1; i < 3 * map->w * map->h; i += 3, row++) {
-		int x = ((char *)map->pixels)[i] | ((char *)map->pixels)[i + 1] << 8 | ((char *)map->pixels)[i + 2] << 16;
+		int x = ((unsigned char *)map->pixels)[i] | ((unsigned char *)map->pixels)[i + 1] << 8 | ((unsigned char *)map->pixels)[i + 2] << 16;
 
 		if (x == WALL && (row + 1) < ret->size) {
-			int next = ((char *)map->pixels)[i + 3] | ((char *)map->pixels)[i + 4] << 8 | ((char *)map->pixels)[i + 5] << 16;
+			int next = ((unsigned char *)map->pixels)[i + 3] | ((unsigned char *)map->pixels)[i + 4] << 8 | ((unsigned char *)map->pixels)[i + 5] << 16;
 			if (next == WALL)
 				delta++;
 			else {
