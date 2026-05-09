@@ -33,7 +33,7 @@ C3D_Game *c3d_init(const char *title, int width, int height, int options)
 		return NULL;
 	}
 
-	C3D_Game *game = malloc(sizeof(C3D_Game));
+	C3D_Game *game = calloc(1, sizeof(C3D_Game));
 	if (!game) {
 		fprintf(stderr, "Failed to allocate memory for game\n");
 		c3d_quit();
