@@ -37,8 +37,20 @@ typedef struct {
 
 C3D_Player *player_init(vec3 position, float w, float h);
 void player_setPosition(C3D_Player *P, vec3 position);
+
+// Attach the camera the player should drive. Must be called before
+// player_update; without an attached camera, player_update is a no-op
+// (the camera supplies the facing direction used to translate WASD
+// into world-space motion).
 void player_attachCamera(C3D_Player *P, C3D_Camera *C);
+
+// Advance the player one frame. dt is in MILLISECONDS, matching the
+// frameTime convention used elsewhere in the engine. Pass L = NULL to
+// disable gravity and ground collision (e.g. for menus, free-cam, or
+// any scene without a level); pass a level to enable physics.
 void player_update(C3D_Player *P, level *L, double dt);
+
+// Apply a jump impulse. No-op unless the player is currently grounded.
 void player_jump(C3D_Player *P);
 
 // TODO: destroy Player
