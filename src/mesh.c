@@ -213,6 +213,7 @@ not have permission to open it.\n",
 		mesh_genHitboxMeshData(model);
 		return model;
 	}
+	return NULL;
 }
 
 mesh *mesh_genFlatFloor(int size, const char *texturePath)

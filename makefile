@@ -15,7 +15,7 @@ else
 	GL_LIBS = -lGL
 endif
 
-CFLAGS = -Wall -Iinclude $(PKG_CFLAGS)
+CFLAGS = -Wall -Wno-unused-function -Wno-unused-variable -Iinclude $(PKG_CFLAGS)
 LIBS = $(PKG_LIBS) $(GL_LIBS) -lm
 SRCS = main.c $(wildcard src/*.c)
 OBJS = $(SRCS:.c=.o)
