@@ -5,9 +5,9 @@
 #include "linmath.h"
 #include <time.h>
 
-#define access_2df_array(a, size, i, j) ((*((float *)a + (i) * size + (j))))
+#define access_2df_array(a, size, i, j) ((*((float *)(a) + (i) * (size) + (j))))
 #define setRandSeed() srand(time(NULL))
-#define randomValue(i) (rand() / ((float)RAND_MAX / (i) + 1.0f))
+#define randomValue(i) (((float)rand() / (float)RAND_MAX - 0.5f) * (i))
 #define toRadian(i) ((i) * 0.0174533f)
 
 int readfile(char **s, const char *filename);
