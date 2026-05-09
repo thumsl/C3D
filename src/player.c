@@ -8,9 +8,9 @@
 
 // All physics in SI-ish units: meters, seconds, m/s, m/s^2.
 // PLAYER_WALK_SPEED was 0.05 units/ms; the equivalent is 50.0 units/sec.
-static const float PLAYER_WALK_SPEED  = 50.0f;       // units/sec
-static const float PLAYER_GRAVITY     = -25.0f;      // units/sec^2 (y is up)
-static const float PLAYER_JUMP_VEL    = 9.0f;        // units/sec
+static const float PLAYER_WALK_SPEED  = 6.0f;        // units/sec (~22 km/h, fast jog)
+static const float PLAYER_GRAVITY     = -20.0f;      // units/sec^2 (y is up; slightly stronger than Earth for snappier jumps)
+static const float PLAYER_JUMP_VEL    = 6.0f;        // units/sec (apex ~0.9 m against above gravity)
 static const float PLAYER_STEP_HEIGHT = 0.4f;        // units; max snap-up tolerance
 // Cap a single physics step. After an alt-tab/breakpoint stall, an
 // unbounded dt would integrate gravity into a multi-unit drop in one

@@ -9,7 +9,7 @@
 
 #define SPEED 0.05
 
-#define FOV 120.0f * 0.0174533f
+#define FOV 75.0f * 0.0174533f
 
 #define UPDATE_FPS_THRESHOLD 200
 
