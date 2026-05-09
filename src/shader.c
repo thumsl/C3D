@@ -33,6 +33,7 @@ shader *shader_loadFromFile(const char *vs, const char *fs, shaderType type)
 
 	if (!readfile(&fragmentSource, fs)) {
 		fprintf(stderr, "Failed to open file %s\n", fs);
+		free(vertexSource);
 		return NULL;
 	}
 
@@ -61,8 +62,13 @@ shader *shader_loadFromFile(const char *vs, const char *fs, shaderType type)
 		fprintf(stderr, "%s", buffer);
 	}
 
-	if (status1 != GL_TRUE || status2 != GL_TRUE)
+	if (status1 != GL_TRUE || status2 != GL_TRUE) {
+		free(vertexSource);
+		free(fragmentSource);
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
 		return NULL;
+	}
 
 	/** ---------------------------- **/
 
@@ -75,9 +81,29 @@ shader *shader_loadFromFile(const char *vs, const char *fs, shaderType type)
 	glAttachShader(S->program, fragmentShader);
 	glLinkProgram(S->program);
 
+	GLint link_status;
+	glGetProgramiv(S->program, GL_LINK_STATUS, &link_status);
+	if (link_status != GL_TRUE) {
+		char buffer[512];
+		glGetProgramInfoLog(S->program, 512, NULL, buffer);
+		fprintf(stderr, "Shader program link failed: %s\n", buffer);
+		glDeleteProgram(S->program);
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+		free(vertexSource);
+		free(fragmentSource);
+		free(S);
+		return NULL;
+	}
+
 	shader_use(S);
 
 	shader_getUniformLocations(S);
+
+	free(vertexSource);
+	free(fragmentSource);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 	return S;
 }
