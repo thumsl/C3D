@@ -94,10 +94,44 @@ terrain *terrain_genDiamondSquare(int size, float range, float factor, int smoot
 			vertices[k + 2] = -(float)j;
 			vertices[k + 3] = (float)((int)j % 2);
 			vertices[k + 4] = (float)((int)i % 2);
-			vertices[k + 5] = 0;
-			vertices[k + 6] = 1;
-			vertices[k + 7] = 0;
-			// TODO: fix normals
+
+			// Per-vertex normal from height gradient (central differences,
+			// one-sided at edges). Surface tangents are (1, dh_di, 0) and
+			// (0, dh_dj, -1); their cross product is (-dh_di, 1, dh_dj).
+			float dh_di, dh_dj;
+			if (i == 0)
+				dh_di = access_2df_array(ret->heightMap, ret->size, 1, j) -
+					access_2df_array(ret->heightMap, ret->size, 0, j);
+			else if (i == ret->size - 1)
+				dh_di = access_2df_array(ret->heightMap, ret->size, ret->size - 1, j) -
+					access_2df_array(ret->heightMap, ret->size, ret->size - 2, j);
+			else
+				dh_di = (access_2df_array(ret->heightMap, ret->size, i + 1, j) -
+					access_2df_array(ret->heightMap, ret->size, i - 1, j)) / 2.0f;
+
+			if (j == 0)
+				dh_dj = access_2df_array(ret->heightMap, ret->size, i, 1) -
+					access_2df_array(ret->heightMap, ret->size, i, 0);
+			else if (j == ret->size - 1)
+				dh_dj = access_2df_array(ret->heightMap, ret->size, i, ret->size - 1) -
+					access_2df_array(ret->heightMap, ret->size, i, ret->size - 2);
+			else
+				dh_dj = (access_2df_array(ret->heightMap, ret->size, i, j + 1) -
+					access_2df_array(ret->heightMap, ret->size, i, j - 1)) / 2.0f;
+
+			float nx = -dh_di;
+			float ny = 1.0f;
+			float nz = dh_dj;
+			float len = sqrtf(nx * nx + ny * ny + nz * nz);
+			if (len < 1e-8f) {
+				vertices[k + 5] = 0.0f;
+				vertices[k + 6] = 1.0f;
+				vertices[k + 7] = 0.0f;
+			} else {
+				vertices[k + 5] = nx / len;
+				vertices[k + 6] = ny / len;
+				vertices[k + 7] = nz / len;
+			}
 		}
 
 	for (i = 0, k = 0; i < ret->size - 1; i++) {
