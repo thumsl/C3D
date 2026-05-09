@@ -11,6 +11,12 @@ static const float PLAYER_WALK_SPEED  = 50.0f;       // units/sec
 static const float PLAYER_GRAVITY     = -25.0f;      // units/sec^2 (y is up)
 static const float PLAYER_JUMP_VEL    = 9.0f;        // units/sec
 static const float PLAYER_STEP_HEIGHT = 0.4f;        // units; max snap-up tolerance
+// Cap a single physics step. After an alt-tab/breakpoint stall, an
+// unbounded dt would integrate gravity into a multi-unit drop in one
+// frame, tunneling past the ground (which the snap query cannot recover
+// from once max_y has fallen below every surface). 50ms keeps the
+// per-step fall well under PLAYER_STEP_HEIGHT.
+static const float PLAYER_MAX_DT_S    = 0.05f;       // seconds
 
 C3D_Player *player_init(vec3 position, float width, float height)
 {
@@ -72,8 +78,10 @@ void player_update(C3D_Player *P, level *L, double dt)
 		return;
 
 	// Caller passes dt in milliseconds (existing main.c convention).
-	// All physics below is in seconds.
+	// All physics below is in seconds, clamped to PLAYER_MAX_DT_S.
 	float dt_s = (float)(dt * 0.001);
+	if (dt_s > PLAYER_MAX_DT_S)
+		dt_s = PLAYER_MAX_DT_S;
 
 	C3D_Movement *M = &P->movement;
 
