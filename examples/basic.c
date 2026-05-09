@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
 	if (S == NULL) {
 		c3d_quit();
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	bool mouseGrab = true, mouseMoved = false;
@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
 
 	SDL_WarpMouseInWindow(mygame->window->window, mygame->window->width / 2, mygame->window->height / 2);
 
+	pastTime = SDL_GetTicks();
 	while (mygame->should_quit == false) {
 		frames_passed++;
 		pastTime = currentTime;
@@ -133,9 +134,11 @@ int main(int argc, char *argv[])
 
 		c3d_process_input(mygame);
 
-		if (mygame->mouse1_pressed) {
+		static bool prev_mouse1 = false;
+		if (mygame->mouse1_pressed && !prev_mouse1) {
 			list_insert(bulletList, bullet_create(mygame->camera->eye, mygame->camera->direction, bulletSpecs));
 		}
+		prev_mouse1 = mygame->mouse1_pressed;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -149,10 +152,6 @@ int main(int argc, char *argv[])
 		// for the level to disable physics (menus, free-cam scenes).
 		player_update(mygame->player, mainLevel, frameTime);
 		camera_update(mygame->camera);
-
-		if (show_fps)
-			text_draw(fps_counter_label, textShader, mygame->ortho);
-		text_draw(text_msg, textShader, mygame->ortho);
 
 		mesh_draw(ground->model, S, mygame->camera, mygame->projection);
 		mesh_drawList(mainLevel->meshList, S, mygame->camera, mygame->projection);
@@ -171,6 +170,11 @@ int main(int argc, char *argv[])
 			bullet_updatePosition(b, frameTime);
 			current_node = current_node->next;
 		}
+
+		// Text/HUD goes last so it sits on top of the 3D scene.
+		if (show_fps)
+			text_draw(fps_counter_label, textShader, mygame->ortho);
+		text_draw(text_msg, textShader, mygame->ortho);
 
 		SDL_GL_SwapWindow(mygame->window->window);
 		SDL_Delay(1);

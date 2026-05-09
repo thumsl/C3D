@@ -23,20 +23,16 @@ SDL_Window *window_init(int width, int height, const char *title)
 
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
-	SDL_ShowCursor(SDL_DISABLE);
-	SDL_SetWindowResizable(window, SDL_TRUE);
-	SDL_SetWindowGrab(window, SDL_TRUE);
-	SDL_WarpMouseInWindow(window, width / 2, height / 2);
-
 	if (window == NULL) {
 		fprintf(stderr, "Could not create window: %s\n", SDL_GetError());
 		SDL_Quit();
 		return NULL;
 	}
 
-	SDL_GLContext context = SDL_GL_CreateContext(window);
-	// TODO: destroy context on fail / on program ending
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	SDL_ShowCursor(SDL_DISABLE);
+	SDL_SetWindowResizable(window, SDL_TRUE);
+	SDL_SetWindowGrab(window, SDL_TRUE);
+	SDL_WarpMouseInWindow(window, width / 2, height / 2);
 
 	return window;
 }
@@ -72,6 +68,7 @@ C3D_Window *window_create_fullsize(const char *title)
 	if (SDL_GetDesktopDisplayMode(0, &display_mode) != 0) {
 		printf("SDL_GetDesktopDisplayMode Error: %s\n", SDL_GetError());
 		SDL_Quit();
+		return NULL;
 	}
 
 	return window_create(display_mode.w, display_mode.h, title);

@@ -41,12 +41,11 @@ typedef struct {
 typedef struct {
 	C3D_key_callback on_press[C3D_MAX_KEYBOARD_KEYS];
 	C3D_key_callback on_release[C3D_MAX_KEYBOARD_KEYS];
-	bool is_pressed[C3D_MAX_KEYBOARD_KEYS];
 	void *userdata;
 } C3D_Key_Event_Callbacks;
 
 C3D_Game *c3d_init(const char *title, int width, int height, int options);
-bool initOpenGL();
+bool initOpenGL(void);
 void c3d_quit();
 void c3d_process_input(C3D_Game *game);
 void c3d_set_key_callback(int key, C3D_Key_State state, C3D_key_callback callback);

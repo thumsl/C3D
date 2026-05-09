@@ -24,12 +24,25 @@ int readfile(char **s, const char *filename)
 	if (stat(filename, &st) == -1)
 		return 0;
 
+	FILE *f = fopen(filename, "rb");
+	if (f == NULL)
+		return 0;
+
 	*s = malloc(st.st_size + 2);
+	if (*s == NULL) {
+		fclose(f);
+		return 0;
+	}
 	memset(*s, 0, st.st_size + 2); // \0
 
-	FILE *f;
-	f = fopen(filename, "rb");
-	fread(*s, 1, st.st_size, f);
+	size_t n = fread(*s, 1, st.st_size, f);
+	fclose(f);
+
+	if (n != (size_t)st.st_size) {
+		free(*s);
+		*s = NULL;
+		return 0;
+	}
 
 	return 1;
 }
