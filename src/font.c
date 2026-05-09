@@ -15,7 +15,7 @@ font *font_load(unsigned int width, unsigned int height, const char *path)
 	ret->char_height = height;
 	ret->w = tex->w;
 	ret->h = tex->h;
-	ret->path = malloc(strlen(path) * sizeof(char));
+	ret->path = malloc(strlen(path) + 1);
 	strcpy(ret->path, path);
 
 	glGenTextures(1, &(ret->textureID));
