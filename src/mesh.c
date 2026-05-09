@@ -1,6 +1,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <unistd.h>
 
@@ -62,6 +63,18 @@ void mesh_textureFromFile(mesh *model, const char *texturePath)
 		fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
 		return;
 	}
+
+	// SDL surfaces are top-down; OpenGL textures are bottom-up. Flip rows in place.
+	char *pixels = (char *)image->pixels;
+	char *tmp = malloc(image->pitch);
+	for (int y = 0; y < image->h / 2; y++) {
+		char *row1 = pixels + y * image->pitch;
+		char *row2 = pixels + (image->h - 1 - y) * image->pitch;
+		memcpy(tmp, row1, image->pitch);
+		memcpy(row1, row2, image->pitch);
+		memcpy(row2, tmp, image->pitch);
+	}
+	free(tmp);
 
 	//glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
