@@ -205,6 +205,12 @@ void c3d_process_input(C3D_Game *game)
 			break;
 		}
 	}
+
+	// If a player is attached, mirror the engine's movement state into it
+	// so the user doesn't have to copy it by hand each frame.
+	if (game->player != NULL) {
+		game->player->movement = *game->movement;
+	}
 }
 
 void c3d_toggle_grab_cursor(C3D_Game *game)
