@@ -1,11 +1,16 @@
 #include "../include/player.h"
 #include "../include/camera.h"
+#include "../include/level.h"
 #include "../include/utils.h"
+#include <math.h>
 #include <stdlib.h>
 
-// Walk speed in world units per millisecond. Matches the previous
-// camera-driven movement (SPEED=0.05 units * frameTime ms in main.c).
-static const float PLAYER_WALK_SPEED = 0.05f;
+// All physics in SI-ish units: meters, seconds, m/s, m/s^2.
+// PLAYER_WALK_SPEED was 0.05 units/ms; the equivalent is 50.0 units/sec.
+static const float PLAYER_WALK_SPEED  = 50.0f;       // units/sec
+static const float PLAYER_GRAVITY     = -25.0f;      // units/sec^2 (y is up)
+static const float PLAYER_JUMP_VEL    = 9.0f;        // units/sec
+static const float PLAYER_STEP_HEIGHT = 0.4f;        // units; max snap-up tolerance
 
 C3D_Player *player_init(vec3 position, float width, float height)
 {
@@ -61,10 +66,14 @@ void player_attachCamera(C3D_Player *P, C3D_Camera *C)
 	P->camera->eye[2] = P->position[2];
 }
 
-void player_update(C3D_Player *P, double dt)
+void player_update(C3D_Player *P, level *L, double dt)
 {
 	if (P->camera == NULL)
 		return;
+
+	// Caller passes dt in milliseconds (existing main.c convention).
+	// All physics below is in seconds.
+	float dt_s = (float)(dt * 0.001);
 
 	C3D_Movement *M = &P->movement;
 
@@ -79,7 +88,7 @@ void player_update(C3D_Player *P, double dt)
 		// camera->right is already horizontal (right[1] = 0 in camera_update_angle).
 		vec3 right = { P->camera->right[0], P->camera->right[1], P->camera->right[2] };
 
-		float factor = PLAYER_WALK_SPEED * (float)dt;
+		float factor = PLAYER_WALK_SPEED * dt_s;
 
 		vec3 step;
 		if (M->forward) {
@@ -100,6 +109,27 @@ void player_update(C3D_Player *P, double dt)
 		}
 	}
 
+	// Gravity + ground snap. When L is NULL we have no collision world
+	// yet, so skip gravity entirely (matches Phase 1 floating behavior).
+	if (L != NULL) {
+		P->velocity[1] += PLAYER_GRAVITY * dt_s;
+		P->position[1] += P->velocity[1] * dt_s;
+
+		float ground_y = level_groundHeightAt(L, P->position[0], P->position[2],
+						      P->position[1] + PLAYER_STEP_HEIGHT);
+
+		if (ground_y == -INFINITY) {
+			// No support beneath the player — keep falling.
+			P->grounded = false;
+		} else if (P->position[1] < ground_y) {
+			P->position[1] = ground_y;
+			P->velocity[1] = 0.0f;
+			P->grounded = true;
+		} else {
+			P->grounded = false;
+		}
+	}
+
 	// Refresh the hitbox to match the new feet position.
 	player_setPosition(P, P->position);
 
@@ -108,4 +138,12 @@ void player_update(C3D_Player *P, double dt)
 	P->camera->eye[0] = P->position[0];
 	P->camera->eye[1] = P->position[1] + P->height;
 	P->camera->eye[2] = P->position[2];
+}
+
+void player_jump(C3D_Player *P)
+{
+	if (P->grounded) {
+		P->velocity[1] = PLAYER_JUMP_VEL;
+		P->grounded = false;
+	}
 }

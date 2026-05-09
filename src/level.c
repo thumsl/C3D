@@ -2,6 +2,7 @@
 #include "../include/c3d.h"
 #include "../include/mesh.h"
 #include <SDL2/SDL_image.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -137,4 +138,27 @@ level *level_loadMeshes(const char *path, const char *texture_path)
 	SDL_FreeSurface(map);
 
 	return ret;
+}
+
+float level_groundHeightAt(level *L, float x, float z, float max_y)
+{
+	if (L == NULL || L->meshList == NULL)
+		return -INFINITY;
+
+	float best = -INFINITY;
+	node *n = L->meshList->head;
+	while (n) {
+		mesh *m = (mesh *)n->data;
+		if (m != NULL && m->hitbox != NULL) {
+			boundingBox *hb = m->hitbox;
+			if (x >= hb->min[0] && x <= hb->max[0] &&
+			    z >= hb->min[2] && z <= hb->max[2]) {
+				float top = hb->max[1];
+				if (top <= max_y && top > best)
+					best = top;
+			}
+		}
+		n = n->next;
+	}
+	return best;
 }

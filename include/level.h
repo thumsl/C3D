@@ -14,4 +14,10 @@ typedef struct level {
 
 level *level_loadMeshes(const char *path, const char *texture_path);
 
+// Returns the highest standable surface Y under (x, z) whose top is at most
+// max_y, or -INFINITY if no mesh covers (x, z) within that ceiling.
+// max_y lets the caller exclude obvious wall-tops above its current step
+// height — without it, the player would teleport onto roofs.
+float level_groundHeightAt(level *L, float x, float z, float max_y);
+
 #endif // LEVEL_H

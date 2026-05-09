@@ -12,6 +12,10 @@ typedef struct boundingBox boundingBox;
 // pointer, so the full definition isn't required at this point.
 typedef struct camera C3D_Camera;
 
+// Forward-declare level to avoid pulling in level.h (and therefore list.h)
+// from this header. Only a pointer is needed at the API surface.
+typedef struct level level;
+
 typedef struct movement {
 	bool forward;
 	bool backward;
@@ -34,7 +38,8 @@ typedef struct {
 C3D_Player *player_init(vec3 position, float w, float h);
 void player_setPosition(C3D_Player *P, vec3 position);
 void player_attachCamera(C3D_Player *P, C3D_Camera *C);
-void player_update(C3D_Player *P, double dt);
+void player_update(C3D_Player *P, level *L, double dt);
+void player_jump(C3D_Player *P);
 
 // TODO: destroy Player
 #endif
