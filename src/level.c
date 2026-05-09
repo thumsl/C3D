@@ -65,9 +65,9 @@ mesh *genVertices(int z, int x, int x_lenght, int z_lenght, GLuint *indices, con
 	return model;
 }
 
-static bool pixel_is_wall(const unsigned char *pixels, int size, int r, int c)
+static bool pixel_is_wall(const unsigned char *pixels, int pitch, int r, int c)
 {
-	int idx = (r * size + c) * 3;
+	int idx = r * pitch + c * 3;
 	int rgb = pixels[idx] | (pixels[idx + 1] << 8) | (pixels[idx + 2] << 16);
 	return rgb == WALL;
 }
@@ -77,15 +77,29 @@ level *level_loadMeshes(const char *path, const char *texture_path)
 	SDL_Surface *map = IMG_Load(path);
 
 	if (map == NULL) {
-		// TODO: IMG_Load return on fail is not null?
 		fprintf(stderr, "Failed to load level %s\n", path);
 		return NULL;
 	}
+
+	if (map->w != map->h) {
+		fprintf(stderr, "Level map %s must be square (%dx%d)\n", path, map->w, map->h);
+		SDL_FreeSurface(map);
+		return NULL;
+	}
+
+	SDL_Surface *converted = SDL_ConvertSurfaceFormat(map, SDL_PIXELFORMAT_RGB24, 0);
+	SDL_FreeSurface(map);
+	if (converted == NULL) {
+		fprintf(stderr, "Failed to convert level surface: %s\n", SDL_GetError());
+		return NULL;
+	}
+	map = converted;
 
 	level *ret = malloc(sizeof(level));
 	ret->size = map->w;
 	ret->meshList = list_create();
 	int size = (int)ret->size;
+	int pitch = map->pitch;
 	const unsigned char *pixels = (const unsigned char *)map->pixels;
 
 	GLuint indices[] = {  0,  1,  3,   1,  2,  3,    // +X face
@@ -103,7 +117,7 @@ level *level_loadMeshes(const char *path, const char *texture_path)
 	for (int r = 0; r < size; r++) {
 		int run_start = -1;
 		for (int c = 0; c <= size; c++) {
-			bool is_wall = (c < size) && pixel_is_wall(pixels, size, r, c);
+			bool is_wall = (c < size) && pixel_is_wall(pixels, pitch, r, c);
 			if (is_wall && run_start < 0)
 				run_start = c;
 			else if (!is_wall && run_start >= 0) {
@@ -123,7 +137,7 @@ level *level_loadMeshes(const char *path, const char *texture_path)
 	for (int c = 0; c < size; c++) {
 		int run_start = -1;
 		for (int r = 0; r <= size; r++) {
-			bool eligible = (r < size) && !visited[r * size + c] && pixel_is_wall(pixels, size, r, c);
+			bool eligible = (r < size) && !visited[r * size + c] && pixel_is_wall(pixels, pitch, r, c);
 			if (eligible && run_start < 0)
 				run_start = r;
 			else if (!eligible && run_start >= 0) {
