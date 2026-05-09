@@ -15,7 +15,7 @@ C3D_TextureQuality c3d_get_texture_quality(void)
 	return g_texture_quality;
 }
 
-bool initOpenGL()
+bool initOpenGL(void)
 {
 	glewExperimental = GL_TRUE;
 	GLenum status = glewInit();

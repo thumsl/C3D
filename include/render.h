@@ -1,6 +1,8 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-int initOpenGL();
+#include <stdbool.h>
+
+bool initOpenGL(void);
 
 #endif // RENDER_H
