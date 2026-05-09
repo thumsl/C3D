@@ -10,8 +10,12 @@
 // PLAYER_WALK_SPEED was 0.05 units/ms; the equivalent is 50.0 units/sec.
 static const float PLAYER_WALK_SPEED  = 6.0f;        // units/sec (~22 km/h, fast jog)
 static const float PLAYER_GRAVITY     = -20.0f;      // units/sec^2 (y is up; slightly stronger than Earth for snappier jumps)
-static const float PLAYER_JUMP_VEL    = 6.0f;        // units/sec (apex ~0.9 m against above gravity)
+static const float PLAYER_JUMP_VEL    = 6.0f;        // units/sec default (apex ~0.9 m against above gravity)
 static const float PLAYER_STEP_HEIGHT = 0.4f;        // units; max snap-up tolerance
+// Window in which an air-press jump is remembered and replayed on landing.
+// Without this, a tap that arrives a frame or two before touchdown is lost,
+// which is what users perceive as "not all my jumps register."
+static const float PLAYER_JUMP_BUFFER_S = 0.15f;     // seconds
 // Cap a single physics step. After an alt-tab/breakpoint stall, an
 // unbounded dt would integrate gravity into a multi-unit drop in one
 // frame, tunneling past the ground (which the snap query cannot recover
@@ -30,6 +34,8 @@ C3D_Player *player_init(vec3 position, float width, float height)
 	P->velocity[0] = 0.0f;
 	P->velocity[1] = 0.0f;
 	P->velocity[2] = 0.0f;
+	P->jump_velocity = PLAYER_JUMP_VEL;
+	P->jump_buffer_s = 0.0f;
 	P->grounded = false;
 	P->camera = NULL;
 	P->terrain = NULL;
@@ -150,6 +156,19 @@ void player_update(C3D_Player *P, level *L, double dt)
 		} else {
 			P->grounded = false;
 		}
+
+		// Consume a buffered jump on landing. player_jump arms the buffer
+		// when called mid-air; if the player touches ground before the
+		// window expires, replay the impulse here so the press isn't lost.
+		if (P->grounded && P->jump_buffer_s > 0.0f) {
+			P->velocity[1] = P->jump_velocity;
+			P->grounded = false;
+			P->jump_buffer_s = 0.0f;
+		} else if (P->jump_buffer_s > 0.0f) {
+			P->jump_buffer_s -= dt_s;
+			if (P->jump_buffer_s < 0.0f)
+				P->jump_buffer_s = 0.0f;
+		}
 	}
 
 	// Refresh the hitbox to match the new feet position.
@@ -165,9 +184,19 @@ void player_update(C3D_Player *P, level *L, double dt)
 void player_jump(C3D_Player *P)
 {
 	if (P->grounded) {
-		P->velocity[1] = PLAYER_JUMP_VEL;
+		P->velocity[1] = P->jump_velocity;
 		P->grounded = false;
+		P->jump_buffer_s = 0.0f;
+	} else {
+		// Mid-air press: arm the buffer so player_update can replay the
+		// impulse the moment the player next becomes grounded.
+		P->jump_buffer_s = PLAYER_JUMP_BUFFER_S;
 	}
+}
+
+void player_setJumpVelocity(C3D_Player *P, float vel)
+{
+	P->jump_velocity = vel;
 }
 
 void player_setTerrain(C3D_Player *P, terrain *T)

@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
 	// the player onto the terrain on the first few frames.
 	vec3 init_player_position = { 3.0f, 40.0f, -3.0f };      // feet position; gravity drops onto terrain
 	mygame->player = player_init(init_player_position, 0.6f, 1.8f); // width, height
+	player_setJumpVelocity(mygame->player, 9.0f);            // ~2 m apex against player.c gravity
 	mygame->camera = camera_init(init_player_position, -0.14f, C3D_PI);
 	player_attachCamera(mygame->player, mygame->camera);     // overrides camera eye to head height
 
