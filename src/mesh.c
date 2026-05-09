@@ -28,6 +28,30 @@ void mesh_init(mesh *model)
 
 void mesh_loadToVAO(mesh *model, GLfloat *vertices, GLuint *indices)
 {
+	// Compute the AABB from the vertex array (8 floats per vertex:
+	// pos(3) + uv(2) + normal(3)). Without this, level_groundHeightAt
+	// has nothing to query against and the player falls through the world.
+	if (model->hitbox == NULL && model->vertexCount > 0) {
+		model->hitbox = malloc(sizeof(boundingBox));
+		model->hitbox->min[0] = INFINITY;
+		model->hitbox->min[1] = INFINITY;
+		model->hitbox->min[2] = INFINITY;
+		model->hitbox->max[0] = -INFINITY;
+		model->hitbox->max[1] = -INFINITY;
+		model->hitbox->max[2] = -INFINITY;
+		for (unsigned int i = 0; i < model->vertexCount; i++) {
+			float x = vertices[i * 8 + 0];
+			float y = vertices[i * 8 + 1];
+			float z = vertices[i * 8 + 2];
+			if (x < model->hitbox->min[0]) model->hitbox->min[0] = x;
+			if (y < model->hitbox->min[1]) model->hitbox->min[1] = y;
+			if (z < model->hitbox->min[2]) model->hitbox->min[2] = z;
+			if (x > model->hitbox->max[0]) model->hitbox->max[0] = x;
+			if (y > model->hitbox->max[1]) model->hitbox->max[1] = y;
+			if (z > model->hitbox->max[2]) model->hitbox->max[2] = z;
+		}
+	}
+
 	glBindVertexArray(model->VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
