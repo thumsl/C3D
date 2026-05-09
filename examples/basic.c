@@ -153,10 +153,6 @@ int main(int argc, char *argv[])
 		player_update(mygame->player, mainLevel, frameTime);
 		camera_update(mygame->camera);
 
-		if (show_fps)
-			text_draw(fps_counter_label, textShader, mygame->ortho);
-		text_draw(text_msg, textShader, mygame->ortho);
-
 		mesh_draw(ground->model, S, mygame->camera, mygame->projection);
 		mesh_drawList(mainLevel->meshList, S, mygame->camera, mygame->projection);
 		mesh_drawList(meshList, S, mygame->camera, mygame->projection);
@@ -174,6 +170,11 @@ int main(int argc, char *argv[])
 			bullet_updatePosition(b, frameTime);
 			current_node = current_node->next;
 		}
+
+		// Text/HUD goes last so it sits on top of the 3D scene.
+		if (show_fps)
+			text_draw(fps_counter_label, textShader, mygame->ortho);
+		text_draw(text_msg, textShader, mygame->ortho);
 
 		SDL_GL_SwapWindow(mygame->window->window);
 		SDL_Delay(1);
