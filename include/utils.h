@@ -7,8 +7,8 @@
 
 #define access_2df_array(a, size, i, j) ((*((float *)a + (i) * size + (j))))
 #define setRandSeed() srand(time(NULL))
-#define randomValue(i) (rand() / (RAND_MAX / i + 1))
-#define toRadian(i) (i * 0.0174533f)
+#define randomValue(i) (rand() / ((float)RAND_MAX / (i) + 1.0f))
+#define toRadian(i) ((i) * 0.0174533f)
 
 int readfile(char **s, const char *filename);
 

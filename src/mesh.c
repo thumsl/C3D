@@ -138,7 +138,7 @@ static void mesh_setData(struct aiMesh *loadedMesh, mesh *model)
 
 static void mesh_setMaterialData(struct aiMaterial *mat, mesh *model, const char *texturePath)
 {
-	int max = 1;
+	unsigned int max = 1;
 	float x;
 	if (aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &x, &max) == AI_SUCCESS)
 		model->mat.specularPower = x;
