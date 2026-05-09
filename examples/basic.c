@@ -3,6 +3,7 @@
 #include "include/camera.h"
 #include "include/level.h"
 #include "include/light.h"
+#include "include/player.h"
 #include "include/text.h"
 
 #define SPEED 0.05
@@ -31,11 +32,17 @@ void toggle_fps_display(void *data)
 	show_fps = !show_fps;
 }
 
+void jump(void *data)
+{
+	player_jump(mygame->player);
+}
+
 void configure_inputs()
 {
 	c3d_set_key_callback(SDL_SCANCODE_Q, C3D_KEY_PRESSED, close_game); // Q to quit
 	c3d_set_key_callback(SDL_SCANCODE_ESCAPE, C3D_KEY_PRESSED, toggle_grab_cursor); // Escape to toggle mouse grab
 	c3d_set_key_callback(SDL_SCANCODE_F, C3D_KEY_PRESSED, toggle_fps_display); // F to toggle FPS display
+	c3d_set_key_callback(SDL_SCANCODE_SPACE, C3D_KEY_PRESSED, jump); // Space to jump
 }
 
 int main(int argc, char *argv[])
@@ -57,8 +64,10 @@ int main(int argc, char *argv[])
 	int mouse_x = mygame->window->width / 2, mouse_y = mygame->window->width / 2, pastTime = 0, currentTime = 0, frameTime = 0, frames_passed = 0,
 	    initial_frame = 0;
 
-	vec3 init_cam_position = { 3, 0.5f, -3.0f };
-	mygame->camera = camera_init(init_cam_position, -0.14f, C3D_PI);
+	vec3 init_player_position = { 3.0f, 0.0f, -3.0f };
+	mygame->player = player_init(init_player_position, 0.6f, 1.8f);
+	mygame->camera = camera_init(init_player_position, -0.14f, C3D_PI);
+	player_attachCamera(mygame->player, mygame->camera);
 
 	mat4x4_perspective(mygame->projection, FOV, (float)mygame->window->width / (float)mygame->window->height, 0.001f, 1000.f);
 
@@ -71,7 +80,7 @@ int main(int argc, char *argv[])
 
 	lightColor[0] = 0;
 	lightColor[2] = 0;
-	pointLight *point = initPointLight(lightColor, init_cam_position, 2.0f, 2.0f);
+	pointLight *point = initPointLight(lightColor, mygame->camera->eye, 2.0f, 2.0f);
 	setPointLight(point, S); // S is the shader
 
 	level *mainLevel = level_loadMeshes("res/maps/map.bmp", "res/textures/metal.jpg");
@@ -124,7 +133,7 @@ int main(int argc, char *argv[])
 		point->position[2] = mygame->camera->eye[2];
 		setPointLight(point, S);
 
-		camera_move(mygame->camera, mygame->movement, SPEED * frameTime);
+		player_update(mygame->player, mainLevel, frameTime);
 		camera_update(mygame->camera);
 
 		if (show_fps)
@@ -156,6 +165,8 @@ int main(int argc, char *argv[])
 	// TODO: Cleanup function
 	free(mygame->movement);
 	free(mygame->camera);
+	free(mygame->player->hitbox);
+	free(mygame->player);
 	free(S);
 	free(meshList);
 	free(ambient);
