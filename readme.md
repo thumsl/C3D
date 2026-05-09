@@ -20,15 +20,7 @@ C3D is a OpenGL 3D Game Engine, written in C, as a learning exercise.
 
 ### FAQ
 ***
-Q. Do you know that your code is not very pretty?
-
-A. Yes.
-
-Q. How do I use it?
-
-A. Why would you do that?
-
-clone this repository
+#### How to run
 
 `cd C3D`
 
