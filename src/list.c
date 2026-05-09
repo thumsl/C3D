@@ -11,13 +11,13 @@ linkedList *list_create()
 
 void list_insert(linkedList *list, void *data)
 {
-	if (list->head == NULL) { // Change this?
-		list->head = malloc(sizeof(node));
-		list->tail = malloc(sizeof(node));
-		list->head->data = data;
-		list->head->prev = NULL;
-		list->head->next = NULL;
-		list->tail = list->head;
+	if (list->head == NULL) {
+		node *new = malloc(sizeof(node));
+		new->data = data;
+		new->prev = NULL;
+		new->next = NULL;
+		list->head = new;
+		list->tail = new;
 	} else {
 		node *new = malloc(sizeof(node));
 
@@ -29,26 +29,30 @@ void list_insert(linkedList *list, void *data)
 	}
 }
 
-void append_end(); // TODO
-
 node *list_delete_node(linkedList *list, node *N)
 {
 	// Returns the element that was to the right of the removed element
 	if (N == list->head) { // is head
 		list->head = list->head->next;
+		if (list->head == NULL) {
+			list->tail = NULL;
+		} else {
+			list->head->prev = NULL;
+		}
 		free(N);
 		return list->head;
 	} else {
 		if (N == list->tail) {
 			list->tail = N->prev;
+			list->tail->next = NULL;
 			free(N);
 			return NULL;
 		} else {
-			node *aux = N->next;
-			N->data = N->next->data;
-			N->next = N->next->next;
-			free(aux);
-			return N;
+			node *next = N->next;
+			N->prev->next = N->next;
+			N->next->prev = N->prev;
+			free(N);
+			return next;
 		}
 	}
 }
@@ -64,7 +68,5 @@ void list_destroy(linkedList *list)
 		free(prev);
 	}
 
-	free(list->head);
-	free(list->tail);
 	free(list);
 }
