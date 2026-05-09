@@ -100,11 +100,30 @@ void mesh_textureFromFile(mesh *model, const char *texturePath)
 	}
 	free(tmp);
 
-	//glBindVertexArray(model->VAO);
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+	if (c3d_get_texture_quality() == C3D_TEXTURE_QUALITY_HIGH) {
+		// Trilinear filtering between mip levels removes the shimmering
+		// you get when distant texels alias against on-screen pixels.
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		// Anisotropic filtering sharpens textures viewed at grazing angles
+		// (terrain near the horizon, long walls). Cap at 8x — past that the
+		// quality gain is invisible. Skip silently if the extension isn't
+		// present (older drivers/GPUs); the mipmap path alone is still a
+		// big win.
+		if (GLEW_EXT_texture_filter_anisotropic) {
+			GLfloat max_aniso = 0.0f;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_aniso);
+			GLfloat aniso = max_aniso < 8.0f ? max_aniso : 8.0f;
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+		}
+	} else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	}
 
 	SDL_FreeSurface(image);
 }

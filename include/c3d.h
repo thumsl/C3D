@@ -14,6 +14,14 @@
 
 typedef enum { C3D_KEY_RELEASED, C3D_KEY_PRESSED } C3D_Key_State;
 
+// Texture quality. HIGH enables mipmaps + trilinear + anisotropic filtering
+// (when the GL extension is available). LOW preserves the original behavior:
+// no mipmaps, plain GL_LINEAR. The setting is consulted at texture LOAD time;
+// changing it does not affect already-uploaded textures.
+typedef enum { C3D_TEXTURE_QUALITY_LOW, C3D_TEXTURE_QUALITY_HIGH } C3D_TextureQuality;
+void c3d_set_texture_quality(C3D_TextureQuality q);
+C3D_TextureQuality c3d_get_texture_quality(void);
+
 typedef void (*C3D_key_callback)(void *userdata);
 
 typedef struct {

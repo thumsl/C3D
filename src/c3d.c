@@ -3,6 +3,18 @@
 
 static C3D_Key_Event_Callbacks c3d_key_events = { 0 };
 
+static C3D_TextureQuality g_texture_quality = C3D_TEXTURE_QUALITY_HIGH;
+
+void c3d_set_texture_quality(C3D_TextureQuality q)
+{
+	g_texture_quality = q;
+}
+
+C3D_TextureQuality c3d_get_texture_quality(void)
+{
+	return g_texture_quality;
+}
+
 bool initOpenGL()
 {
 	glewExperimental = GL_TRUE;
