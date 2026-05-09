@@ -1,6 +1,7 @@
 #include "../include/player.h"
 #include "../include/camera.h"
 #include "../include/level.h"
+#include "../include/terrain.h"
 #include "../include/utils.h"
 #include <math.h>
 #include <stdlib.h>
@@ -31,6 +32,7 @@ C3D_Player *player_init(vec3 position, float width, float height)
 	P->velocity[2] = 0.0f;
 	P->grounded = false;
 	P->camera = NULL;
+	P->terrain = NULL;
 
 	P->movement.forward = false;
 	P->movement.backward = false;
@@ -117,14 +119,26 @@ void player_update(C3D_Player *P, level *L, double dt)
 		}
 	}
 
-	// Gravity + ground snap. When L is NULL we have no collision world
-	// yet, so skip gravity entirely (matches Phase 1 floating behavior).
-	if (L != NULL) {
+	// Gravity + ground snap. When both L and P->terrain are NULL we have
+	// no collision world, so skip gravity entirely (matches Phase 1
+	// floating behavior).
+	if (L != NULL || P->terrain != NULL) {
 		P->velocity[1] += PLAYER_GRAVITY * dt_s;
 		P->position[1] += P->velocity[1] * dt_s;
 
-		float ground_y = level_groundHeightAt(L, P->position[0], P->position[2],
-						      P->position[1] + PLAYER_STEP_HEIGHT);
+		float max_y = P->position[1] + PLAYER_STEP_HEIGHT;
+		float ground_y = (L != NULL)
+			? level_groundHeightAt(L, P->position[0], P->position[2], max_y)
+			: -INFINITY;
+
+		// Combine with the terrain heightmap when one is attached. The
+		// higher valid candidate wins (terrain on a hilltop, wall on a
+		// platform — whichever is closer to the player's feet).
+		if (P->terrain != NULL) {
+			float th = terrain_heightAt(P->terrain, P->position[0], P->position[2]);
+			if (th != -INFINITY && th <= max_y && th > ground_y)
+				ground_y = th;
+		}
 
 		if (ground_y == -INFINITY) {
 			// No support beneath the player — keep falling.
@@ -154,4 +168,9 @@ void player_jump(C3D_Player *P)
 		P->velocity[1] = PLAYER_JUMP_VEL;
 		P->grounded = false;
 	}
+}
+
+void player_setTerrain(C3D_Player *P, terrain *T)
+{
+	P->terrain = T;
 }

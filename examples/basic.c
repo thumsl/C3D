@@ -4,6 +4,7 @@
 #include "include/level.h"
 #include "include/light.h"
 #include "include/player.h"
+#include "include/terrain.h"
 #include "include/text.h"
 
 #define SPEED 0.05
@@ -66,7 +67,9 @@ int main(int argc, char *argv[])
 
 	// Walking-player setup. Skip these three lines (and call camera_move
 	// instead of player_update below) for a free-flying camera.
-	vec3 init_player_position = { 3.0f, 0.0f, -3.0f };       // feet position
+	// Spawn high enough to clear any diamond-square peak; gravity drops
+	// the player onto the terrain on the first few frames.
+	vec3 init_player_position = { 3.0f, 20.0f, -3.0f };      // feet position
 	mygame->player = player_init(init_player_position, 0.6f, 1.8f); // width, height
 	mygame->camera = camera_init(init_player_position, -0.14f, C3D_PI);
 	player_attachCamera(mygame->player, mygame->camera);     // overrides camera eye to head height
@@ -86,8 +89,12 @@ int main(int argc, char *argv[])
 	setPointLight(point, S); // S is the shader
 
 	level *mainLevel = level_loadMeshes("res/maps/map.bmp", "res/textures/metal.jpg");
-	list_insert(mainLevel->meshList, mesh_genFlatFloor(mainLevel->size,
-							   "res/textures/grass.jpg")); // CHECK FOR ERRORS
+
+	// Generate a diamond-square heightmap as the ground. Size must be 2^n + 1.
+	// The terrain is rendered separately below; the player queries it for
+	// ground height via player_setTerrain.
+	terrain *ground = terrain_genDiamondSquare(65, 5.0f, 1.0f, "res/textures/grass.jpg");
+	player_setTerrain(mygame->player, ground);
 
 	linkedList *meshList = list_create();
 	mesh_loadFromFileToList("res/obj/spot.obj", "res/textures/spot.png", meshList);
@@ -146,7 +153,7 @@ int main(int argc, char *argv[])
 			text_draw(fps_counter_label, textShader, mygame->ortho);
 		text_draw(text_msg, textShader, mygame->ortho);
 
-		// mesh_draw(floor, S, C, projection);
+		mesh_draw(ground->model, S, mygame->camera, mygame->projection);
 		mesh_drawList(mainLevel->meshList, S, mygame->camera, mygame->projection);
 		mesh_drawList(meshList, S, mygame->camera, mygame->projection);
 

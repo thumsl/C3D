@@ -16,6 +16,10 @@ typedef struct camera C3D_Camera;
 // from this header. Only a pointer is needed at the API surface.
 typedef struct level level;
 
+// Forward-declare terrain for the same reason — terrain.h pulls in mesh.h
+// and the GL stack, which the player API doesn't need to expose.
+typedef struct terrain terrain;
+
 typedef struct movement {
 	bool forward;
 	bool backward;
@@ -30,6 +34,7 @@ typedef struct {
 	C3D_Movement movement;
 	boundingBox *hitbox;
 	C3D_Camera *camera;
+	terrain *terrain;
 	float height;
 	float width;
 	bool grounded;
@@ -52,6 +57,12 @@ void player_update(C3D_Player *P, level *L, double dt);
 
 // Apply a jump impulse. No-op unless the player is currently grounded.
 void player_jump(C3D_Player *P);
+
+// Optional: attach a terrain (heightmap) the player should walk on.
+// player_update will sample this terrain at the player's (x, z) and
+// combine the result with level_groundHeightAt — the higher of the two
+// valid candidates wins. Pass NULL to detach.
+void player_setTerrain(C3D_Player *P, terrain *T);
 
 // TODO: destroy Player
 #endif
