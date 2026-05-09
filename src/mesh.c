@@ -70,7 +70,6 @@ void mesh_loadToVAO(mesh *model, GLfloat *vertices, GLuint *indices)
 	glEnableVertexAttribArray(2);
 
 	// INDICES
-	glGenBuffers(1, &(model->IBO));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->indexCount * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
@@ -80,11 +79,21 @@ void mesh_loadToVAO(mesh *model, GLfloat *vertices, GLuint *indices)
 
 void mesh_textureFromFile(mesh *model, const char *texturePath)
 {
-	SDL_Surface *image;
-	image = IMG_Load(texturePath);
+	SDL_Surface *loaded;
+	loaded = IMG_Load(texturePath);
 
-	if (image == NULL) {
+	if (loaded == NULL) {
 		fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
+		return;
+	}
+
+	// IMG_Load may return surfaces in any pixel format (RGB, RGBA, paletted,
+	// etc). Convert to a known RGBA32 layout so the GL upload below can use
+	// a single matching format and read the right number of bytes per pixel.
+	SDL_Surface *image = SDL_ConvertSurfaceFormat(loaded, SDL_PIXELFORMAT_RGBA32, 0);
+	SDL_FreeSurface(loaded);
+	if (image == NULL) {
+		fprintf(stderr, "Failed to convert texture: %s\n", SDL_GetError());
 		return;
 	}
 
@@ -102,7 +111,7 @@ void mesh_textureFromFile(mesh *model, const char *texturePath)
 
 	glBindTexture(GL_TEXTURE_2D, model->textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
 
 	if (c3d_get_texture_quality() == C3D_TEXTURE_QUALITY_HIGH) {
 		// Trilinear filtering between mip levels removes the shimmering
@@ -150,19 +159,20 @@ static void mesh_setData(struct aiMesh *loadedMesh, mesh *model)
 		vertices[i] = loadedMesh->mVertices[j].x;
 		if (loadedMesh->mVertices[j].x < model->hitbox->min[0]) {
 			model->hitbox->min[0] = loadedMesh->mVertices[j].x;
-		} else if (loadedMesh->mVertices[j].x > model->hitbox->max[0])
+		}
+		if (loadedMesh->mVertices[j].x > model->hitbox->max[0])
 			model->hitbox->max[0] = loadedMesh->mVertices[j].x;
 
 		vertices[i + 1] = loadedMesh->mVertices[j].y;
 		if (loadedMesh->mVertices[j].y < model->hitbox->min[1])
 			model->hitbox->min[1] = loadedMesh->mVertices[j].y;
-		else if (loadedMesh->mVertices[j].y > model->hitbox->max[1])
+		if (loadedMesh->mVertices[j].y > model->hitbox->max[1])
 			model->hitbox->max[1] = loadedMesh->mVertices[j].y;
 
 		vertices[i + 2] = loadedMesh->mVertices[j].z;
 		if (loadedMesh->mVertices[j].z < model->hitbox->min[2])
 			model->hitbox->min[2] = loadedMesh->mVertices[j].z;
-		else if (loadedMesh->mVertices[j].z > model->hitbox->max[2])
+		if (loadedMesh->mVertices[j].z > model->hitbox->max[2])
 			model->hitbox->max[2] = loadedMesh->mVertices[j].z;
 	}
 
@@ -221,7 +231,7 @@ static void mesh_setMaterialData(struct aiMaterial *mat, mesh *model, const char
 		}
 		filename[i] = 0;
 
-		mesh_textureFromFile(model, texturePath);
+		mesh_textureFromFile(model, filename);
 	} else
 		return;
 }
@@ -247,6 +257,7 @@ not have permission to open it.\n",
 		list_insert(meshList, model);
 	}
 
+	aiReleaseImport(scene);
 	return true;
 }
 
@@ -267,8 +278,10 @@ not have permission to open it.\n",
 		mesh_setData(scene->mMeshes[i], model);
 		mesh_setMaterialData(scene->mMaterials[0], model, texturePath);
 		mesh_genHitboxMeshData(model);
+		aiReleaseImport(scene);
 		return model;
 	}
+	aiReleaseImport(scene);
 	return NULL;
 }
 
