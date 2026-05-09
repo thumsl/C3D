@@ -20,6 +20,10 @@ typedef struct camera {
 C3D_Camera *camera_init(vec3 pos, float yaw, float pitch);
 void camera_update_angle(C3D_Camera *C);
 
+// Free-fly camera movement: translates the camera directly along its
+// facing/right axes. Use this for spectator cameras, level editors, or
+// menus. For a grounded walking character, use C3D_Player and
+// player_update (see player.h) instead.
 void camera_move(C3D_Camera *C, C3D_Movement *M, double factor);
 void camera_copy(C3D_Camera *a, C3D_Camera *b);
 void camera_update(C3D_Camera *C);

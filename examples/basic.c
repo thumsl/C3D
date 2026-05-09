@@ -64,10 +64,12 @@ int main(int argc, char *argv[])
 	int mouse_x = mygame->window->width / 2, mouse_y = mygame->window->width / 2, pastTime = 0, currentTime = 0, frameTime = 0, frames_passed = 0,
 	    initial_frame = 0;
 
-	vec3 init_player_position = { 3.0f, 0.0f, -3.0f };
-	mygame->player = player_init(init_player_position, 0.6f, 1.8f);
+	// Walking-player setup. Skip these three lines (and call camera_move
+	// instead of player_update below) for a free-flying camera.
+	vec3 init_player_position = { 3.0f, 0.0f, -3.0f };       // feet position
+	mygame->player = player_init(init_player_position, 0.6f, 1.8f); // width, height
 	mygame->camera = camera_init(init_player_position, -0.14f, C3D_PI);
-	player_attachCamera(mygame->player, mygame->camera);
+	player_attachCamera(mygame->player, mygame->camera);     // overrides camera eye to head height
 
 	mat4x4_perspective(mygame->projection, FOV, (float)mygame->window->width / (float)mygame->window->height, 0.001f, 1000.f);
 
@@ -97,6 +99,8 @@ int main(int argc, char *argv[])
 	text *text_msg = text_create("RANDOM TEXT MESSAGE", font, 3, 0.2, 0.95);
 	text *fps_counter_label = text_create("FPS    ", font, 2, 0, 0);
 
+	// Engine writes WASD state here; when a player is attached, the engine
+	// also mirrors this into player->movement automatically.
 	mygame->movement = malloc(sizeof(C3D_Movement));
 	mygame->movement->forward = mygame->movement->backward = mygame->movement->right = mygame->movement->left = false;
 
@@ -133,6 +137,8 @@ int main(int argc, char *argv[])
 		point->position[2] = mygame->camera->eye[2];
 		setPointLight(point, S);
 
+		// player_update applies WASD + gravity + ground snap. Pass NULL
+		// for the level to disable physics (menus, free-cam scenes).
 		player_update(mygame->player, mainLevel, frameTime);
 		camera_update(mygame->camera);
 
